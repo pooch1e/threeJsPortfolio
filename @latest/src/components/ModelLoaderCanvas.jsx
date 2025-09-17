@@ -1,3 +1,9 @@
+import { useRef } from 'react';
 export const ModelLoaderCanvas = () => {
-  return <div></div>;
+  const canvasRef = useRef(null);
+  return (
+    <div>
+      <canvas ref={canvasRef}></canvas>
+    </div>
+  );
 };

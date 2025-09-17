@@ -8,8 +8,7 @@ import GUI from 'lil-gui';
 // Debug
 const gui = new GUI();
 
-// Canvas
-const canvas = document.querySelector('canvas.webgl');
+
 
 // Scene
 const scene = new THREE.Scene();
