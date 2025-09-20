@@ -6,6 +6,7 @@ export class World {
       height: canvas.height,
       width: canvas.width,
     };
+    this.scene;
   }
   init() {
     this.renderer = new THREE.WebGLRenderer({ canvas });
@@ -14,5 +15,9 @@ export class World {
   getSizes() {
     console.log(this.sizes);
     console.log(this.renderer);
+  }
+
+  createScene() {
+    this.scene = new THREE.scene();
   }
 }
