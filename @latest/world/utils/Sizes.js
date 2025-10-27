@@ -1,3 +1,4 @@
+// Assuming window size always fills canvas
 export class Sizes {
   constructor() {
     this.width = window.innerWidth;
@@ -6,5 +7,12 @@ export class Sizes {
       return this.width / this.height;
     };
     this.pixelRation = Math.min((window.devicePixelRatio, 2));
+
+    // Resize event
+    window.addEventListener('resize', () => {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      this.pixelRatio = Math.min(window.devicePixelRatio, 2);
+    });
   }
 }
