@@ -1,11 +1,12 @@
 import './App.css';
-import { ModelLoaderCanvas } from './components/ModelLoaderCanvas';
+import { useRef } from 'react';
 
 function App() {
+  const canvasRef = useRef();
   return (
     <>
-      <div>homepage</div>
-      <ModelLoaderCanvas />
+      <h1>Homepage</h1>
+      <canvas ref={canvasRef.current}></canvas>
     </>
   );
 }
