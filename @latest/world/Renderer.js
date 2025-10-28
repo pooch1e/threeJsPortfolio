@@ -18,4 +18,13 @@ export class Renderer {
 
     this.renderer.setPixelRatio(this.sizes.pixelRatio);
   }
+
+  resize() {
+    this.setSize(this.sizes.width, this.sizes.height);
+    this.setPixelRatio(this.sizes.pixelRatio);
+  }
+
+  update() {
+    this.renderer.render(this.scene, this.camera);
+  }
 }

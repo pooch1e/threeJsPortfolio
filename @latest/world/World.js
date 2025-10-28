@@ -13,7 +13,7 @@ export class World {
     this.scene = new THREE.Scene();
     this.camera = new Camera({
       canvas: this.canvas,
-      aspect: this.sizes.aspect,
+      sizes: this.sizes,
     });
     this.renderer = new Renderer({
       canvas: this.canvas,
@@ -36,10 +36,12 @@ export class World {
   }
 
   resize() {
-    this.camera.resize(this.sizes.width, this.sizes.height);
+    this.camera.resize();
+    this.renderer.resize();
   }
 
   update() {
     this.camera.update();
+    this.renderer.update();
   }
 }
