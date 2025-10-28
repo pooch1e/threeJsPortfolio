@@ -4,6 +4,7 @@ import { Time } from './utils/Time.js';
 import { Camera } from './Camera.js';
 import { Renderer } from './Renderer.js';
 import { WorldView } from './WorldView.js';
+import { Environment } from './Environment.js';
 
 // Controller
 export class World {
@@ -17,7 +18,7 @@ export class World {
       canvas: this.canvas,
       sizes: this.sizes,
     });
-    
+
     this.renderer = new Renderer({
       canvas: this.canvas,
       sizes: this.sizes,
@@ -25,7 +26,9 @@ export class World {
       camera: this.camera,
     });
     // this references --  this context
-    this.worldView = new WorldView(this); 
+    this.worldView = new WorldView(this);
+    
+   
 
     // Resize event
     this.sizes.on('resize', () => {
