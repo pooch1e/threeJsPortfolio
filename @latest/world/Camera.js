@@ -1,4 +1,4 @@
-import { PerspectiveCamera } from 'three/src/Three.Core.js';
+import { PerspectiveCamera } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 export class Camera {
   constructor({ canvas, fov = 75, sizes, near = 0.1, far = 2000 }) {
@@ -11,6 +11,7 @@ export class Camera {
       near,
       far
     );
+    this.perspectiveCamera.position.set(0, 0, 5);
 
     // Orbital Controls
     this.controls = new OrbitControls(this.perspectiveCamera, this.canvas);

@@ -14,17 +14,15 @@ export class Renderer {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setSize(this.sizes.width, this.sizes.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
     this.renderer.setPixelRatio(this.sizes.pixelRatio);
   }
 
   resize() {
-    this.setSize(this.sizes.width, this.sizes.height);
-    this.setPixelRatio(this.sizes.pixelRatio);
+    this.renderer.setSize(this.sizes.width, this.sizes.height);
+    this.renderer.setPixelRatio(this.sizes.pixelRatio);
   }
 
   update() {
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera.perspectiveCamera);
   }
 }

@@ -6,9 +6,6 @@ export class Sizes extends EventEmitter {
     super();
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.aspect = () => {
-      return this.width / this.height;
-    };
     this.pixelRatio = Math.min(window.devicePixelRatio, 2);
 
     // Resize event
@@ -20,5 +17,9 @@ export class Sizes extends EventEmitter {
     });
 
     this.trigger('resize');
+  }
+
+  get aspect() {
+    return this.width / this.height;
   }
 }

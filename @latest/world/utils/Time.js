@@ -22,5 +22,9 @@ export class Time extends EventEmitter {
     this.elapsedTime = this.current - this.start;
 
     this.trigger('tick');
+
+    window.requestAnimationFrame(() => {
+      this.tick();
+    });
   }
 }
