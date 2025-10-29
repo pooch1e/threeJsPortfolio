@@ -11,4 +11,9 @@ export const sources = [
       'textures/environmentMap/nz.jpg',
     ],
   },
+  {
+    name: 'models',
+    type: 'glTF',
+    path: 'models/Fox/glTF/Fox.gltf',
+  },
 ];

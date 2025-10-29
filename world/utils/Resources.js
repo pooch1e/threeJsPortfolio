@@ -33,6 +33,7 @@ export class Resources extends EventEmitter {
 
   startLoading() {
     for (const source of this.sources) {
+      console.log(source);
       if (source.type === 'gltfModel') {
         this.loaders.gltfLoader.load(source.path, (file) => {
           console.log(source, file);
@@ -43,7 +44,7 @@ export class Resources extends EventEmitter {
         });
       } else if (source.type === 'cubeTexture') {
         this.loaders.cubeTextureLoader.load(source.path, (file) => {
-          console.log(source, file);
+          console.log(source.path, file);
         });
       }
     }

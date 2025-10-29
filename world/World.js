@@ -5,7 +5,7 @@ import { Camera } from './Camera.js';
 import { Renderer } from './Renderer.js';
 import { WorldView } from './WorldView.js';
 import { Resources } from './utils/Resources.js';
-import {sources} from './sources/environmentMaps.js'
+import {sources} from './sources/sources.js'
 // Controller
 export class World {
   constructor(canvas) {
