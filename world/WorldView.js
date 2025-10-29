@@ -13,7 +13,7 @@ export class WorldView {
 
     this.resources.on('ready', () => {
       //Environment
-      this.environment = new Environment(this.world);
+      this.environment = new Environment(this);
     });
   }
 

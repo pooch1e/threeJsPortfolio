@@ -3,6 +3,7 @@ export class Environment {
   constructor(worldView) {
     this.world = worldView;
     this.scene = this.world.scene;
+    this.resources = this.world.resources;
 
     //setup
     this.setSunLight();
@@ -17,9 +18,6 @@ export class Environment {
     this.sunLight.shadow.normalBias = 0.05;
     this.sunLight.position.set(3, 3, -2.25);
     this.scene.add(this.sunLight);
-
-    this.ambientLight = new THREE.AmbientLight('white', 1)
-    this.scene.add(this.ambientLight)
   }
   setEnvironmentMap() {
     this.environmentMap = {};
