@@ -1,14 +1,20 @@
 // View for meshes
 import * as THREE from 'three';
 import { Environment } from './Environment';
+import { Resources } from './utils/Resources.js';
+import { sources } from './sources/sources.js';
 export class WorldView {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
     this.setMesh();
 
-    //Environment
-    this.environment = new Environment(this.world);
+    this.resources = new Resources(sources);
+
+    this.resources.on('ready', () => {
+      //Environment
+      this.environment = new Environment(this.world);
+    });
   }
 
   setMesh() {

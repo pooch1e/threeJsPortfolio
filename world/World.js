@@ -4,8 +4,7 @@ import { Time } from './utils/Time.js';
 import { Camera } from './Camera.js';
 import { Renderer } from './Renderer.js';
 import { WorldView } from './WorldView.js';
-import { Resources } from './utils/Resources.js';
-import {sources} from './sources/sources.js'
+
 // Controller
 export class World {
   constructor(canvas) {
@@ -14,7 +13,7 @@ export class World {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new THREE.Scene();
-    this.resources = new Resources(sources)
+    
     this.camera = new Camera({
       canvas: this.canvas,
       sizes: this.sizes,
