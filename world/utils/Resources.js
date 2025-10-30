@@ -33,19 +33,19 @@ export class Resources extends EventEmitter {
 
   startLoading() {
     for (const source of this.sources) {
-      console.log(source);
+      // console.log(source);
       if (source.type === 'gltfModel') {
         this.loaders.gltfLoader.load(source.path, (file) => {
           this.sourceLoaded(source, file)
         });
       } else if (source.type === 'texture') {
         this.loaders.textureLoader.load(source.path, (file) => {
-          console.log(source, file);
+          // console.log(source, file);
           this.sourceLoaded(source, file);
         });
       } else if (source.type === 'cubeTexture') {
         this.loaders.cubeTextureLoader.load(source.path, (file) => {
-          console.log(source.path, file);
+          // console.log(source.path, file);
           this.sourceLoaded(source, file);
         });
       }
