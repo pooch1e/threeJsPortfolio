@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Environment } from './Environment';
 import { Resources } from './utils/Resources.js';
 import { sources } from './sources/sources.js';
+import { Floor } from './Floor.js';
 export class WorldView {
   constructor(world) {
     this.world = world;
@@ -13,6 +14,7 @@ export class WorldView {
 
     this.resources.on('ready', () => {
       //Environment
+      this.floor = new Floor(this);
       this.environment = new Environment(this);
     });
   }

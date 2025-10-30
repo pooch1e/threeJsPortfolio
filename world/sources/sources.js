@@ -19,11 +19,11 @@ export const sources = [
   {
     name: 'grassColorTexture',
     type: 'texture',
-    path: 'textures/dirt/color.jpg',
+    path: '/static/textures/dirt/color.jpg',
   },
   {
     name: 'grassNormalTexture',
     type: 'texture',
-    path: 'textures/dirt/normal.jpg',
+    path: '/static/textures/dirt/normal.jpg',
   },
 ];
