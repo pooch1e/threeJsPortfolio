@@ -10,5 +10,13 @@ export class Fox {
     // Setup
     this.resource = this.world.resources.items.models;
     console.log(this.resource);
+
+    this.setModel()
+  }
+
+  setModel() {
+    this.model = this.resource.scene;
+    this.model.scale.set(0.02, 0.02, 0.02)
+    
   }
 }
