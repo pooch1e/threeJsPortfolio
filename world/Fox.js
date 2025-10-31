@@ -1,3 +1,4 @@
+import { AnimationMixer } from 'three';
 export class Fox {
   constructor(worldView) {
     this.world = worldView;
@@ -16,5 +17,14 @@ export class Fox {
     this.model.position.x = -2.5;
     // model is loaded
     this.scene.add(this.model);
+  }
+
+  setAnimation() {
+    this.animation = {};
+    this.animationMixer = new AnimationMixer(this.model);
+    this.animation.action = this.animation.mixer.clipAction(
+      this.resource.animations[0]
+    );
+    this.animation.action.play();
   }
 }
