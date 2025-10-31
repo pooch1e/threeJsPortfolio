@@ -12,9 +12,14 @@ export const sources = [
     ],
   },
   {
-    name: 'models',
+    name: 'foxModel',
     type: 'gltfModel',
     path: '/static/models/Fox/glTF/Fox.gltf',
+  },
+  {
+    name: 'ratModel',
+    type: 'gltfModel',
+    path: '/static/models/Rat/glTF/street_rat_4k.gltf',
   },
   {
     name: 'grassColorTexture',
@@ -25,5 +30,20 @@ export const sources = [
     name: 'grassNormalTexture',
     type: 'texture',
     path: '/static/textures/dirt/normal.jpg',
+  },
+  {
+    name: 'ratARMTexture',
+    type: 'texture',
+    path: '/static/textures/rat/street_rat_arm_4k.jpg',
+  },
+  {
+    name: 'ratDiffTexture',
+    type: 'texture',
+    path: '/static/textures/rat/street_rat_diff_4k.jpg',
+  },
+  {
+    name: 'ratNormalTexture',
+    type: 'texture',
+    path: '/static/textures/rat/street_rat_nor_gl_4k.jpg',
   },
 ];

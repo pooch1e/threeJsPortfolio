@@ -6,11 +6,11 @@ import { Resources } from './utils/Resources.js';
 import { sources } from './sources/sources.js';
 import { Floor } from './Floor.js';
 import { Fox } from './Fox.js';
+import { Rat } from './Rat.js';
 export class WorldView {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
-    this.setMesh();
 
     this.resources = new Resources(sources);
 
@@ -18,6 +18,7 @@ export class WorldView {
       //Environment
       this.floor = new Floor(this);
       this.fox = new Fox(this);
+      this.rat = new Rat(this);
       this.environment = new Environment(this);
     });
   }
