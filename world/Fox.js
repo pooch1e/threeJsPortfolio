@@ -1,14 +1,17 @@
 import { AnimationMixer } from 'three';
 export class Fox {
   constructor(worldView) {
-    this.world = worldView;
+    this.worldView = worldView;
+    this.world = this.worldView.world;
     this.scene = worldView.scene;
     this.resources = worldView.resources;
 
     // Setup
-    this.resource = this.world.resources.items.foxModel;
+    this.resource = this.worldView.resources.items.foxModel;
+    this.time = this.world.time;
 
     this.setModel();
+    this.setAnimation();
   }
 
   setModel() {
@@ -22,9 +25,15 @@ export class Fox {
   setAnimation() {
     this.animation = {};
     this.animationMixer = new AnimationMixer(this.model);
-    this.animation.action = this.animation.mixer.clipAction(
+    this.animation.action = this.animationMixer.clipAction(
       this.resource.animations[0]
     );
     this.animation.action.play();
+  }
+
+  update() {
+    if (this.animationMixer) {
+      this.animationMixer.update(this.time.deltaTime * 0.001);
+    }
   }
 }

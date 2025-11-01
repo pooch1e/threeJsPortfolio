@@ -49,6 +49,7 @@ export class World {
   update() {
     this.camera.update();
     this.renderer.update();
+    this.worldView.update()
   }
 
   destroy() {

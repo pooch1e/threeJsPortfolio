@@ -32,4 +32,10 @@ export class WorldView {
 
     this.scene.add(testMesh);
   }
+
+  update() {
+    if (this.fox) {
+      this.fox.update();
+    }
+  }
 }
