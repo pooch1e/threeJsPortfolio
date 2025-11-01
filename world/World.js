@@ -4,16 +4,18 @@ import { Time } from './utils/Time.js';
 import { Camera } from './Camera.js';
 import { Renderer } from './Renderer.js';
 import { WorldView } from './WorldView.js';
+import { Debug } from './utils/Debug.js';
 
 // Controller
 export class World {
   constructor(canvas) {
     // SETUP PROPERTIES
     this.canvas = canvas;
+    this.debug = new Debug();
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new THREE.Scene();
-    
+
     this.camera = new Camera({
       canvas: this.canvas,
       sizes: this.sizes,
@@ -27,9 +29,6 @@ export class World {
     });
     // this references --  this context
     this.worldView = new WorldView(this);
-    
-    
-   
 
     // Resize event
     this.sizes.on('resize', () => {
@@ -49,7 +48,7 @@ export class World {
   update() {
     this.camera.update();
     this.renderer.update();
-    this.worldView.update()
+    this.worldView.update();
   }
 
   destroy() {
