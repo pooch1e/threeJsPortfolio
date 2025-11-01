@@ -10,6 +10,9 @@ export class Fox {
     this.debug = this.world.debug;
 
     if (this.debug.active) {
+      if (this.debugFolder) {
+        this.debugFolder.destroy()
+      }
       this.debugFolder = this.debug.ui.addFolder('fox');
     }
 
