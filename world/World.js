@@ -8,10 +8,10 @@ import { Debug } from './utils/Debug.js';
 
 // Controller
 export class World {
-  constructor(canvas) {
+  constructor(canvas, options = {}) {
     // SETUP PROPERTIES
     this.canvas = canvas;
-    this.debug = new Debug();
+    this.debug = new Debug(options.debug);
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new THREE.Scene();

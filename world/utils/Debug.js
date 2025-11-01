@@ -1,10 +1,10 @@
-import {GUI} from 'lil-gui'
+import { GUI } from 'lil-gui';
 export class Debug {
-  constructor() {
-    this.active = window.location.hash === '#debug'
+  constructor(enabled = false) {
+    this.active = enabled;
 
     if (this.active) {
-      this.ui = new GUI()
+      this.ui = new GUI();
     }
   }
 }
