@@ -6,6 +6,13 @@ export class Fox {
     this.scene = worldView.scene;
     this.resources = worldView.resources;
 
+    // DEBUG
+    this.debug = this.world.debug;
+
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('fox');
+    }
+
     // Setup
     this.resource = this.worldView.resources.items.foxModel;
     this.time = this.world.time;
@@ -24,11 +31,52 @@ export class Fox {
 
   setAnimation() {
     this.animation = {};
+    this.animation.play = (name) => {
+      const newAction = this.animation.actions[name];
+      const oldAction = this.animation.actions.current;
+
+      newAction.reset();
+      newAction.play();
+      newAction.crossFadeFrom(oldAction, 1);
+
+      this.animation.actions.current = newAction;
+    };
+
     this.animationMixer = new AnimationMixer(this.model);
-    this.animation.action = this.animationMixer.clipAction(
+
+    this.animation.actions = {};
+
+    this.animation.actions.idle = this.animationMixer.clipAction(
       this.resource.animations[0]
     );
-    this.animation.action.play();
+    this.animation.actions.walking = this.animationMixer.clipAction(
+      this.resource.animations[1]
+    );
+    this.animation.actions.running = this.animationMixer.clipAction(
+      this.resource.animations[2]
+    );
+
+    this.animation.actions.current = this.animation.actions.idle;
+    this.animation.actions.current.play();
+
+    // DEBUG
+    if (this.debug.active) {
+      const debugObject = {
+        playIdle: () => {
+          this.animation.play('idle');
+        },
+        playWalking: () => {
+          this.animation.play('walking');
+        },
+        playRunning: () => {
+          this.animation.play('running');
+        },
+      };
+
+      this.debugFolder.add(debugObject, 'playIdle');
+      this.debugFolder.add(debugObject, 'playWalking');
+      this.debugFolder.add(debugObject, 'playRunning');
+    }
   }
 
   update() {
