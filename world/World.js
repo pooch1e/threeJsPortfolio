@@ -27,7 +27,7 @@ export class World {
       scene: this.scene,
       camera: this.camera,
     });
-    // this references --  this context
+    // this references --  this context -- will extend this to be any worldview 'controller' I need
     this.worldView = new WorldView(this);
 
     // Resize event

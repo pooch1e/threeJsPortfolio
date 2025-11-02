@@ -1,17 +1,15 @@
 import './App.css';
-import { World } from '../world/World';
-import { useSearchParams } from 'react-router-dom';
-import { useWorld } from './hooks/useWorld';
+
+import HomePage from './pages/HomePage';
+import AnimalRenderPage from './pages/AnimalRenderPage';
 
 function App() {
-  const [searchParams] = useSearchParams();
-  const debugMode = searchParams.get('debug') === 'true';
-
-  const { canvasRef } = useWorld(World, { debug: debugMode }, [debugMode]);
   return (
     <>
-      <h1>Homepage</h1>
-      <canvas ref={canvasRef}></canvas>
+      <HomePage>
+        {/* // will be button to go to page / render page */}
+        <AnimalRenderPage />
+      </HomePage>
     </>
   );
 }
