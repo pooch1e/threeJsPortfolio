@@ -12,12 +12,13 @@ function App() {
 
   useEffect(() => {
     if (canvasRef.current && !worldRef.current) {
-      worldRef.current = new World(canvasRef.current, {debug: debugMode});
+      worldRef.current = new World(canvasRef.current, { debug: debugMode });
     }
 
     return () => {
       if (worldRef.current) {
         worldRef.current.destroy();
+
         worldRef.current = null;
       }
     };

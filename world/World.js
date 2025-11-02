@@ -54,5 +54,47 @@ export class World {
   destroy() {
     this.sizes.off('resize');
     this.time.off('tick');
+
+    // Stop animation loop
+    if (this.time.animationId) {
+      cancelAnimationFrame(this.time.animationId);
+    }
+
+    // Destroy worldView and its children
+    if (this.worldView) {
+      this.worldView.destroy?.();
+    }
+
+    // Traverse the whole scene
+    this.scene.traverse((child) => {
+      // Test if it's a mesh
+      if (child instanceof THREE.Mesh) {
+        child.geometry.dispose();
+
+        // Loop through the material properties
+        for (const key in child.material) {
+          const value = child.material[key];
+
+          // Test if there is a dispose function
+          if (value && typeof value.dispose === 'function') {
+            value.dispose();
+          }
+        }
+      }
+    });
+
+    // Dispose controls and renderer
+    if (this.camera?.controls) {
+      this.camera.controls.dispose();
+    }
+
+    if (this.renderer?.instance) {
+      this.renderer.instance.dispose();
+    }
+
+    // Destroy debug UI
+    if (this.debug?.active && this.debug?.ui) {
+      this.debug.ui.destroy();
+    }
   }
 }
