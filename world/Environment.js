@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 export class Environment {
   constructor(worldView) {
-    this.world = worldView;
-    this.scene = this.world.scene;
-    this.resources = this.world.resources;
+    this.worldView = worldView;
+    this.scene = this.worldView.scene;
+    this.resources = this.worldView.resources;
+    this.world = this.worldView.world;
+    this.debug = this.world.debug;
+
+    // Debug
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('environment');
+    }
 
     //setup
     this.setSunLight();
@@ -40,5 +47,15 @@ export class Environment {
       });
     };
     this.environmentMap.updateMaterials();
+
+    if (this.debug.active && this.debugFolder) {
+      this.debugFolder
+        .add(this.environmentMap, 'intensity')
+        .name('envMap Intensity')
+        .min(0)
+        .max(4)
+        .step(0.001)
+        .onChange(this.environmentMap.updateMaterials);
+    }
   }
 }
