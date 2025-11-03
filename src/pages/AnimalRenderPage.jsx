@@ -7,9 +7,8 @@ export default function AnimalRenderPage() {
 
   const { canvasRef } = useWorld(World, { debug: debugMode }, [debugMode]);
   return (
-    <div>
-      return (<canvas ref={canvasRef}></canvas>
-      );
+    <div className="border-2">
+      <canvas ref={canvasRef}></canvas>
     </div>
   );
 }
