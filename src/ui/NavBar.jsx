@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav>
+    <nav className='flex justify-end p-5'>
       <div className="relative inline-block">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -15,21 +16,24 @@ export default function NavBar() {
         {isOpen && (
           <div className="absolute right-0 mt-2 w-56 rounded-md bg-gray-800 ring-1 ring-white/10">
             <div className="py-1">
-              <a
-                href="/animalPage"
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
+              <Link
+                to={'/'}
+                className="block px-4 py-2 text-sm
+                text-gray-300 hover:bg-white/5 hover:text-white">
+                Home
+              </Link>
+              <Link
+                to={'/animalPage'}
+                className="block px-4 py-2 text-sm
+                text-gray-300 hover:bg-white/5 hover:text-white">
                 Animal Page
-              </a>
-              <a
-                href="/pointCloud"
+              </Link>
+              <Link
+                to="/pointCloud"
                 className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
                 PointCloud
-              </a>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
-                Project 3
-              </a>
+              </Link>
+              
             </div>
           </div>
         )}

@@ -1,11 +1,16 @@
-import NavBar from '../ui/NavBar';
+
 export default function HomePage() {
   return (
-    <main>
-      <header className="flex p-4 justify-between align-middle">
-        <h1>Welcome to my portfolio</h1>
-        <NavBar />
-      </header>
-    </main>
+    <>
+      <section>
+        <header className="flex align-middle">
+          <h1>Welcome to my portfolio</h1>
+        </header>
+      </section>
+      <main className="grid grid-cols-2 gap-2 p-4">
+        <div>Project container 1 card</div>
+        <div>Project container 2 card</div>
+      </main>
+    </>
   );
 }
