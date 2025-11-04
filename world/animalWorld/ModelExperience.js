@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import { Sizes } from './utils/Sizes.js';
-import { Time } from './utils/Time.js';
-import { Camera } from './Camera.js';
-import { Renderer } from './Renderer.js';
-import { WorldView } from './WorldView.js';
-import { Debug } from './utils/Debug.js';
+import { Sizes } from '../utils/Sizes.js';
+import { Time } from '../utils/Time.js';
+import { Camera } from '../objects/Camera.js';
+import { Renderer } from '../objects/Renderer.js';
+import { World } from './World.js';
+import { Debug } from '../utils/Debug.js';
 
 // Controller
-export class World {
+export class ModelExperience {
   constructor(canvas, options = {}) {
     // SETUP PROPERTIES
     this.canvas = canvas;
@@ -28,7 +28,7 @@ export class World {
       camera: this.camera,
     });
     // this references --  this context -- will extend this to be any worldview 'controller' I need
-    this.worldView = new WorldView(this);
+    this.world = new World(this);
 
     // Resize event
     this.sizes.on('resize', () => {

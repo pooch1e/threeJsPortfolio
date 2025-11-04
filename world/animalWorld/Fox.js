@@ -1,24 +1,24 @@
 import { AnimationMixer } from 'three';
 export class Fox {
-  constructor(worldView) {
-    this.worldView = worldView;
-    this.world = this.worldView.world;
-    this.scene = worldView.scene;
-    this.resources = worldView.resources;
+  constructor(world) {
+    this.world = world;
+    this.modelExperience = this.world.modelExperience;
+    this.scene = world.scene;
+    this.resources = world.resources;
 
     // DEBUG
-    this.debug = this.world.debug;
+    this.debug = this.world.model.debug;
 
     if (this.debug.active) {
       if (this.debugFolder) {
-        this.debugFolder.destroy()
+        this.debugFolder.destroy();
       }
       this.debugFolder = this.debug.ui.addFolder('fox');
     }
 
     // Setup
-    this.resource = this.worldView.resources.items.foxModel;
-    this.time = this.world.time;
+    this.resource = this.world.resources.items.foxModel;
+    this.time = this.modelExperience.time;
 
     this.setModel();
     this.setAnimation();

@@ -1,16 +1,16 @@
 // View for meshes
 // Where actual objects instantiated
 import * as THREE from 'three';
-import { Environment } from './Environment';
-import { Resources } from './utils/Resources.js';
-import { sources } from './sources/sources.js';
+import { Environment } from './Environment.js';
+import { Resources } from '../utils/Resources.js';
+import { sources } from '../sources/sources.js';
 import { Floor } from './Floor.js';
 import { Fox } from './Fox.js';
 import { Rat } from './Rat.js';
-export class WorldView {
-  constructor(world) {
-    this.world = world;
-    this.scene = this.world.scene;
+export class World {
+  constructor(modelExperience) {
+    this.modelExperience = modelExperience;
+    this.scene = this.modelExperience.scene;
 
     this.resources = new Resources(sources);
 

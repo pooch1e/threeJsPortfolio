@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 export class Floor {
-  constructor(world) {
-    this.world = world;
-    this.scene = this.world.scene;
-    this.resources = this.world.resources;
+  constructor(modelExperience) {
+    this.modelExperience = modelExperience;
+    this.scene = this.modelExperience.scene;
+    this.resources = this.modelExperience.resources;
 
     // SETUP
     this.setGeometry();

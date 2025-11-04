@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 export class Environment {
-  constructor(worldView) {
-    this.worldView = worldView;
-    this.scene = this.worldView.scene;
-    this.resources = this.worldView.resources;
-    this.world = this.worldView.world;
+  constructor(world) {
+    this.world = world;
+    this.scene = this.world.scene;
+    this.resources = this.world.resources;
+    this.world = this.world.world;
     this.debug = this.world.debug;
 
     // Debug

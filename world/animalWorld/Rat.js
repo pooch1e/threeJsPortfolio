@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 export class Rat {
-  constructor(worldView) {
-    this.world = worldView;
-    this.scene = worldView.scene;
-    this.resources = worldView.resources;
+  constructor(world) {
+    this.world = world;
+    this.scene = world.scene;
+    this.resources = world.resources;
 
     // Setup
     this.resource = this.world.resources.items.ratModel;
