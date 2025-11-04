@@ -4,6 +4,7 @@ import { Time } from '../utils/Time.js';
 import { Debug } from '../utils/Debug.js';
 import { Camera } from '../objects/Camera.js';
 import { Renderer } from '../objects/Renderer.js';
+import { World } from './World.js';
 
 // Controller
 export class PointExperience {
@@ -27,7 +28,7 @@ export class PointExperience {
       camera: this.camera,
     });
     // this references --  this context -- will extend this to be any worldview 'controller' I need
-    this.worldView = new WorldView(this);
+    this.world = new World(this);
 
     // Resize event
     this.sizes.on('resize', () => {
@@ -47,7 +48,7 @@ export class PointExperience {
   update() {
     this.camera.update();
     this.renderer.update();
-    this.worldView.update();
+    this.world.update();
   }
 
   destroy() {
@@ -59,9 +60,9 @@ export class PointExperience {
       cancelAnimationFrame(this.time.animationId);
     }
 
-    // Destroy worldView and its children
-    if (this.worldView) {
-      this.worldView.destroy?.();
+    // Destroy world and its children
+    if (this.world) {
+      this.world.destroy?.();
     }
 
     // Traverse the whole scene

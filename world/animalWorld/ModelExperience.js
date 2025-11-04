@@ -61,8 +61,8 @@ export class ModelExperience {
     }
 
     // Destroy worldView and its children
-    if (this.worldView) {
-      this.worldView.destroy?.();
+    if (this.world) {
+      this.world.destroy?.();
     }
 
     // Traverse the whole scene
