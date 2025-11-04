@@ -5,6 +5,7 @@ import { Debug } from '../utils/Debug.js';
 import { Camera } from '../objects/Camera.js';
 import { Renderer } from '../objects/Renderer.js';
 import { World } from './World.js';
+import EventEmitter from '../utils/EventEmitter.js';
 
 // Controller
 export class PointExperience {
@@ -15,6 +16,7 @@ export class PointExperience {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new THREE.Scene();
+    this.resources = new EventEmitter();
 
     this.camera = new Camera({
       canvas: this.canvas,
@@ -48,6 +50,7 @@ export class PointExperience {
   update() {
     this.camera.update();
     this.renderer.update();
+    // commented out until animation added
     this.world.update();
   }
 

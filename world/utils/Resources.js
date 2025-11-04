@@ -8,7 +8,7 @@ export class Resources extends EventEmitter {
 
     // Options
     this.sources = sources;
-    console.log(this.sources);
+   
 
     // !! Need to add Draco config and loader here
 
