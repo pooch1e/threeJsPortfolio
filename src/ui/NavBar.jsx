@@ -16,14 +16,14 @@ export default function NavBar() {
           <div className="absolute right-0 mt-2 w-56 rounded-md bg-gray-800 ring-1 ring-white/10">
             <div className="py-1">
               <a
-                href="#"
+                href="/animalPage"
                 className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
-                Project 1
+                Animal Page
               </a>
               <a
-                href="#"
+                href="/pointCloud"
                 className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
-                Project 2
+                PointCloud
               </a>
               <a
                 href="#"
