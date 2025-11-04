@@ -3,11 +3,13 @@ export class Fox {
   constructor(world) {
     this.world = world;
     this.modelExperience = this.world.modelExperience;
+
     this.scene = world.scene;
     this.resources = world.resources;
 
     // DEBUG
-    this.debug = this.world.model.debug;
+
+    this.debug = this.modelExperience.debug;
 
     if (this.debug.active) {
       if (this.debugFolder) {

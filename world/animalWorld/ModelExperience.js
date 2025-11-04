@@ -48,7 +48,7 @@ export class ModelExperience {
   update() {
     this.camera.update();
     this.renderer.update();
-    this.worldView.update();
+    this.world.update();
   }
 
   destroy() {

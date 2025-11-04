@@ -4,8 +4,8 @@ export class Environment {
     this.world = world;
     this.scene = this.world.scene;
     this.resources = this.world.resources;
-    this.world = this.world.world;
-    this.debug = this.world.debug;
+    this.modelExperience = this.world.modelExperience;
+    this.debug = this.world.modelExperience.debug;
 
     // Debug
     if (this.debug.active) {
