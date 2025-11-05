@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-
+import testVertexShader from '../shaderTestWorld/shaders/vertex.glsl';
+import testFragmentShader from '../shaderTestWorld/shaders/fragmentShader.glsl';
 export class ThreeJsShader {
   constructor(shaderExperience) {
     this.shaderExperience = shaderExperience;
@@ -11,8 +12,8 @@ export class ThreeJsShader {
 
   setShader() {
     const shaderMaterial = new THREE.RawShaderMaterial({
-      vertexShader: ,
-      fragmentShader: ,
+      vertexShader: testVertexShader,
+      fragmentShader: testFragmentShader,
     });
 
     this.scene.add(shaderMaterial);
