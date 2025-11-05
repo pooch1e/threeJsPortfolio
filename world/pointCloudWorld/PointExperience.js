@@ -68,20 +68,37 @@ export class PointExperience {
       this.world.destroy?.();
     }
 
-    // Traverse the whole scene
+    // Traverse the whole scene and cleanup
     this.scene.traverse((child) => {
-      // Test if it's a mesh
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose();
+      // Cleanup geometries for Mesh, Points, and LineSegments
+      if (
+        child instanceof THREE.Mesh ||
+        child instanceof THREE.Points ||
+        child instanceof THREE.LineSegments
+      ) {
+        // Dispose geometry
+        if (child.geometry) {
+          child.geometry.dispose();
+        }
 
-        // Loop through the material properties
-        for (const key in child.material) {
-          const value = child.material[key];
+        // Dispose material(s)
+        if (child.material) {
+          const materials = Array.isArray(child.material)
+            ? child.material
+            : [child.material];
 
-          // Test if there is a dispose function
-          if (value && typeof value.dispose === 'function') {
-            value.dispose();
-          }
+          materials.forEach((material) => {
+            // Loop through material properties
+            for (const key in material) {
+              const value = material[key];
+
+              if (value && typeof value.dispose === 'function') {
+                value.dispose();
+              }
+            }
+
+            material.dispose();
+          });
         }
       }
     });
