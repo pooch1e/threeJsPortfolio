@@ -50,8 +50,8 @@ export class PointExperience {
   update() {
     this.camera.update();
     this.renderer.update();
-    // commented out until animation added
-    this.world.update();
+    // Pass time to world for animations
+    this.world.update(this.time);
   }
 
   destroy() {

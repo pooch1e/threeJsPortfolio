@@ -23,9 +23,9 @@ export class World {
     this.scene.add(this.testMesh);
   }
 
-  update() {
+  update(time) {
     if (this.point) {
-      this.point.update();
+      this.point.update(time);
     }
   }
 }

@@ -5,6 +5,7 @@ export class Point {
     this.world = world;
     this.scene = world.scene;
     this.debug = world.pointExperience.debug;
+    this.time = this.world.pointExperience.time;
 
     // Parameters for points and lines
     this.params = {
@@ -73,11 +74,9 @@ export class Point {
       color: this.params.color,
     });
 
-    // Create points and add to scene
     this.points = new THREE.Points(this.geometry, this.material);
     this.scene.add(this.points);
 
-    // Create lines connecting points
     this.setLines(positions);
   }
 
@@ -90,8 +89,6 @@ export class Point {
 
     // Loop through each point
     for (let i = 0; i < this.params.count; i++) {
-      // Calculate the starting index for this point's coordinates in the positions array
-      // Each point has 3 values (x, y, z), so multiply by 3
       const i3 = i * 3;
 
       // For each point, create N random connections to other points
@@ -123,15 +120,14 @@ export class Point {
     // Create material for the lines
     const lineMaterial = new THREE.LineBasicMaterial({
       color: this.params.lineColor,
-      transparent: true, // Enable transparency
-      opacity: this.params.lineOpacity, // Set opacity level
+      transparent: true,
+      opacity: this.params.lineOpacity,
     });
 
     // LineSegments draws individual disconnected line segments
-    // (as opposed to LineLoop or Line which connect all points)
+
     this.lines = new THREE.LineSegments(lineGeometry, lineMaterial);
 
-    // Add lines to the scene
     this.scene.add(this.lines);
   }
 
@@ -273,8 +269,8 @@ export class Point {
     }
   }
 
-  update() {
-    // animate lines to connect randomly
+  update(time) {
+    // Animate lines to connect randomly
     if (this.lines && Math.random() < this.params.chanceToConnect) {
       const positions = this.lines.geometry.attributes.position.array;
       const pointPositions = this.points.geometry.attributes.position.array;
@@ -287,6 +283,27 @@ export class Point {
       positions[lineIndex + 5] = pointPositions[randomPoint + 2];
 
       this.lines.geometry.attributes.position.needsUpdate = true;
+    }
+
+    if (this.points && time) {
+      const positions = this.points.geometry.attributes.position.array;
+      const t = time.elapsedTime * 0.001; // Convert ms to seconds
+
+      // Store original positions once
+      if (!this.originalPositions) {
+        this.originalPositions = new Float32Array(positions);
+      }
+
+      // Animate each point
+      for (let i = 0; i < this.params.count; i++) {
+        const i3 = i * 3;
+
+        // Oscillate Y position around original
+        positions[i3 + 1] =
+          this.originalPositions[i3 + 1] + Math.sin(t + i * 0.1) * 0.5;
+      }
+
+      this.points.geometry.attributes.position.needsUpdate = true;
     }
   }
 }
