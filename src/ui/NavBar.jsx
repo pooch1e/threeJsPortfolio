@@ -33,6 +33,11 @@ export default function NavBar() {
                 className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
                 PointCloud
               </Link>
+              <Link
+                to="/shaders"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
+                Shaders
+              </Link>
               
             </div>
           </div>

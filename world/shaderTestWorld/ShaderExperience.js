@@ -11,6 +11,7 @@ import EventEmitter from '../utils/EventEmitter.js';
 export class ShaderExperience {
   constructor(canvas, options = {}) {
     // SETUP PROPERTIES
+    console.log('setting up shader experience');
     this.canvas = canvas;
     this.debug = new Debug(options.debug);
     this.sizes = new Sizes();
