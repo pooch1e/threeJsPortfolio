@@ -1,20 +1,19 @@
-precision mediump float;
-uniform mat4 projectionMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 modelMatrix;
+uniform vec2 uFrequency;
+uniform float uTime;
 
-in vec3 position;
-in float aRandom;
-out float vRandom;
+attribute float aRandom;
+varying float vRandom;
+varying vec2 vUv;
+
 
 void main()
 {
-    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-    // modelPosition.z += sin(modelPosition.x * 20.5) * 0.1;
-    // modelPosition.z += aRandom * 0.1;
-    vRandom = aRandom;
-    vec4 viewPosition = viewMatrix * modelPosition;
-    vec4 projectedPosition = projectionMatrix * viewPosition;
+    vec4 modelPosition = vec4(position, 1.0);
+    modelPosition.z += sin(modelPosition.x * uFrequency.x + uTime) * 0.1;
+    modelPosition.z += sin(modelPosition.y * uFrequency.y + uTime) * 0.1;
     
-    gl_Position = projectedPosition;
+    vRandom = aRandom;
+    vUv = uv;
+    
+    gl_Position = projectionMatrix * modelViewMatrix * modelPosition;
 }

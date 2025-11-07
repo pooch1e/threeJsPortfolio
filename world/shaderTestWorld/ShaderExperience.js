@@ -52,7 +52,7 @@ export class ShaderExperience {
     this.camera.update();
     this.renderer.update();
     // Pass time to world for animations
-    // this.world.update(this.time);
+    this.world.update(this.time);
   }
 
   destroy() {
