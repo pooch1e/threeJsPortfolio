@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import waterVertexShader from './shaders/water/vertex.glsl';
 import waterFragmentShader from './shaders/water/fragment.glsl';
 
-export class Waves {
+export default class Waves {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;

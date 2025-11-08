@@ -19,9 +19,26 @@ export class World {
     }
 
     // load new shader
-    const shaderModule = await shaderPractices[key]();
-    const ShaderClass = shaderModule.BasicShader || shaderModule.default;
-    this.shader = new ShaderClass(this);
+    try {
+      const shaderModule = await shaderPractices[key]();
+      const ShaderClass = shaderModule.default;
+      this.shader = new ShaderClass(this);
+    } catch (err) {
+      console.error(`Failed to load ${key}, falling back to basicShader:`, err);
+
+      if (key === 'basicShader') {
+        console.error('basicShader failed to load, cannot recover');
+        return;
+      }
+
+      try {
+        const shaderModule = await shaderPractices['basicShader']();
+        const ShaderClass = shaderModule.default;
+        this.shader = new ShaderClass(this);
+      } catch (fallbackErr) {
+        console.error('Fallback to basicShader also failed:', fallbackErr);
+      }
+    }
   }
 
   update(time) {
