@@ -5,7 +5,7 @@ export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className='flex justify-end p-5'>
+    <nav className="flex justify-end p-5 font-karrik bg-[#798086]">
       <div className="relative inline-block">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -38,7 +38,6 @@ export default function NavBar() {
                 className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">
                 Shaders
               </Link>
-              
             </div>
           </div>
         )}
