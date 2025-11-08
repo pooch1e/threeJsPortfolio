@@ -1,5 +1,7 @@
 varying float vRandom;
 varying vec2 vUv;
+uniform float uAlpha;
+uniform float uMix;
 
 
 //	Classic Perlin 2D Noise 
@@ -52,6 +54,11 @@ float cnoise(vec2 P)
 
 void main()
 {
-  float strength = cnoise(vUv * 20.0);
-    gl_FragColor = vec4(vec3(strength), 1.0);
+    // pattern 50
+    float strength = step(0.9, sin(cnoise(vUv * 10.0) * 20.0));
+    // strength = clamp(0.0, 1.0);
+    vec3 black = vec3(0.0);
+    vec3 color = vec3(vUv, uMix);
+    vec3 colorMix = mix(black, color, strength);
+    gl_FragColor = vec4(colorMix, uAlpha);
 }

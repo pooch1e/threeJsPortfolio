@@ -1,3 +1,4 @@
+https://threejs-journey.com/lessons/shader-patterns#pattern-46
 # Pattern 1
 ```glsl
 // Fragment.glsl

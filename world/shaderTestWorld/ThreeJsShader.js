@@ -17,9 +17,12 @@ export class ThreeJsShader {
     this.shaderMaterial = new THREE.ShaderMaterial({
       vertexShader: testVertexShader,
       fragmentShader: testFragmentShader,
+      transparent: true,
       uniforms: {
         uFrequency: { value: new THREE.Vector2(10, 5) },
         uTime: { value: 0 },
+        uAlpha: { value: 1.0 },
+        uMix: { value: 1.0 },
       },
     });
 
@@ -56,6 +59,18 @@ export class ThreeJsShader {
         .max(20)
         .step(0.01)
         .name('frequencyY');
+      this.debugFolder
+        .add(this.shaderMaterial.uniforms.uAlpha, 'value')
+        .min(0)
+        .max(1.0)
+        .step(0.01)
+        .name('Alpha');
+      this.debugFolder
+        .add(this.shaderMaterial.uniforms.uMix, 'value')
+        .min(0)
+        .max(1.0)
+        .step(0.001)
+        .name('Mix');
     }
   }
 
