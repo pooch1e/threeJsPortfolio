@@ -18,7 +18,11 @@ export default class Waves {
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
     });
+
     this.mesh = new THREE.Mesh(this.geometry, this.shaderMaterial);
+
+    this.mesh.rotation.x = -Math.PI * 0.5;
+    console.log(this.mesh.rotation.z);
     this.scene.add(this.mesh);
   }
 
