@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import basicVertex from './shaders/basic/basicVertex.glsl';
 import basicFragment from './shaders/basic/basicFragment.glsl';
-export class ThreeJsShader {
+export class BasicShader {
   constructor(world) {
     this.world = world;
 
