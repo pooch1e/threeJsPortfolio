@@ -5,12 +5,12 @@ import AnimalRenderPage from './pages/AnimalRenderPage';
 import PointCloudPage from './pages/PointCloudPage';
 import ShaderPage from './pages/ShaderPage';
 import { Routes, Route } from 'react-router-dom';
-import NavBar from './ui/NavBar';
+import Header from './ui/Header';
 
 function App() {
   return (
     <>
-      <NavBar />
+      <Header />
       <Routes>
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/pointCloud" element={<PointCloudPage />}></Route>
