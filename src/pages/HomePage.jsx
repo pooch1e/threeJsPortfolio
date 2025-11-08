@@ -9,9 +9,11 @@ export default function HomePage() {
           <hr></hr>
         </header>
       </section>
-      <main className="grid grid-cols-2 gap-2 p-4">
-        <ProjectCard />
-        <div>Project container 2 card</div>
+      <main className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 max-w-6xl mx-auto">
+        <section className="flex flex-col">
+          <ProjectCard />
+          <div>Project container 2 card</div>
+        </section>
       </main>
     </>
   );
