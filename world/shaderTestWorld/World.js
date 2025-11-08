@@ -11,18 +11,21 @@ export class World {
   }
 
   async loadPractice(key) {
-    if (this.shader) {
-      this.scene.remove(this.shader.mesh);
-      this.shader.geometry?.dispose();
-      this.shader.shaderMaterial?.dispose();
-      this.shader = null;
-    }
+    // Store reference to old shader
+    const oldShader = this.shader;
 
     // load new shader
     try {
       const shaderModule = await shaderPractices[key]();
       const ShaderClass = shaderModule.default;
       this.shader = new ShaderClass(this);
+
+      // Clean up old shader AFTER new one is created
+      if (oldShader) {
+        this.scene.remove(oldShader.mesh);
+        oldShader.geometry?.dispose();
+        oldShader.shaderMaterial?.dispose();
+      }
     } catch (err) {
       console.error(`Failed to load ${key}, falling back to basicShader:`, err);
 
@@ -35,6 +38,13 @@ export class World {
         const shaderModule = await shaderPractices['basicShader']();
         const ShaderClass = shaderModule.default;
         this.shader = new ShaderClass(this);
+        
+     
+        if (oldShader) {
+          this.scene.remove(oldShader.mesh);
+          oldShader.geometry?.dispose();
+          oldShader.shaderMaterial?.dispose();
+        }
       } catch (fallbackErr) {
         console.error('Fallback to basicShader also failed:', fallbackErr);
       }

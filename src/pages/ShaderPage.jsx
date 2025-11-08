@@ -4,7 +4,7 @@ import { ShaderExperience } from '../../world/shaderTestWorld/ShaderExperience';
 import ShaderSwitchListButton from '../components/ShaderSwitchListButton';
 import { useState, useEffect } from 'react';
 export default function AnimalRenderPage() {
-  const [shaderChoice, setShaderChoice] = useState('basicShader');
+  const [shaderChoice, setShaderChoice] = useState(null);
   const [searchParams] = useSearchParams();
   const debugMode = searchParams.get('debug') === 'true';
 
@@ -15,10 +15,10 @@ export default function AnimalRenderPage() {
   );
 
   useEffect(() => {
-    if (worldRef.current?.world) {
+    if (shaderChoice && worldRef.current?.world) {
       worldRef.current.world.loadPractice(shaderChoice);
     }
-  }, [shaderChoice, worldRef]);
+  }, [shaderChoice]);
 
   return (
     <div className="border-2">

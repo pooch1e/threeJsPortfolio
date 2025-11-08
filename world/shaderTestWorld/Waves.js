@@ -14,10 +14,12 @@ export default class Waves {
 
   setShader() {
     this.geometry = new THREE.PlaneGeometry(1, 1, 128, 128);
-    this.material = new THREE.ShaderMaterial({
+    this.shaderMaterial = new THREE.ShaderMaterial({
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
     });
+    this.mesh = new THREE.Mesh(this.geometry, this.shaderMaterial);
+    this.scene.add(this.mesh);
   }
 
   setDebug() {
@@ -29,7 +31,7 @@ export default class Waves {
   update(time) {
     if (time) {
       //scale down speed by * by 0.00
-      this.shaderMaterial.uniforms.uTime.value = time.elapsedTime * 0.002;
+      // this.shaderMaterial.uniforms.uTime.value = time.elapsedTime * 0.002;
     }
   }
 }
