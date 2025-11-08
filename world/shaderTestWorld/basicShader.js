@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import testVertexShader from './shaders/vertex.glsl';
-import testFragmentShader from './shaders/fragment.glsl';
+import basicVertex from './shaders/basic/basicVertex.glsl';
+import basicFragment from './shaders/basic/basicFragment.glsl';
 export class ThreeJsShader {
   constructor(world) {
     this.world = world;
@@ -15,8 +15,8 @@ export class ThreeJsShader {
   setShader() {
     this.geometry = new THREE.PlaneGeometry(1, 1, 50, 50);
     this.shaderMaterial = new THREE.ShaderMaterial({
-      vertexShader: testVertexShader,
-      fragmentShader: testFragmentShader,
+      vertexShader: basicVertex,
+      fragmentShader: basicFragment,
       transparent: true,
       uniforms: {
         uFrequency: { value: new THREE.Vector2(10, 5) },

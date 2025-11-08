@@ -1,3 +1,3 @@
-const shaderPractices = [
-  {}
-]
+export const shaderPractices = {
+  basicShader: () => import('./basicShader'),
+};
