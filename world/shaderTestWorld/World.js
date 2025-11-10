@@ -38,8 +38,7 @@ export class World {
         const shaderModule = await shaderPractices['basicShader']();
         const ShaderClass = shaderModule.default;
         this.shader = new ShaderClass(this);
-        
-     
+
         if (oldShader) {
           this.scene.remove(oldShader.mesh);
           oldShader.geometry?.dispose();
