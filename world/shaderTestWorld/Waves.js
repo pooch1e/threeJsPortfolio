@@ -20,7 +20,7 @@ export default class Waves {
   }
 
   setShader() {
-    this.geometry = new THREE.PlaneGeometry(1, 1, 128, 128);
+    this.geometry = new THREE.PlaneGeometry(2, 2, 512, 512);
     this.shaderMaterial = new THREE.ShaderMaterial({
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
@@ -35,6 +35,7 @@ export default class Waves {
         },
         uColorOffset: { value: 0.25 },
         uColorMultiplier: { value: 2 },
+        
       },
     });
 
