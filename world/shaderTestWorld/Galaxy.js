@@ -15,8 +15,8 @@ export default class Galaxy {
       spin: 1,
       randomness: 0.5,
       randomnessPower: 3,
-      insideColour: '#ff6030',
-      outsideColour: '#1b3984',
+      insideColor: '#ff6030',
+      outsideColor: '#1b3984',
     };
 
     this.setShader();
@@ -24,9 +24,16 @@ export default class Galaxy {
   }
 
   setShader() {
+    // Clean up old geometry/material/points
+    if (this.points) {
+      this.geometry.dispose();
+      this.material.dispose();
+      this.scene.remove(this.points);
+    }
+
     this.geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
-    this.colours = new Float32Array(this.params.count * 3);
+    this.colors = new Float32Array(this.params.count * 3);
 
     this.insideColor = new THREE.Color(this.params.insideColor);
     this.outsideColor = new THREE.Color(this.params.outsideColor);
@@ -80,7 +87,7 @@ export default class Galaxy {
      * Material
      */
     this.material = new THREE.PointsMaterial({
-      size: this.parameters.size,
+      size: this.params.size,
       sizeAttenuation: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -96,44 +103,60 @@ export default class Galaxy {
 
   setDebug() {
     if (this.debug.active) {
-      this.debug.ui.addFolder('Galaxy UI');
+      this.debugFolder = this.debug.ui.addFolder('Galaxy UI');
 
       this.debugFolder
         .add(this.params, 'count')
         .min(100)
         .max(1000000)
         .step(100)
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .add(this.params, 'radius')
         .min(0.01)
         .max(20)
         .step(0.01)
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .add(this.params, 'branches')
         .min(2)
         .max(20)
         .step(1)
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .add(this.params, 'randomness')
         .min(0)
         .max(2)
         .step(0.001)
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .add(this.params, 'randomnessPower')
         .min(1)
         .max(10)
         .step(0.001)
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .addColor(this.params, 'insideColor')
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
       this.debugFolder
         .addColor(this.params, 'outsideColor')
-        .onFinishChange(this.setShader);
+        .onFinishChange(() => this.setShader());
+    }
+  }
+
+  update() {
+    // console.log('updating');
+  }
+
+  destroy() {
+    // as shader using points, need custom destroy method
+    if (this.points) {
+      this.geometry.dispose();
+      this.material.dispose();
+      this.scene.remove(this.points);
+    }
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
     }
   }
 }

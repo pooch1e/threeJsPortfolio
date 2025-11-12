@@ -22,9 +22,13 @@ export class World {
 
       // Clean up old shader AFTER new one is created
       if (oldShader) {
-        this.scene.remove(oldShader.mesh);
-        oldShader.geometry?.dispose();
-        oldShader.shaderMaterial?.dispose();
+        if (typeof oldShader.destroy === 'function') {
+          oldShader.destroy();
+        } else {
+          this.scene.remove(oldShader.mesh);
+          oldShader.geometry?.dispose();
+          oldShader.shaderMaterial?.dispose();
+        }
       }
     } catch (err) {
       console.error(`Failed to load ${key}, falling back to basicShader:`, err);
@@ -40,9 +44,13 @@ export class World {
         this.shader = new ShaderClass(this);
 
         if (oldShader) {
-          this.scene.remove(oldShader.mesh);
-          oldShader.geometry?.dispose();
-          oldShader.shaderMaterial?.dispose();
+          if (typeof oldShader.destroy === 'function') {
+            oldShader.destroy();
+          } else {
+            this.scene.remove(oldShader.mesh);
+            oldShader.geometry?.dispose();
+            oldShader.shaderMaterial?.dispose();
+          }
         }
       } catch (fallbackErr) {
         console.error('Fallback to basicShader also failed:', fallbackErr);
@@ -58,9 +66,13 @@ export class World {
 
   destroy() {
     if (this.shader) {
-      this.scene.remove(this.shader.mesh);
-      this.shader.geometry?.dispose();
-      this.shader.shaderMaterial?.dispose();
+      if (typeof this.shader.destroy === 'function') {
+        this.shader.destroy();
+      } else {
+        this.scene.remove(this.shader.mesh);
+        this.shader.geometry?.dispose();
+        this.shader.shaderMaterial?.dispose();
+      }
       this.shader = null;
     }
   }

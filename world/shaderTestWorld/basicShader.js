@@ -80,4 +80,15 @@ export default class BasicShader {
       this.shaderMaterial.uniforms.uTime.value = time.elapsedTime * 0.002;
     }
   }
+
+  destroy() {
+    if (this.mesh) {
+      this.scene.remove(this.mesh);
+      this.geometry?.dispose();
+      this.shaderMaterial?.dispose();
+    }
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
+    }
+  }
 }
