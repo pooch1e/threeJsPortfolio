@@ -6,6 +6,7 @@ export default class Galaxy {
     this.world = world;
     this.scene = world.scene;
     this.debug = this.world.shaderExperience.debug;
+    this.renderer = this.world.shaderExperience.renderer;
 
     // params for galaxy debug ui
 
@@ -36,6 +37,9 @@ export default class Galaxy {
     this.geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
     this.colors = new Float32Array(this.params.count * 3);
+
+    // scale * count by 1 as need float value - not vec3
+    this.scales = new Float32Array(this.params.count * 1);
 
     this.insideColor = new THREE.Color(this.params.insideColor);
     this.outsideColor = new THREE.Color(this.params.outsideColor);
@@ -75,6 +79,9 @@ export default class Galaxy {
       this.colors[i3] = mixedColor.r;
       this.colors[i3 + 1] = mixedColor.g;
       this.colors[i3 + 2] = mixedColor.b;
+
+      // Scale
+      this.scales[i] = Math.random();
     }
 
     this.geometry.setAttribute(
@@ -84,6 +91,10 @@ export default class Galaxy {
     this.geometry.setAttribute(
       'color',
       new THREE.BufferAttribute(this.colors, 3)
+    );
+    this.geometry.setAttribute(
+      'aScales',
+      new THREE.BufferAttribute(this.scales, 1)
     );
     /**
      * Material
@@ -95,7 +106,7 @@ export default class Galaxy {
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        uSize: { value: 8 },
+        uSize: { value: 8 * this.renderer.renderer.getPixelRatio() },
       },
     });
 
