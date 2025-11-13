@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import galaxyVertex from './shaders/galaxy/vertex.glsl';
+import galaxyFragment from './shaders/galaxy/fragment.glsl';
 export default class Galaxy {
   constructor(world) {
     this.world = world;
@@ -8,7 +10,7 @@ export default class Galaxy {
     // params for galaxy debug ui
 
     this.params = {
-      count: 200000,
+      count: 5000,
       size: 0.005,
       radius: 5,
       branches: 3,
@@ -86,12 +88,15 @@ export default class Galaxy {
     /**
      * Material
      */
-    this.material = new THREE.PointsMaterial({
-      size: this.params.size,
-      sizeAttenuation: true,
+    this.material = new THREE.ShaderMaterial({
+      vertexShader: galaxyVertex,
+      fragmentShader: galaxyFragment,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       vertexColors: true,
+      uniforms: {
+        uSize: { value: 8 },
+      },
     });
 
     /**
