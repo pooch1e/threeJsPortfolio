@@ -12,7 +12,7 @@ export default class Galaxy {
 
     this.params = {
       count: 5000,
-      size: 0.005,
+      size: 30,
       radius: 5,
       branches: 3,
       spin: 1,
@@ -106,7 +106,7 @@ export default class Galaxy {
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        uSize: { value: 8 * this.renderer.renderer.getPixelRatio() },
+        uSize: { value: this.params.size * this.renderer.renderer.getPixelRatio() },
       },
     });
 
@@ -126,6 +126,12 @@ export default class Galaxy {
         .min(100)
         .max(1000000)
         .step(100)
+        .onFinishChange(() => this.setShader());
+      this.debugFolder
+        .add(this.params, 'size')
+        .min(1)
+        .max(100)
+        .step(0.1)
         .onFinishChange(() => this.setShader());
       this.debugFolder
         .add(this.params, 'radius')
