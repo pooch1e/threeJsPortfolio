@@ -106,7 +106,7 @@ export default class Galaxy {
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        uSize: { value: this.params.size * this.renderer.renderer.getPixelRatio() },
+        uSize: { value: 30 * this.renderer.renderer.getPixelRatio() },
       },
     });
 
