@@ -1,6 +1,7 @@
 uniform float uSize;
 attribute float aScales;
 varying vec3 vColor;
+uniform float uTime;
 
 
 void main() {

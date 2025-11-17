@@ -96,6 +96,7 @@ export default class Galaxy {
       'aScales',
       new THREE.BufferAttribute(this.scales, 1)
     );
+
     /**
      * Material
      */
@@ -107,6 +108,7 @@ export default class Galaxy {
       vertexColors: true,
       uniforms: {
         uSize: { value: 30 * this.renderer.renderer.getPixelRatio() },
+        uTime: { value: 0 },
       },
     });
 
@@ -166,8 +168,11 @@ export default class Galaxy {
     }
   }
 
-  update() {
+  update(time) {
     // console.log('updating');
+    if (time) {
+      this.material.uniforms.uTime.value = time.elapsedTime * 0.002;
+    }
   }
 
   destroy() {
