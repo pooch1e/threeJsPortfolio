@@ -37,6 +37,7 @@ export default class Galaxy {
     this.geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
     this.colors = new Float32Array(this.params.count * 3);
+    this.randomness = new Float32Array(this.params.count * 3);
 
     // scale * count by 1 as need float value - not vec3
     this.scales = new Float32Array(this.params.count * 1);
@@ -68,9 +69,14 @@ export default class Galaxy {
         this.params.randomness *
         radius;
 
-      this.positions[i3] = Math.cos(branchAngle) * radius + randomX;
-      this.positions[i3 + 1] = randomY;
-      this.positions[i3 + 2] = Math.sin(branchAngle) * radius + randomZ;
+      this.positions[i3] = Math.cos(branchAngle) * radius;
+      this.positions[i3 + 1] = 0;
+      this.positions[i3 + 2] = Math.sin(branchAngle) * radius;
+
+      // Store randomness in separate attribute for shader animation
+      this.randomness[i3] = randomX;
+      this.randomness[i3 + 1] = randomY;
+      this.randomness[i3 + 2] = randomZ;
 
       // Color
       const mixedColor = this.insideColor.clone();
@@ -95,6 +101,10 @@ export default class Galaxy {
     this.geometry.setAttribute(
       'aScales',
       new THREE.BufferAttribute(this.scales, 1)
+    );
+    this.geometry.setAttribute(
+      'aRandomness',
+      new THREE.BufferAttribute(this.randomness, 3)
     );
 
     /**
