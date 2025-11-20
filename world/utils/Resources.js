@@ -75,7 +75,6 @@ export class Resources extends EventEmitter {
   sourceLoaded(source, file) {
     this.items[source.name] = file;
     this.loaded++;
-    console.log(`Loaded ${this.loaded}/${this.toLoad}: ${source.name}`);
 
     if (this.loaded === this.toLoad) {
       console.log('All resources loaded!');
