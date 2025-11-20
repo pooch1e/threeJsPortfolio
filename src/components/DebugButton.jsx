@@ -3,14 +3,21 @@ import { useState } from 'react';
 export default function DebugButton() {
   const [isClicked, setIsClicked] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  // if button clicked add debug to search params
 
   const handleButtonClick = (e) => {
     setIsClicked(e);
-    setSearchParams('?debug=true');
+    if (isClicked) {
+      setSearchParams('?debug=true');
+    } else {
+      setSearchParams('');
+    }
   };
 
   return (
-    <button onClick={() => handleButtonClick(!isClicked)}>Debug Mode</button>
+    <button
+      className="rounded-md transition-colors ease-linear hover:bg-cyan-300 p-2"
+      onClick={() => handleButtonClick(!isClicked)}>
+      Debug Mode
+    </button>
   );
 }

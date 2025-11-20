@@ -1,10 +1,16 @@
 import { shaderPractices } from './shaderConfig';
+import { Environment } from './environment';
+import { Resources } from '../utils/Resources.js';
+import { sources } from '../sources/sources.js';
 
 export class World {
   constructor(shaderExperience) {
     this.shaderExperience = shaderExperience;
     this.scene = this.shaderExperience.scene;
     this.shader = null;
+
+    this.resources = new Resources(sources);
+    this.environment = new Environment(this);
 
     //default
     this.loadPractice('basicShader');

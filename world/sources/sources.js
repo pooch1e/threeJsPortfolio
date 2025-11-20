@@ -17,6 +17,11 @@ export const sources = [
     path: '/static/models/Fox/glTF/Fox.gltf',
   },
   {
+    name: 'leePerryModel',
+    type: 'gltfModel',
+    path: '/static/models/LeePerrySmith/LeePerrySmith.glb',
+  },
+  {
     name: 'ratModel',
     type: 'gltfModel',
     path: '/static/models/Rat/glTF/street_rat_4k.gltf',

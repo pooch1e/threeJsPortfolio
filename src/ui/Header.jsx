@@ -9,8 +9,8 @@ export default function Header() {
             Home
           </h1>
         </Link>
+        <h2 className='text-center'>A selection of ThreeJs experiments</h2>
         <DebugButton />
-        <h2>A selection of ThreeJs experiments</h2>
         <hr></hr>
       </header>
     </section>
