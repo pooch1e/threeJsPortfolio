@@ -1,5 +1,5 @@
 import { shaderPractices } from './shaderConfig';
-import { Environment } from './environment';
+import { Environment } from './Environment.js';
 import { Resources } from '../utils/Resources.js';
 import { sources } from '../sources/sources.js';
 
@@ -10,10 +10,12 @@ export class World {
     this.shader = null;
 
     this.resources = new Resources(sources);
-    this.environment = new Environment(this);
 
-    //default
-    this.loadPractice('basicShader');
+    this.resources.on('ready', () => {
+      this.environment = new Environment(this);
+      //default
+      this.loadPractice('basicShader');
+    });
   }
 
   async loadPractice(key) {

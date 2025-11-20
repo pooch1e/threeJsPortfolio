@@ -33,6 +33,11 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
             onClick={() => handleButtonClick('galaxyShader')}>
             Galaxy
           </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('leePerryShader')}>
+            Lee Perry
+          </li>
         </ul>
       )}
     </div>

@@ -8,7 +8,6 @@ export class Resources extends EventEmitter {
 
     // Options
     this.sources = sources;
-   
 
     // !! Need to add Draco config and loader here
 
@@ -33,31 +32,54 @@ export class Resources extends EventEmitter {
 
   startLoading() {
     for (const source of this.sources) {
-      // console.log(source);
       if (source.type === 'gltfModel') {
-        this.loaders.gltfLoader.load(source.path, (file) => {
-          this.sourceLoaded(source, file)
-        });
+        this.loaders.gltfLoader.load(
+          source.path,
+          (file) => {
+            this.sourceLoaded(source, file);
+          },
+          undefined,
+          (error) => {
+            console.error(`Error loading ${source.name}:`, error);
+            this.sourceLoaded(source, null);
+          }
+        );
       } else if (source.type === 'texture') {
-        this.loaders.textureLoader.load(source.path, (file) => {
-          // console.log(source, file);
-          this.sourceLoaded(source, file);
-        });
+        this.loaders.textureLoader.load(
+          source.path,
+          (file) => {
+            this.sourceLoaded(source, file);
+          },
+          undefined,
+          (error) => {
+            console.error(`Error loading ${source.name}:`, error);
+            this.sourceLoaded(source, null);
+          }
+        );
       } else if (source.type === 'cubeTexture') {
-        this.loaders.cubeTextureLoader.load(source.path, (file) => {
-          // console.log(source.path, file);
-          this.sourceLoaded(source, file);
-        });
+        this.loaders.cubeTextureLoader.load(
+          source.path,
+          (file) => {
+            this.sourceLoaded(source, file);
+          },
+          undefined,
+          (error) => {
+            console.error(`Error loading ${source.name}:`, error);
+            this.sourceLoaded(source, null);
+          }
+        );
       }
     }
   }
 
   sourceLoaded(source, file) {
-    this.items[source.name] = file
+    this.items[source.name] = file;
     this.loaded++;
+    console.log(`Loaded ${this.loaded}/${this.toLoad}: ${source.name}`);
 
     if (this.loaded === this.toLoad) {
-      this.trigger('ready')
+      console.log('All resources loaded!');
+      this.trigger('ready');
     }
   }
 }
