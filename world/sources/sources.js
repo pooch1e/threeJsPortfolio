@@ -51,4 +51,14 @@ export const sources = [
     type: 'texture',
     path: '/static/textures/rat/street_rat_nor_gl_4k.jpg',
   },
+  {
+    name: 'leePerryColor',
+    type: 'texture',
+    path: '/static/textures/leePerrySmith/color.jpg',
+  },
+  {
+    name: 'leePerryNormal',
+    type: 'texture',
+    path: '/static/textures/leePerrySmith/normal.jpg',
+  },
 ];

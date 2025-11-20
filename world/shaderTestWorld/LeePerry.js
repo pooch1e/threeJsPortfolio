@@ -9,21 +9,30 @@ export default class LeePerry {
     // setup
     this.resource = this.resources.items.leePerryModel;
     this.setModel();
-    this.setMaterial();
   }
 
   setModel() {
     this.model = this.resource.scene;
     this.model.scale.set(0.2, 0.2, 0.2);
-    this.scene.add(this.model);
+    const leeColor = this.resources.items.leePerryColor;
+    const leeNormal = this.resources.items.leePerryNormal;
+
+    this.model.traverse((child) => {
+      if (child.isMesh) {
+        if (leeColor) {
+          child.material.map = leeColor;
+        }
+        if (leeNormal) {
+          child.material.normalMap = leeNormal;
+        }
+        child.material.needsUpdate = true;
+      }
+    });
 
     if (this.environment && this.environment.environmentMap) {
       this.environment.environmentMap.updateMaterials();
     }
-  }
-
-  setMaterial() {
-    
+    this.scene.add(this.model);
   }
 
   update(time) {
