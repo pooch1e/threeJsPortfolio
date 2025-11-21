@@ -14,6 +14,7 @@ export default class LeePerry {
     // setup
     this.resource = this.resources.items.leePerryModel;
     this.setModel();
+    this.setPlane();
   }
 
   setModel() {
@@ -63,6 +64,18 @@ export default class LeePerry {
       this.environment.environmentMap.updateMaterials();
     }
     this.scene.add(this.model);
+  }
+
+  setPlane() {
+    this.plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1, 10),
+      new THREE.MeshStandardMaterial()
+    );
+
+    this.plane.rotation.y = Math.PI;
+    this.plane.position.y = -5;
+    this.plane.position.z = 5;
+    this.scene.add(this.plane);
   }
 
   update(time) {
