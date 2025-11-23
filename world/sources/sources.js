@@ -27,6 +27,11 @@ export const sources = [
     path: '/static/models/Rat/glTF/street_rat_4k.gltf',
   },
   {
+    name: 'coffeeSmokeModel',
+    type: 'gltfModel',
+    path: '/static/models/CoffeeSmoke/bakedModel.glb',
+  },
+  {
     name: 'grassColorTexture',
     type: 'texture',
     path: '/static/textures/dirt/color.jpg',
@@ -60,5 +65,10 @@ export const sources = [
     name: 'leePerryNormal',
     type: 'texture',
     path: '/static/textures/leePerrySmith/normal.jpg',
+  },
+  {
+    name: 'perlinNoisePng',
+    type: 'texture',
+    path: '/static/textures/perlin/perlin.png',
   },
 ];

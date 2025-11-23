@@ -12,10 +12,13 @@ export default class CoffeeSmoke {
   }
 
   setModel() {
-
+    this.model = this.resource.scene;
+    this.material = this.model.material;
+    
+    
   }
 
   setDebug() {
-    
+
   }
 }
