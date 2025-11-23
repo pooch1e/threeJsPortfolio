@@ -15,6 +15,7 @@ export default class LeePerry {
     this.resource = this.resources.items.leePerryModel;
     this.setModel();
     this.setPlane();
+    this.setDebug();
   }
 
   setModel() {
@@ -68,14 +69,28 @@ export default class LeePerry {
 
   setPlane() {
     this.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(1, 1, 10),
+      new THREE.PlaneGeometry(15, 15, 15),
       new THREE.MeshStandardMaterial()
     );
 
     this.plane.rotation.y = Math.PI;
-    this.plane.position.y = -5;
+    this.plane.position.y = 0;
     this.plane.position.z = 5;
+
     this.scene.add(this.plane);
+  }
+
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Lee Perry GUI');
+
+      this.debugFolder
+        .add(this.customUniforms.uTime, 'value')
+        .min(0)
+        .max(2)
+        .step(0.01)
+        .name('uTime');
+    }
   }
 
   destroy() {
