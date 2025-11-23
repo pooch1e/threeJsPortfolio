@@ -12,7 +12,7 @@ export class World {
     this.resources = new Resources(sources);
 
     this.resources.on('ready', () => {
-      this.environment = new Environment(this);
+  
       //default
       this.loadPractice('basicShader');
     });
@@ -27,6 +27,17 @@ export class World {
       const shaderModule = await shaderPractices[key]();
       const ShaderClass = shaderModule.default;
       this.shader = new ShaderClass(this);
+
+      // clean up old environment if exists
+      if (this.environment) {
+        this.scene.environment = null;
+        this.scene.background = null;
+        this.environment = null;
+      }
+
+      if (key === 'leePerryShader') {
+        this.environment = new Environment(this);
+      }
 
       // Clean up old shader AFTER new one is created
       if (oldShader) {

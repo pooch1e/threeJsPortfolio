@@ -78,6 +78,31 @@ export default class LeePerry {
     this.scene.add(this.plane);
   }
 
+  destroy() {
+    // Model
+    if (this.model) {
+      this.scene.remove(this.model);
+      this.model.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+
+          if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            if (child.material.normalMap) child.material.normalMap.dispose();
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    // Plane
+    if (this.plane) {
+      this.scene.remove(this.plane);
+      this.plane.geometry?.dispose();
+      this.plane.material?.dispose();
+    }
+  }
+
   update(time) {
     if (time && time.elapsedTime !== undefined) {
       this.customUniforms.uTime.value = time.elapsedTime * 0.002;
