@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { Wireframe } from 'three/examples/jsm/Addons.js';
+import coffeeVertex from './shaders/coffeeSmoke/vertex.glsl';
+import coffeeFragment from './shaders/coffeeSmoke/fragment.glsl';
 export default class CoffeeSmoke {
   constructor(world) {
     this.world = world;
@@ -30,9 +31,10 @@ export default class CoffeeSmoke {
     this.smokeGeometry.translate(0, 0.5, 0);
     this.smokeGeometry.scale(1.5, 6, 1.5);
 
-    this.tempSmokeMaterial = new THREE.MeshBasicMaterial({
-      color: 'cyan',
+    this.tempSmokeMaterial = new THREE.ShaderMaterial({
       wireframe: true,
+      vertexShader: coffeeVertex,
+      fragmentShader: coffeeFragment,
     });
 
     this.smoke = new THREE.Mesh(this.smokeGeometry, this.tempSmokeMaterial);
