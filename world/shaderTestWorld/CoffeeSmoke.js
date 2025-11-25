@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+import { Wireframe } from 'three/examples/jsm/Addons.js';
 export default class CoffeeSmoke {
   constructor(world) {
     this.world = world;
@@ -8,6 +10,7 @@ export default class CoffeeSmoke {
     // setup
     this.resource = this.resources.items.coffeeSmokeModel;
     this.setModel();
+    this.setSmoke();
     this.setDebug();
   }
 
@@ -22,11 +25,25 @@ export default class CoffeeSmoke {
     this.scene.add(this.model);
   }
 
+  setSmoke() {
+    this.smokeGeometry = new THREE.PlaneGeometry(1, 1, 16, 64);
+    this.smokeGeometry.translate(0, 0.5, 0);
+    this.smokeGeometry.scale(1.5, 6, 1.5);
+
+    this.tempSmokeMaterial = new THREE.MeshBasicMaterial({
+      color: 'cyan',
+      wireframe: true,
+    });
+
+    this.smoke = new THREE.Mesh(this.smokeGeometry, this.tempSmokeMaterial);
+    this.smoke.position.y = 1.83;
+    this.scene.add(this.smoke);
+  }
+
   setDebug() {}
 
   update(time) {
     if (time) {
-      
     }
   }
 }
