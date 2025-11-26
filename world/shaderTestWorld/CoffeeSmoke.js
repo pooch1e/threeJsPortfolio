@@ -37,12 +37,11 @@ export default class CoffeeSmoke {
       vertexShader: coffeeVertex,
       fragmentShader: coffeeFragment,
       side: THREE.DoubleSide,
+      transparent: true,
       uniforms: {
-        uPerlinTexture: { value: this.smokeTexture },
+        uPerlinTexture: new THREE.Uniform(this.smokeTexture),
       },
     });
-
-    
 
     this.smoke = new THREE.Mesh(this.smokeGeometry, this.tempSmokeMaterial);
 

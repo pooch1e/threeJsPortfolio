@@ -117,8 +117,8 @@ export default class Galaxy {
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        uSize: { value: 30 * this.renderer.renderer.getPixelRatio() },
-        uTime: { value: 0 },
+        uSize: new THREE.Uniform(30 * this.renderer.renderer.getPixelRatio()),
+        uTime: new THREE.Uniform(0),
       },
     });
 
