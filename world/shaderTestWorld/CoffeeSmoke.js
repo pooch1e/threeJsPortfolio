@@ -10,6 +10,7 @@ export default class CoffeeSmoke {
 
     // setup
     this.resource = this.resources.items.coffeeSmokeModel;
+    this.smokeTexture = this.resources.items.perlinNoisePng;
     this.setModel();
     this.setSmoke();
     this.setDebug();
@@ -32,12 +33,19 @@ export default class CoffeeSmoke {
     this.smokeGeometry.scale(1.5, 6, 1.5);
 
     this.tempSmokeMaterial = new THREE.ShaderMaterial({
-      wireframe: true,
+      wireframe: false,
       vertexShader: coffeeVertex,
       fragmentShader: coffeeFragment,
+      side: THREE.DoubleSide,
+      uniforms: {
+        uPerlinTexture: { value: this.smokeTexture },
+      },
     });
 
+    
+
     this.smoke = new THREE.Mesh(this.smokeGeometry, this.tempSmokeMaterial);
+
     this.smoke.position.y = 1.83;
     this.scene.add(this.smoke);
   }
