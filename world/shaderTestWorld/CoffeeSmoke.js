@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import coffeeVertex from './shaders/coffeeSmoke/vertex.glsl';
 import coffeeFragment from './shaders/coffeeSmoke/fragment.glsl';
+import { uniform } from 'three/tsl';
 export default class CoffeeSmoke {
   constructor(world) {
     this.world = world;
@@ -32,7 +33,7 @@ export default class CoffeeSmoke {
     this.smokeGeometry.translate(0, 0.5, 0);
     this.smokeGeometry.scale(1.5, 6, 1.5);
 
-    this.tempSmokeMaterial = new THREE.ShaderMaterial({
+    this.material = new THREE.ShaderMaterial({
       wireframe: false,
       vertexShader: coffeeVertex,
       fragmentShader: coffeeFragment,
@@ -40,10 +41,11 @@ export default class CoffeeSmoke {
       transparent: true,
       uniforms: {
         uPerlinTexture: new THREE.Uniform(this.smokeTexture),
+        uTime: new THREE.Uniform(0),
       },
     });
 
-    this.smoke = new THREE.Mesh(this.smokeGeometry, this.tempSmokeMaterial);
+    this.smoke = new THREE.Mesh(this.smokeGeometry, this.material);
 
     this.smoke.position.y = 1.83;
     this.scene.add(this.smoke);
@@ -53,6 +55,7 @@ export default class CoffeeSmoke {
 
   update(time) {
     if (time) {
+      this.material.uniforms.uTime.value = time.elapsedTime * 0.1;
     }
   }
 }
