@@ -6,12 +6,16 @@ void main() {
   
   // scale and animate
   vec2 smokeUv = vUv;
+
   smokeUv.x *= 0.5;
   smokeUv.y *= 0.3;
   smokeUv.y -= uTime * 0.03;
 
 
   float smoke = texture(uPerlinTexture, smokeUv).r;
+
+    //remap + normalise with smooth step
+  smoke = smoothstep(0.4, 1.0, smoke);
 
   gl_FragColor = vec4(1, 1, 1, smoke);
 
