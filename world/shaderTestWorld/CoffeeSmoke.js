@@ -33,6 +33,10 @@ export default class CoffeeSmoke {
     this.smokeGeometry.translate(0, 0.5, 0);
     this.smokeGeometry.scale(1.5, 6, 1.5);
 
+    // ensures perlin noise texture rotates
+    this.smokeTexture.wrapS = THREE.RepeatWrapping;
+    this.smokeTexture.wrapT = THREE.RepeatWrapping;
+
     this.material = new THREE.ShaderMaterial({
       wireframe: false,
       vertexShader: coffeeVertex,
@@ -54,8 +58,8 @@ export default class CoffeeSmoke {
   setDebug() {}
 
   update(time) {
-    if (time) {
-      this.material.uniforms.uTime.value = time.elapsedTime * 0.1;
+    if (time && this.material) {
+      this.material.uniforms.uTime.value = time.elapsedTime * 0.02;
     }
   }
 }
