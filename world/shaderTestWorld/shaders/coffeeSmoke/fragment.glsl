@@ -17,6 +17,13 @@ void main() {
     //remap + normalise with smooth step
   smoke = smoothstep(0.4, 1.0, smoke);
 
+  // Edges
+  smoke = 1.0;
+  // left edge
+  smoke = smoothstep(0.0, 0.1, vUv.x);
+  // right edge
+  smoke = smoothstep(1.0, 0.9, vUv.x);
+
   gl_FragColor = vec4(1, 1, 1, smoke);
 
     #include <tonemapping_fragment>
