@@ -6,6 +6,7 @@ import PointCloudPage from './pages/PointCloudPage';
 import ShaderPage from './pages/ShaderPage';
 import { Routes, Route } from 'react-router-dom';
 import Header from './ui/Header';
+import Footer from './ui/Footer';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
         <Route path="/shaders" element={<ShaderPage />}></Route>
       </Routes>
+      <Footer />
     </>
   );
 }

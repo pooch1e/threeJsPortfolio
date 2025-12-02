@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import DebugButton from '../components/DebugButton';
 export default function Header() {
   return (
     <section className="font-karrik bg-[#798086] overflow-x-hidden w-full">
@@ -9,8 +8,8 @@ export default function Header() {
             Home
           </h1>
         </Link>
-        <h2 className='text-center'>A selection of ThreeJs experiments</h2>
-        <DebugButton />
+        <h2 className="text-center">A selection of ThreeJs experiments</h2>
+
         <hr></hr>
       </header>
     </section>
