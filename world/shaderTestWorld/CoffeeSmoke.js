@@ -9,6 +9,12 @@ export default class CoffeeSmoke {
     this.debug = this.world.shaderExperience.debug;
     this.resources = this.world.resources;
 
+    // Mouse position uniform
+    this.mousePos = {
+      x: 0,
+      y: 0,
+    };
+
     // setup
     this.resource = this.resources.items.coffeeSmokeModel;
     this.smokeTexture = this.resources.items.perlinNoisePng;
@@ -43,9 +49,11 @@ export default class CoffeeSmoke {
       fragmentShader: coffeeFragment,
       side: THREE.DoubleSide,
       transparent: true,
+      depthWrite: false,
       uniforms: {
         uPerlinTexture: new THREE.Uniform(this.smokeTexture),
         uTime: new THREE.Uniform(0),
+        uMousePos: new THREE.Uniform(this.mousePos),
       },
     });
 
