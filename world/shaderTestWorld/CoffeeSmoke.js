@@ -38,7 +38,7 @@ export default class CoffeeSmoke {
     this.smokeTexture.wrapT = THREE.RepeatWrapping;
 
     this.material = new THREE.ShaderMaterial({
-      wireframe: true,
+      wireframe: false,
       vertexShader: coffeeVertex,
       fragmentShader: coffeeFragment,
       side: THREE.DoubleSide,
