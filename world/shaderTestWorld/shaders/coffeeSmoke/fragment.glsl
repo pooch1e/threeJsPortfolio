@@ -20,9 +20,13 @@ void main() {
   // Edges
   smoke = 1.0;
   // left edge
-  smoke = smoothstep(0.0, 0.1, vUv.x);
+  smoke *= smoothstep(0.0, 0.1, vUv.x);
   // right edge
-  smoke = smoothstep(1.0, 0.9, vUv.x);
+  smoke *= smoothstep(1.0, 0.9, vUv.x);
+  // Top Edge
+  smoke *= smoothstep(0.0, 0.1, vUv.y);
+  // Bottom Edge
+  smoke *= smoothstep(1.0, 0.9, vUv.y);
 
   gl_FragColor = vec4(1, 1, 1, smoke);
 
