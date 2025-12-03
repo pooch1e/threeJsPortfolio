@@ -18,7 +18,8 @@ void main() {
   smoke = smoothstep(0.4, 1.0, smoke);
 
   // Edges
-  smoke = 1.0;
+  // Test tone
+  // smoke = 1.0;
   // left edge
   smoke *= smoothstep(0.0, 0.1, vUv.x);
   // right edge
