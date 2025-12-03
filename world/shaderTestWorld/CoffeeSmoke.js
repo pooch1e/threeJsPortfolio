@@ -1,7 +1,7 @@
 import * as THREE from 'three';
+
 import coffeeVertex from './shaders/coffeeSmoke/vertex.glsl';
 import coffeeFragment from './shaders/coffeeSmoke/fragment.glsl';
-import { uniform } from 'three/tsl';
 export default class CoffeeSmoke {
   constructor(world) {
     this.world = world;
@@ -68,6 +68,30 @@ export default class CoffeeSmoke {
   update(time) {
     if (time && this.material) {
       this.material.uniforms.uTime.value = time.elapsedTime * 0.02;
+    }
+  }
+
+  destroy() {
+    if (this.model) {
+      this.scene.remove(this.model);
+      this.model.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+
+          if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            if (child.material.normalMap) child.material.normalMap.dispose();
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    if (this.smoke) {
+      this.scene.remove(this.smoke);
+      this.smokeGeometry?.dispose();
+      this.material?.dispose();
+      this.smokeTexture?.dispose();
     }
   }
 }
