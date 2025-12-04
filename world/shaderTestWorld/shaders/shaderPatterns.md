@@ -1,4 +1,5 @@
 https://threejs-journey.com/lessons/shader-patterns#pattern-46
+
 # Pattern 1
 ```glsl
 // Fragment.glsl
@@ -195,4 +196,27 @@ vec2 rotate2D(vec2 value, float angle)
     mat2 m = mat2(c, s, -s, c);
     return m * value;
 }
+
+
+// Minimum Vertex pattern needed
+```glsl
+void main() {
+
+// Position
+    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+
+    // Final position
+    gl_Position = projectionMatrix * viewMatrix * modelPosition;
+}
+```
+
+// Minimum Fragment pattern needed
+```glsl
+void main()
+{
+    // Final color
+    gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+```
+
 

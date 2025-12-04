@@ -8,9 +8,8 @@ export default class Hologram {
     console.log(this.resources, 'resources');
 
     // Setup
-    this.material = new THREE.MeshBasicMaterial();
+    this.material = new THREE.ShaderMaterial();
     this.resource = this.resources.items.suzanneModel;
-    console.log(this.resource);
 
     this.setModels();
     this.setDebug();
