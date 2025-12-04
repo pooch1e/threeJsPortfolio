@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import holographicVertex from './shaders/holographic/vertex.glsl';
+import holographicFragment from './shaders/holographic/fragment.glsl';
 export default class Hologram {
   constructor(world) {
     this.world = world;
@@ -8,7 +10,10 @@ export default class Hologram {
     console.log(this.resources, 'resources');
 
     // Setup
-    this.material = new THREE.ShaderMaterial();
+    this.material = new THREE.ShaderMaterial({
+      vertexShader: holographicVertex,
+      fragmentShader: holographicFragment,
+    });
     this.resource = this.resources.items.suzanneModel;
 
     this.setModels();
