@@ -6,4 +6,5 @@ export const shaderPractices = {
   galaxyShader: () => import('./Galaxy'),
   leePerryShader: () => import('./LeePerry'),
   coffeeSmokeShader: () => import('./CoffeeSmoke'),
+  hologramShader: () => import('./Hologram'),
 };

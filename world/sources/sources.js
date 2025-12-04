@@ -32,6 +32,11 @@ export const sources = [
     path: '/static/models/CoffeeSmoke/bakedModel.glb',
   },
   {
+    name: 'suzanneModel',
+    type: 'gltfModel',
+    path: '/static/models/Suzanne/suzanne.glb',
+  },
+  {
     name: 'grassColorTexture',
     type: 'texture',
     path: '/static/textures/dirt/color.jpg',
