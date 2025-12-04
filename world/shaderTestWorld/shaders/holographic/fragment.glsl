@@ -1,6 +1,7 @@
 varying vec3 vPosition;
 uniform float uTime;
 varying vec3 vNormal;
+uniform vec3 uColor;
 void main()
 {
 
@@ -31,7 +32,7 @@ void main()
     
   
     // Final color
-    gl_FragColor = vec4(1.0, 1.0, 1.0, holographic);
+    gl_FragColor = vec4(uColor, holographic);
 
     #include <tonemapping_fragment>
     #include <colorspace_fragment>

@@ -70,7 +70,7 @@ export default class Hologram {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Holograph UI');
 
-      this.debugFolder.add(this.paramaters, 'color').onChange(() => {
+      this.debugFolder.addColor(this.paramaters, 'color').onChange(() => {
         this.material.uniforms.uColor.value.set(this.paramaters.color);
       });
     }
