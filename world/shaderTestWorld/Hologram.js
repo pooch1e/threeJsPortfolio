@@ -13,10 +13,12 @@ export default class Hologram {
       vertexShader: holographicVertex,
       fragmentShader: holographicFragment,
       transparent: true,
+      depthWrite: false,
       uniforms: {
         uTime: new THREE.Uniform(0),
       },
       side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
     });
     this.resource = this.resources.items.suzanneModel;
 
