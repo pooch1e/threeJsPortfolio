@@ -7,12 +7,16 @@ export default class Hologram {
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
     this.resources = this.world.resources;
-    console.log(this.resources, 'resources');
 
     // Setup
     this.material = new THREE.ShaderMaterial({
       vertexShader: holographicVertex,
       fragmentShader: holographicFragment,
+      transparent: true,
+      uniforms: {
+        uTime: new THREE.Uniform(0),
+      },
+      side: THREE.DoubleSide,
     });
     this.resource = this.resources.items.suzanneModel;
 
@@ -69,6 +73,10 @@ export default class Hologram {
       // Torus
       this.torusMesh.rotation.x = time.elapsedTime * 0.002;
       this.torusMesh.rotation.y = time.elapsedTime * 0.001;
+
+      // Uniforms
+
+      this.material.uniforms.uTime.value = time.elapsedTime;
     }
   }
   destroy() {}
