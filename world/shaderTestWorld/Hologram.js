@@ -8,6 +8,10 @@ export default class Hologram {
     this.debug = this.world.shaderExperience.debug;
     this.resources = this.world.resources;
 
+    this.paramaters = {
+      color: '#70c1ff',
+    };
+
     // Setup
     this.material = new THREE.ShaderMaterial({
       vertexShader: holographicVertex,
@@ -16,6 +20,7 @@ export default class Hologram {
       depthWrite: false,
       uniforms: {
         uTime: new THREE.Uniform(0),
+        uColor: new THREE.Uniform(new THREE.Color(this.paramaters.color)),
       },
       side: THREE.DoubleSide,
       blending: THREE.AdditiveBlending,
@@ -61,7 +66,15 @@ export default class Hologram {
     this.scene.add(this.torusMesh);
   }
 
-  setDebug() {}
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Holograph UI');
+
+      this.debugFolder.add(this.paramaters, 'color').onChange(() => {
+        this.material.uniforms.uColor.value.set(this.paramaters.color);
+      });
+    }
+  }
   update(time) {
     if (time && this.material) {
       // Sphere
