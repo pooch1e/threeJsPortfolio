@@ -42,6 +42,7 @@ export default class Hologram {
 
     this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
     this.sphereMesh.position.x = 1;
+    this.sphereMesh.position.y = 2
     this.scene.add(this.sphereMesh);
   }
 
@@ -62,6 +63,7 @@ export default class Hologram {
     this.torusGeometry = new THREE.TorusKnotGeometry(1);
     this.torusMesh = new THREE.Mesh(this.torusGeometry, this.material);
     this.torusMesh.position.x = -2;
+    this.torusMesh.position.y = 2;
 
     this.scene.add(this.torusMesh);
   }
