@@ -21,7 +21,7 @@ export default function AnimalRenderPage() {
   }, [shaderChoice]);
 
   return (
-    <div className="border-2">
+    <div className=" bg-[#798086]">
       <ShaderSwitchListButton setShaderChoice={setShaderChoice} />
       <canvas ref={canvasRef}></canvas>
     </div>

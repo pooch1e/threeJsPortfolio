@@ -9,7 +9,7 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative p-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="px-4 py-2 bg-gray-800 text-white rounded-md">

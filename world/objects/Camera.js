@@ -12,7 +12,7 @@ export class Camera {
       far
     );
     // set camera position
-    this.perspectiveCamera.position.set(0, 1, 3);
+    this.perspectiveCamera.position.set(0, 1, 5);
 
     // Orbital Controls
     this.controls = new OrbitControls(this.perspectiveCamera, this.canvas);

@@ -9,7 +9,7 @@ export default function AnimalRenderPage() {
     debugMode,
   ]);
   return (
-    <div className="border-2">
+    <div className="border-2  bg-[#798086]">
       <canvas ref={canvasRef}></canvas>
     </div>
   );
