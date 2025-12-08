@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
 
 export class Fireworks {
   constructor(world) {
@@ -6,8 +6,9 @@ export class Fireworks {
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
 
-
     // Setup
-    
+    this.setDebug();
   }
+
+  setDebug() {}
 }
