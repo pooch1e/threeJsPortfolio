@@ -10,5 +10,15 @@ export class Fireworks {
     this.setDebug();
   }
 
-  setDebug() {}
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('FireWorks');
+    }
+  }
+
+  update(time) {
+    if (this.time) {
+      console.log('time test');
+    }
+  }
 }
