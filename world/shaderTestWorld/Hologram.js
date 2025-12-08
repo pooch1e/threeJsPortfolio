@@ -98,9 +98,9 @@ export default class Hologram {
   }
   destroy() {
     // Model
-    if (this.model) {
-      this.scene.remove(this.model);
-      this.model.traverse((child) => {
+    if (this.suzanneModel) {
+      this.scene.remove(this.suzanneModel);
+      this.suzanneModel.traverse((child) => {
         if (child.isMesh) {
           child.geometry?.dispose();
 
