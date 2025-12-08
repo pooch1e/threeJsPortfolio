@@ -42,7 +42,7 @@ export default class Hologram {
 
     this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
     this.sphereMesh.position.x = 1;
-    this.sphereMesh.position.y = 2
+    this.sphereMesh.position.y = 2;
     this.scene.add(this.sphereMesh);
   }
 
@@ -96,5 +96,40 @@ export default class Hologram {
       this.material.uniforms.uTime.value = time.elapsedTime;
     }
   }
-  destroy() {}
+  destroy() {
+    // Model
+    if (this.model) {
+      this.scene.remove(this.model);
+      this.model.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+
+          if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            if (child.material.normalMap) child.material.normalMap.dispose();
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    if (this.sphereMesh) {
+      this.scene.remove(this.sphereMesh);
+      this.sphereMesh.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          this.material?.dispose();
+        }
+      });
+    }
+    if (this.torusMesh) {
+      this.scene.remove(this.torusMesh);
+      this.torusMesh.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          this.material?.dispose();
+        }
+      });
+    }
+  }
 }
