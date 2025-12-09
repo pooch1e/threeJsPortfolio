@@ -7,11 +7,14 @@ export default class Fireworks {
     this.world = world;
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
+    this.sizes = this.world.shaderExperience.sizes;
 
     // Config
     this.parameters = {
       count: 100,
       positionVector: new THREE.Vector3(),
+      size: 50,
+      resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
     };
 
     // Setup
@@ -19,7 +22,7 @@ export default class Fireworks {
     this.setDebug();
   }
 
-  createFirework(count, positionVector) {
+  createFirework(count, positionVector, size) {
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -41,8 +44,9 @@ export default class Fireworks {
       vertexShader: fireworkVertex,
       fragmentShader: fireworkFragment,
       uniforms: {
-        uSize: new THREE.Uniform(50)
-      }
+        uSize: new THREE.Uniform(size),
+        uResolution: new THREE.Uniform(this.parameters.resolution),
+      },
     });
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
