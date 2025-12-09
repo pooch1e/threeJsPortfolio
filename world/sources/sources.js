@@ -12,6 +12,20 @@ export const sources = [
     ],
   },
   {
+    name: 'fireworksTextures',
+    type: 'texture',
+    path: [
+      '/static/textures/fireworks/particles/1.png',
+      '/static/textures/fireworks/particles/2.png',
+      '/static/textures/fireworks/particles/3.png',
+      '/static/textures/fireworks/particles/4.png',
+      '/static/textures/fireworks/particles/5.png',
+      '/static/textures/fireworks/particles/6.png',
+      '/static/textures/fireworks/particles/7.png',
+      '/static/textures/fireworks/particles/8.png',
+    ],
+  },
+  {
     name: 'foxModel',
     type: 'gltfModel',
     path: '/static/models/Fox/glTF/Fox.gltf',

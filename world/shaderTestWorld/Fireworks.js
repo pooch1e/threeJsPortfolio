@@ -8,6 +8,7 @@ export default class Fireworks {
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
     this.sizes = this.world.shaderExperience.sizes;
+    this.resources = this.world.resources;
 
     // Config
     this.parameters = {
@@ -18,6 +19,7 @@ export default class Fireworks {
     };
 
     // Setup
+    this.resource = this.resources.items.fireworksTextures; // .fireworks as needed
     this.createFirework(this.parameters.count, this.parameters.positionVector);
     this.setDebug();
   }
