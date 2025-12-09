@@ -54,6 +54,8 @@ export default class Fireworks {
 
     this.material = new THREE.ShaderMaterial({
       transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
       vertexShader: fireworkVertex,
       fragmentShader: fireworkFragment,
       uniforms: {
