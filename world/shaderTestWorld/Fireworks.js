@@ -10,21 +10,29 @@ export default class Fireworks {
     this.sizes = this.world.shaderExperience.sizes;
     this.resources = this.world.resources;
 
+    // Resource setup
+    this.resource = this.resources.items.fireworksTextures;
+    
+
     // Config
     this.parameters = {
       count: 100,
       positionVector: new THREE.Vector3(),
-      size: 50,
+      size: 0.5,
       resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
+      texture: this.resource[7],
     };
 
-    // Setup
-    this.resource = this.resources.items.fireworksTextures; // .fireworks as needed
-    this.createFirework(this.parameters.count, this.parameters.positionVector);
+    this.createFirework(
+      this.parameters.count,
+      this.parameters.positionVector,
+      this.parameters.size,
+      this.parameters.texture
+    );
     this.setDebug();
   }
 
-  createFirework(count, positionVector, size) {
+  createFirework(count, positionVector, size, texture) {
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -42,14 +50,19 @@ export default class Fireworks {
     );
 
     // Material
+    texture.flipY = false;
+
     this.material = new THREE.ShaderMaterial({
+      transparent: true,
       vertexShader: fireworkVertex,
       fragmentShader: fireworkFragment,
       uniforms: {
         uSize: new THREE.Uniform(size),
         uResolution: new THREE.Uniform(this.parameters.resolution),
+        uTexture: new THREE.Uniform(texture),
       },
     });
+    
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
     this.pointMesh.position.copy(positionVector);

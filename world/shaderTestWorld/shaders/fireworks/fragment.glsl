@@ -1,7 +1,11 @@
+uniform sampler2D uTexture;
 void main() {
+
+  vec4 textureColor = texture2D(uTexture, gl_PointCoord);
   
   
-  gl_FragColor = vec4(1, 1, 1, 1);
+  // Final Colour
+  gl_FragColor = textureColor;
 
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
