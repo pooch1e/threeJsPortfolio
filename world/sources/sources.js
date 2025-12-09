@@ -13,7 +13,7 @@ export const sources = [
   },
   {
     name: 'fireworksTextures',
-    type: 'texture',
+    type: 'textureArray',
     path: [
       '/static/textures/fireworks/particles/1.png',
       '/static/textures/fireworks/particles/2.png',

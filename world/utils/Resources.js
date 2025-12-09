@@ -56,31 +56,6 @@ export class Resources extends EventEmitter {
             this.sourceLoaded(source, null);
           }
         );
-      } else if (source.type === 'textureArray') {
-        const textures = [];
-        let loadedCount = 0;
-        const totalTextures = this.source.path.length;
-
-        source.path.forEach((path, index) => {
-          this.loaders.textureLoader.load(path, () => {
-            (texture) => {
-              textures[index] = texture;
-              loadedCount++;
-              if (loadedCount === totalTextures) {
-                this.sourceLoaded(source, textures);
-              }
-            },
-              undefined,
-              (error) => {
-                console.error(`Error loading ${source.name}[${index}]:`, error);
-                textures[index] = null;
-                loadedCount++;
-                if (loadedCount === totalTextures) {
-                  this.sourceLoaded(source, textures);
-                }
-              };
-          });
-        });
       } else if (source.type === 'cubeTexture') {
         this.loaders.cubeTextureLoader.load(
           source.path,
@@ -93,6 +68,32 @@ export class Resources extends EventEmitter {
             this.sourceLoaded(source, null);
           }
         );
+      } else if (source.type === 'textureArray') {
+        const textures = [];
+        let loadedCount = 0;
+        const totalTextures = source.path.length;
+
+        source.path.forEach((path, index) => {
+          this.loaders.textureLoader.load(
+            path,
+            (texture) => {
+              textures[index] = texture;
+              loadedCount++;
+              if (loadedCount === totalTextures) {
+                this.sourceLoaded(source, textures);
+              }
+            },
+            undefined,
+            (error) => {
+              console.error(`Error loading ${source.name}[${index}]:`, error);
+              textures[index] = null;
+              loadedCount++;
+              if (loadedCount === totalTextures) {
+                this.sourceLoaded(source, textures);
+              }
+            }
+          );
+        });
       }
     }
   }
