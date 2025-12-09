@@ -8,5 +8,7 @@ void main() {
     gl_Position = projectionMatrix * viewPosition;
 
   // Final Size (as using points)
-  gl_PointSize = 20.0;
+  gl_PointSize = 50.0;
+  // maintain same size to camera view
+  gl_PointSize *= 1.0 / - viewPosition.z;
 }

@@ -40,6 +40,9 @@ export default class Fireworks {
     this.material = new THREE.ShaderMaterial({
       vertexShader: fireworkVertex,
       fragmentShader: fireworkFragment,
+      uniforms: {
+        uSize: new THREE.Uniform(50)
+      }
     });
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
