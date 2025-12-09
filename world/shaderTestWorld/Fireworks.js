@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export class Fireworks {
+export default class Fireworks {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
@@ -32,6 +32,12 @@ export class Fireworks {
       'position',
       new THREE.Float32BufferAttribute(positions, 3)
     );
+
+    // Material
+    this.material = new THREE.PointsMaterial();
+
+    this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
+    this.scene.add(this.pointMesh);
   }
 
   setDebug() {

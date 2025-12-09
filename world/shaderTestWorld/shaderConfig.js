@@ -1,5 +1,3 @@
-import CoffeeSmoke from './CoffeeSmoke';
-
 export const shaderPractices = {
   basicShader: () => import('./BasicShader'),
   wavesShader: () => import('./Waves'),
@@ -7,4 +5,5 @@ export const shaderPractices = {
   leePerryShader: () => import('./LeePerry'),
   coffeeSmokeShader: () => import('./CoffeeSmoke'),
   hologramShader: () => import('./Hologram'),
+  fireworksShader: () => import('./Fireworks'),
 };
