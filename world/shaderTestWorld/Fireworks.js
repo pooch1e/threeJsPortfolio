@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import fireworkVertex from './shaders/fireworks/vertex.glsl';
+import fireworkFragment from './shaders/fireworks/fragment.glsl';
 
 export default class Fireworks {
   constructor(world) {
@@ -9,14 +11,15 @@ export default class Fireworks {
     // Config
     this.parameters = {
       count: 100,
+      positionVector: new THREE.Vector3(),
     };
 
     // Setup
-    this.createFirework(this.parameters.count);
+    this.createFirework(this.parameters.count, this.parameters.positionVector);
     this.setDebug();
   }
 
-  createFirework(count) {
+  createFirework(count, positionVector) {
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -34,9 +37,13 @@ export default class Fireworks {
     );
 
     // Material
-    this.material = new THREE.PointsMaterial();
+    this.material = new THREE.ShaderMaterial({
+      vertexShader: fireworkVertex,
+      fragmentShader: fireworkFragment,
+    });
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
+    this.pointMesh.position.copy(positionVector);
     this.scene.add(this.pointMesh);
   }
 
