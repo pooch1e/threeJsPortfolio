@@ -12,7 +12,6 @@ export default class Fireworks {
 
     // Resource setup
     this.resource = this.resources.items.fireworksTextures;
-    
 
     // Config
     this.parameters = {
@@ -33,6 +32,14 @@ export default class Fireworks {
   }
 
   createFirework(count, positionVector, size, texture) {
+    // Geometry
+
+    const sizesArray = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      sizesArray[i] = Math.random() - 0.5;
+    }
+
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -47,6 +54,10 @@ export default class Fireworks {
     this.bufferGeometry.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(positions, 3)
+    );
+    this.bufferGeometry.setAttribute(
+      'aSize',
+      new THREE.Float32BufferAttribute(sizesArray, 1)
     );
 
     // Material
@@ -64,7 +75,6 @@ export default class Fireworks {
         uTexture: new THREE.Uniform(texture),
       },
     });
-    
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
     this.pointMesh.position.copy(positionVector);

@@ -1,6 +1,9 @@
 
 uniform float uSize;
 uniform vec2 uResolution;
+
+attribute float aSize;
+
 void main() {
 
 
@@ -11,6 +14,7 @@ void main() {
 
   // Final Size (as using points)
   gl_PointSize = uSize * uResolution.y;
+  gl_PointSize * aSize;
   // maintain same size to camera view
   gl_PointSize *= 1.0 / - viewPosition.z;
 }
