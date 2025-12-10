@@ -34,7 +34,7 @@ export default class Fireworks {
       rayleigh: 3,
       mieCoefficient: 0.005,
       mieDirectionalG: 0.7,
-      elevation: 2,
+      elevation: -2,
       azimuth: 180,
     };
 
