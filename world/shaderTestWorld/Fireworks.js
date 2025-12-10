@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import fireworkVertex from './shaders/fireworks/vertex.glsl';
 import fireworkFragment from './shaders/fireworks/fragment.glsl';
 import gsap from 'gsap';
+import { Sky } from 'three/examples/jsm/Addons.js';
 
 export default class Fireworks {
   constructor(world) {
@@ -12,6 +13,7 @@ export default class Fireworks {
     this.resources = this.world.resources;
     this.mouse = this.world.shaderExperience.mouse;
     this.camera = this.world.shaderExperience.camera;
+    this.sky = new Sky();
 
     // Resource setup
     this.resource = this.resources.items.fireworksTextures;
@@ -22,13 +24,23 @@ export default class Fireworks {
       positionVector: new THREE.Vector3(),
       size: 0.5,
       resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
-      texture: this.resource[7],
+      texture: this.resource[Math.floor(Math.random(0, this.resource.length))],
       radius: 1,
       color: new THREE.Color('#8affff'),
     };
 
+    this.skyParams = {
+      turbidity: 10,
+      rayleigh: 3,
+      mieCoefficient: 0.005,
+      mieDirectionalG: 0.7,
+      elevation: 2,
+      azimuth: 180,
+    };
+
     // Set up click event listener
     this.setupClickHandler();
+    this.setupSky();
 
     this.setDebug();
   }
@@ -36,12 +48,21 @@ export default class Fireworks {
   createFirework(count, positionVector, size, texture, radius, color) {
     // Geometry
 
+    // Point Sizes
     const sizesArray = new Float32Array(count);
 
     for (let i = 0; i < count; i++) {
       sizesArray[i] = Math.random() - 0.5;
     }
 
+    // Point Timings (randomised)
+    const pointTimings = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      pointTimings[i] = 1 + Math.random();
+    }
+
+    // Point Positions
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -69,6 +90,10 @@ export default class Fireworks {
     bufferGeometry.setAttribute(
       'aSize',
       new THREE.Float32BufferAttribute(sizesArray, 1)
+    );
+    bufferGeometry.setAttribute(
+      'aPointTiming',
+      new THREE.Float32BufferAttribute(pointTimings, 1)
     );
 
     // Material
@@ -125,6 +150,26 @@ export default class Fireworks {
     };
 
     this.mouse.on('click', this.handleClick);
+  }
+
+  setupSky() {
+    this.sky.scale.setScalar(450000);
+    this.scene.add(this.sky);
+
+    this.sun = new THREE.Vector3();
+
+    const uniforms = this.sky.material.uniforms;
+    uniforms['turbidity'].value = this.skyParams.turbidity;
+    uniforms['rayleigh'].value = this.skyParams.rayleigh;
+    uniforms['mieCoefficient'].value = this.skyParams.mieCoefficient;
+    uniforms['mieDirectionalG'].value = this.skyParams.mieDirectionalG;
+
+    const phi = THREE.MathUtils.degToRad(90 - this.skyParams.elevation);
+    const theta = THREE.MathUtils.degToRad(this.skyParams.azimuth);
+
+    this.sun.setFromSphericalCoords(1, phi, theta);
+
+    uniforms['sunPosition'].value.copy(this.sun);
   }
 
   setDebug() {
