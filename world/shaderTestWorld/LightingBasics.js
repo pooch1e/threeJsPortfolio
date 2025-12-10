@@ -37,7 +37,7 @@ export default class LightingBasics {
     this.sphereGeometry = new THREE.SphereGeometry(1);
 
     this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
-    this.sphereMesh.position.x = 1;
+    this.sphereMesh.position.x = 4;
     this.sphereMesh.position.y = 2;
     this.scene.add(this.sphereMesh);
   }
@@ -58,7 +58,7 @@ export default class LightingBasics {
   setTorus() {
     this.torusGeometry = new THREE.TorusKnotGeometry(1);
     this.torusMesh = new THREE.Mesh(this.torusGeometry, this.material);
-    this.torusMesh.position.x = -2;
+    this.torusMesh.position.x = -4;
     this.torusMesh.position.y = 2;
 
     this.scene.add(this.torusMesh);
@@ -67,6 +67,51 @@ export default class LightingBasics {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Lighting Basics');
+      this.debugFolder.addColor(this.materialConfig, 'color').onChange(() => {
+        this.material.uniforms.uColor.value.set(this.paramaters.color);
+      });
+    }
+  }
+
+  destroy() {
+    // Model
+    if (this.suzanneModel) {
+      this.scene.remove(this.suzanneModel);
+      this.suzanneModel.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+
+          if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            if (child.material.normalMap) child.material.normalMap.dispose();
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    if (this.sphereMesh) {
+      this.scene.remove(this.sphereMesh);
+      this.sphereMesh.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          this.material?.dispose();
+        }
+      });
+    }
+    if (this.torusMesh) {
+      this.scene.remove(this.torusMesh);
+      this.torusMesh.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          this.material?.dispose();
+        }
+      });
+    }
+  }
+
+  update(time) {
+    if (time && this.material) {
     }
   }
 }
