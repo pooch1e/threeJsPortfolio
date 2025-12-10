@@ -14,7 +14,7 @@ void main() {
 
   // Final Size (as using points)
   gl_PointSize = uSize * uResolution.y;
-  gl_PointSize * aSize;
+  gl_PointSize *= aSize;
   // maintain same size to camera view
   gl_PointSize *= 1.0 / - viewPosition.z;
 }

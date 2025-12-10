@@ -6,6 +6,7 @@ import { Camera } from '../objects/Camera.js';
 import { Renderer } from '../objects/Renderer.js';
 import { World } from './World.js';
 import EventEmitter from '../utils/EventEmitter.js';
+import { Mouse } from '../utils/Mouse.js';
 
 // Controller
 export class ShaderExperience {
@@ -30,6 +31,10 @@ export class ShaderExperience {
       scene: this.scene,
       camera: this.camera,
     });
+
+    // instantiate mouse events
+    this.mouse = new Mouse(this.canvas, this.camera);
+
     // this references --  this context -- will extend this to be any worldview 'controller' I need
     this.world = new World(this);
 
@@ -41,6 +46,9 @@ export class ShaderExperience {
     this.time.on('tick', () => {
       this.update();
     });
+
+    // Click events
+    
   }
 
   resize() {
@@ -58,6 +66,11 @@ export class ShaderExperience {
   destroy() {
     this.sizes.off('resize');
     this.time.off('tick');
+
+    // Destroy mouse
+    if (this.mouse) {
+      this.mouse.destroy();
+    }
 
     // Stop animation loop
     if (this.time.animationId) {

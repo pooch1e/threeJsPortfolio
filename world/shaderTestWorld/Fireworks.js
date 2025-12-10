@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import fireworkVertex from './shaders/fireworks/vertex.glsl';
 import fireworkFragment from './shaders/fireworks/fragment.glsl';
+import gsap from 'gsap';
+
 
 export default class Fireworks {
   constructor(world) {
@@ -9,6 +11,8 @@ export default class Fireworks {
     this.debug = this.world.shaderExperience.debug;
     this.sizes = this.world.shaderExperience.sizes;
     this.resources = this.world.resources;
+    this.mouse = this.world.shaderExperience.mouse;
+    this.camera = this.world.shaderExperience.camera;
 
     // Resource setup
     this.resource = this.resources.items.fireworksTextures;
@@ -24,14 +28,9 @@ export default class Fireworks {
       color: new THREE.Color('#8affff'),
     };
 
-    this.createFirework(
-      this.parameters.count,
-      this.parameters.positionVector,
-      this.parameters.size,
-      this.parameters.texture,
-      this.parameters.radius,
-      this.parameters.color
-    );
+    // Set up click event listener
+    this.setupClickHandler();
+    
     this.setDebug();
   }
 
@@ -87,26 +86,69 @@ export default class Fireworks {
         uResolution: new THREE.Uniform(this.parameters.resolution),
         uTexture: new THREE.Uniform(texture),
         uColor: new THREE.Uniform(color),
+        uProgress: new THREE.Uniform(0),
       },
     });
 
     this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
     this.pointMesh.position.copy(positionVector);
     this.scene.add(this.pointMesh);
+
+    // Destroy single firework animation instance
+    const destroy = () => {
+      this.scene.remove(this.pointMesh);
+      this.bufferGeometry.dispose();
+      this.material.dispose();
+    };
+
+    // Animations
+    gsap.to(this.material.uniforms.uProgress, {
+      value: 1,
+      duration: 3,
+      ease: 'linear',
+      onComplete: destroy,
+    });
+  }
+
+  setupClickHandler() {
+    this.handleClick = () => {
+      // Get 3D world position from mouse click
+      const worldPosition = this.mouse.getWorldPosition(5);
+      
+      // Create firework at clicked position
+      this.createFirework(
+        this.parameters.count,
+        worldPosition,
+        this.parameters.size,
+        this.parameters.texture,
+        this.parameters.radius,
+        this.parameters.color
+      );
+    };
+
+    // Listen for click events
+    this.mouse.on('click', this.handleClick);
   }
 
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('FireWorks');
       this.debugFolder.addColor(this.parameters, 'color').onChange(() => {
-        this.material.uniforms.uColor.value.set(this.parameters.color)
-      })
+        this.material.uniforms.uColor.value.set(this.parameters.color);
+      });
     }
   }
 
   update(time) {
     if (this.time) {
       console.log('time test');
+    }
+  }
+
+  destroy() {
+    // Remove click event listener
+    if (this.mouse && this.handleClick) {
+      this.mouse.off('click');
     }
   }
 }
