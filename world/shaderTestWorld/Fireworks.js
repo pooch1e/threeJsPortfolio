@@ -20,18 +20,20 @@ export default class Fireworks {
       size: 0.5,
       resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
       texture: this.resource[7],
+      radius: 1,
     };
 
     this.createFirework(
       this.parameters.count,
       this.parameters.positionVector,
       this.parameters.size,
-      this.parameters.texture
+      this.parameters.texture,
+      this.parameters.radius
     );
     this.setDebug();
   }
 
-  createFirework(count, positionVector, size, texture) {
+  createFirework(count, positionVector, size, texture, radius) {
     // Geometry
 
     const sizesArray = new Float32Array(count);
@@ -45,9 +47,18 @@ export default class Fireworks {
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
 
-      positions[i3] = Math.random() - 0.5;
-      positions[i3 + 1] = Math.random() - 0.5;
-      positions[i3 + 2] = Math.random() - 0.5;
+      const spherical = new THREE.Spherical(
+        radius,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI * 2
+      );
+
+      const position = new THREE.Vector3();
+      position.setFromSpherical(spherical);
+
+      positions[i3] = position.x;
+      positions[i3 + 1] = position.y;
+      positions[i3 + 2] = position.z;
     }
 
     this.bufferGeometry = new THREE.BufferGeometry();
