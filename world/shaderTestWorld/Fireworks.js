@@ -62,12 +62,12 @@ export default class Fireworks {
       positions[i3 + 2] = position.z;
     }
 
-    this.bufferGeometry = new THREE.BufferGeometry();
-    this.bufferGeometry.setAttribute(
+    const bufferGeometry = new THREE.BufferGeometry();
+    bufferGeometry.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(positions, 3)
     );
-    this.bufferGeometry.setAttribute(
+    bufferGeometry.setAttribute(
       'aSize',
       new THREE.Float32BufferAttribute(sizesArray, 1)
     );
@@ -75,7 +75,7 @@ export default class Fireworks {
     // Material
     texture.flipY = false;
 
-    this.material = new THREE.ShaderMaterial({
+    const material = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -90,19 +90,19 @@ export default class Fireworks {
       },
     });
 
-    this.pointMesh = new THREE.Points(this.bufferGeometry, this.material);
-    this.pointMesh.position.copy(positionVector);
-    this.scene.add(this.pointMesh);
+    const pointMesh = new THREE.Points(bufferGeometry, material);
+    pointMesh.position.copy(positionVector);
+    this.scene.add(pointMesh);
 
     // Destroy single firework animation instance
     const destroy = () => {
-      this.scene.remove(this.pointMesh);
-      this.bufferGeometry.dispose();
-      this.material.dispose();
+      this.scene.remove(pointMesh);
+      bufferGeometry.dispose();
+      material.dispose();
     };
 
     // Animations
-    gsap.to(this.material.uniforms.uProgress, {
+    gsap.to(material.uniforms.uProgress, {
       value: 1,
       duration: 3,
       ease: 'linear',
@@ -133,9 +133,7 @@ export default class Fireworks {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('FireWorks');
-      this.debugFolder.addColor(this.parameters, 'color').onChange(() => {
-        this.material.uniforms.uColor.value.set(this.parameters.color);
-      });
+      this.debugFolder.addColor(this.parameters, 'color');
     }
   }
 
