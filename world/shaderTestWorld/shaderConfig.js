@@ -6,4 +6,5 @@ export const shaderPractices = {
   coffeeSmokeShader: () => import('./CoffeeSmoke'),
   hologramShader: () => import('./Hologram'),
   fireworksShader: () => import('./Fireworks'),
+  lightingBasicsShader: () => import('./LightingBasics'),
 };
