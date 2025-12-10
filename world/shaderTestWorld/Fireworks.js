@@ -21,6 +21,7 @@ export default class Fireworks {
       resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
       texture: this.resource[7],
       radius: 1,
+      color: new THREE.Color('#8affff'),
     };
 
     this.createFirework(
@@ -28,12 +29,13 @@ export default class Fireworks {
       this.parameters.positionVector,
       this.parameters.size,
       this.parameters.texture,
-      this.parameters.radius
+      this.parameters.radius,
+      this.parameters.color
     );
     this.setDebug();
   }
 
-  createFirework(count, positionVector, size, texture, radius) {
+  createFirework(count, positionVector, size, texture, radius, color) {
     // Geometry
 
     const sizesArray = new Float32Array(count);
@@ -48,7 +50,7 @@ export default class Fireworks {
       const i3 = i * 3;
 
       const spherical = new THREE.Spherical(
-        radius,
+        radius * (0.75 + Math.random() * 0.25),
         Math.random() * Math.PI,
         Math.random() * Math.PI * 2
       );
@@ -84,6 +86,7 @@ export default class Fireworks {
         uSize: new THREE.Uniform(size),
         uResolution: new THREE.Uniform(this.parameters.resolution),
         uTexture: new THREE.Uniform(texture),
+        uColor: new THREE.Uniform(color),
       },
     });
 
@@ -95,6 +98,9 @@ export default class Fireworks {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('FireWorks');
+      this.debugFolder.addColor(this.parameters, 'color').onChange(() => {
+        this.material.uniforms.uColor.value.set(this.parameters.color)
+      })
     }
   }
 
