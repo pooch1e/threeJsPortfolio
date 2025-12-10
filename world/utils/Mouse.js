@@ -17,7 +17,6 @@ export class Mouse extends EventEmitter {
   }
 
   setupEventListeners() {
-    // Store bound handlers so we can remove them later
     this.handleClick = (event) => {
       this.updatePosition(event);
       this.trigger('click', [this.position, event]);
@@ -45,15 +44,17 @@ export class Mouse extends EventEmitter {
   // default depth - can change
   getWorldPosition(depth = 10) {
     const camera = this.camera.perspectiveCamera || this.camera.instance;
-    const vector = new THREE.Vector3(this.position.x, this.position.y, 0.5);
-    vector.unproject(camera);
 
-    const dir = vector.sub(camera.position).normalize();
-    const distance = depth / dir.z;
+    // Create a ray from camera through the mouse position
+    this.raycaster.setFromCamera(this.position, camera);
 
-    return camera.position
+    // Get the point at the specified distance along the ray
+    const direction = this.raycaster.ray.direction;
+    const position = camera.position
       .clone()
-      .add(dir.multiplyScalar(distance));
+      .add(direction.multiplyScalar(depth));
+
+    return position;
   }
 
   // for raycasting

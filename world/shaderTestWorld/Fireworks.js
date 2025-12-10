@@ -3,7 +3,6 @@ import fireworkVertex from './shaders/fireworks/vertex.glsl';
 import fireworkFragment from './shaders/fireworks/fragment.glsl';
 import gsap from 'gsap';
 
-
 export default class Fireworks {
   constructor(world) {
     this.world = world;
@@ -30,7 +29,7 @@ export default class Fireworks {
 
     // Set up click event listener
     this.setupClickHandler();
-    
+
     this.setDebug();
   }
 
@@ -114,8 +113,7 @@ export default class Fireworks {
     this.handleClick = () => {
       // Get 3D world position from mouse click
       const worldPosition = this.mouse.getWorldPosition(5);
-      
-      // Create firework at clicked position
+
       this.createFirework(
         this.parameters.count,
         worldPosition,
@@ -126,7 +124,6 @@ export default class Fireworks {
       );
     };
 
-    // Listen for click events
     this.mouse.on('click', this.handleClick);
   }
 
