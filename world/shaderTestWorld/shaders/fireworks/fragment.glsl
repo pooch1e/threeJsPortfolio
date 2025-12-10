@@ -1,8 +1,13 @@
 uniform sampler2D uTexture;
 uniform vec3 uColor;
+
 void main() {
 
   float textureAlpha = texture2D(uTexture, gl_PointCoord).r;
+
+  // Animations
+
+ 
   
   
   // Final Colour
