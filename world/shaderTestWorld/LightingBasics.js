@@ -31,6 +31,7 @@ export default class LightingBasics {
     this.setSphere();
     this.setSuzanne();
     this.setTorus();
+    this.setLightHelper(); // can comment this out if needed
   }
 
   setSphere() {
@@ -38,7 +39,7 @@ export default class LightingBasics {
 
     this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
     this.sphereMesh.position.x = 4;
-    this.sphereMesh.position.y = 2;
+
     this.scene.add(this.sphereMesh);
   }
 
@@ -50,8 +51,6 @@ export default class LightingBasics {
       }
     });
 
-    this.suzanneModel.position.y = 2;
-
     this.scene.add(this.suzanneModel);
   }
 
@@ -59,16 +58,24 @@ export default class LightingBasics {
     this.torusGeometry = new THREE.TorusKnotGeometry(1);
     this.torusMesh = new THREE.Mesh(this.torusGeometry, this.material);
     this.torusMesh.position.x = -4;
-    this.torusMesh.position.y = 2;
 
     this.scene.add(this.torusMesh);
+  }
+
+  setLightHelper() {
+    const directionalLightHelper = new THREE.Mesh(
+      new THREE.PlaneGeometry(),
+      new THREE.MeshBasicMaterial()
+    );
+    this.scene.add(directionalLightHelper);
   }
 
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Lighting Basics');
+
       this.debugFolder.addColor(this.materialConfig, 'color').onChange(() => {
-        this.material.uniforms.uColor.value.set(this.paramaters.color);
+        this.material.uniforms.uColor.value.set(this.materialConfig.color);
       });
     }
   }
