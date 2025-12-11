@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { TextGeometry } from 'three/examples/jsm/Addons.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import lightingVertex from './shaders/lightingBasics/vertex.glsl';
 import lightingFragment from './shaders/lightingBasics/fragment.glsl';
 export default class LightingBasics {
@@ -25,6 +27,7 @@ export default class LightingBasics {
     this.resource = this.resources.items.suzanneModel;
     this.setModels();
     this.setDebug();
+    this.setText();
   }
 
   setModels() {
@@ -32,6 +35,36 @@ export default class LightingBasics {
     this.setSuzanne();
     this.setTorus();
     this.setLightHelper(); // can comment this out if needed
+  }
+
+  async setText() {
+    const loader = new FontLoader();
+    let font;
+
+    try {
+      font = await loader.loadAsync(
+        'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json'
+      );
+    } catch (error) {
+      console.error('Failed to load font:', error);
+      return;
+    }
+
+    const geometry = new TextGeometry(
+      'See source code for more light shader options!',
+      {
+        font: font,
+        size: 0.2,
+        depth: 0.2,
+        curveSegments: 12,
+      }
+    );
+
+    geometry.center();
+
+    this.textMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
+    this.textMesh.position.y = 1.5;
+    this.scene.add(this.textMesh);
   }
 
   setSphere() {
@@ -144,6 +177,12 @@ export default class LightingBasics {
           }
         });
       }
+    }
+
+    // Clean up text
+    if (this.textMesh) {
+      this.scene.remove(this.textMesh);
+      this.textMesh.geometry?.dispose();
     }
   }
 
