@@ -67,6 +67,9 @@ export default class LightingBasics {
       new THREE.PlaneGeometry(),
       new THREE.MeshBasicMaterial()
     );
+    directionalLightHelper.material.color.setRGB(0.1, 0.1, 1);
+    directionalLightHelper.material.side = THREE.DoubleSide;
+    directionalLightHelper.position.set(0, 0, 3);
     this.scene.add(directionalLightHelper);
   }
 
@@ -119,6 +122,17 @@ export default class LightingBasics {
 
   update(time) {
     if (time && this.material) {
+      // Rotate objects
+      if (this.suzanneModel) {
+        this.suzanneModel.rotation.x = time.elapsedTime * 0.001;
+        this.suzanneModel.rotation.y = time.elapsedTime * 0.002;
+      }
+
+      this.sphereMesh.rotation.x = time.elapsedTime * 0.001;
+      this.sphereMesh.rotation.y = time.elapsedTime * 0.002;
+
+      this.torusMesh.rotation.x = time.elapsedTime * 0.001;
+      this.torusMesh.rotation.y = time.elapsedTime * 0.002;
     }
   }
 }

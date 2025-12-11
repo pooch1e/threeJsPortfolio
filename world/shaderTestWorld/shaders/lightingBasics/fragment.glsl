@@ -26,6 +26,10 @@ light += directionalLight(
         vec3(0.0, 0.0, 3.0)  // Light position
     );
 
+
+// Specular Light (hard)
+
+
  color *= light;
 
     // Final color
