@@ -63,14 +63,23 @@ export default class LightingBasics {
   }
 
   setLightHelper() {
-    const directionalLightHelper = new THREE.Mesh(
+    this.directionalLightHelper = new THREE.Mesh(
       new THREE.PlaneGeometry(),
       new THREE.MeshBasicMaterial()
     );
-    directionalLightHelper.material.color.setRGB(0.1, 0.1, 1);
-    directionalLightHelper.material.side = THREE.DoubleSide;
-    directionalLightHelper.position.set(0, 0, 3);
-    this.scene.add(directionalLightHelper);
+    this.directionalLightHelper.material.color.setRGB(0.1, 0.1, 1);
+    this.directionalLightHelper.material.side = THREE.DoubleSide;
+    this.directionalLightHelper.position.set(0, 0, 3);
+
+    this.pointLightHelper = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.1, 2),
+      new THREE.MeshBasicMaterial()
+    );
+    this.pointLightHelper.material.color.setRGB(1, 0.1, 0.1);
+    this.pointLightHelper.position.set(0, 2.5, 0);
+
+    this.scene.add(this.pointLightHelper);
+    this.scene.add(this.directionalLightHelper);
   }
 
   setDebug() {
@@ -117,6 +126,24 @@ export default class LightingBasics {
           this.material?.dispose();
         }
       });
+    }
+    if (this.directionalLightHelper) {
+      this.scene.remove(this.directionalLightHelper);
+      this.directionalLightHelper.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          this.material?.dispose();
+        }
+      });
+      if (this.pointLightHelper) {
+        this.scene.remove(this.pointLightHelper);
+        this.pointLightHelper.traverse((child) => {
+          if (child.isMesh) {
+            child.geometry?.dispose();
+            this.material?.dispose();
+          }
+        });
+      }
     }
   }
 

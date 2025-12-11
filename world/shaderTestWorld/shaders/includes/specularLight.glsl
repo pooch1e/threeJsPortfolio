@@ -14,5 +14,5 @@ vec3 specularLight(vec3 lightColor, float lightIntensity, vec3 normal, vec3 ligh
   specular = pow(specular, specularPower); // quite strong spec highlight
 
   return lightColor * lightIntensity * (shading + specular);
- 
+
 }
