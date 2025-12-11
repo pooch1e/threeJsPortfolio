@@ -12,8 +12,8 @@ export default class Waves {
     this.debugObject = {};
 
     // Colours
-    this.debugObject.depthColor = '#186691'; // when wave is lowest
-    this.debugObject.surfaceColor = '#9bd8ff'; // when wave is highest/tallest
+    this.debugObject.depthColor = '#ff4000'; // when wave is lowest
+    this.debugObject.surfaceColor = '#151c37'; // when wave is highest/tallest
 
     this.setShader();
     this.setDebug();
@@ -25,17 +25,19 @@ export default class Waves {
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
       uniforms: {
-        uBigWavesElevation: { value: 0.2 },
-        uBigWavesFrequency: { value: new THREE.Vector2(4, 1.5) },
-        uTime: { value: 0.0 },
-        uWaveSpeed: { value: 0.75 },
-        uDepthColour: { value: new THREE.Color(this.debugObject.depthColor) },
-        uSurfaceColour: {
-          value: new THREE.Color(this.debugObject.surfaceColor),
-        },
-        uColorOffset: { value: 0.25 },
-        uColorMultiplier: { value: 2 },
-        
+        uBigWavesElevation: new THREE.Uniform(0.2),
+        uBigWavesFrequency: new THREE.Uniform(new THREE.Vector2(4, 1.5)),
+        uTime: new THREE.Uniform(0),
+        uWaveSpeed: new THREE.Uniform(0.75),
+        uDepthColour: new THREE.Uniform(
+          new THREE.Color(this.debugObject.depthColor)
+        ),
+        uSurfaceColour: new THREE.Uniform(
+          new THREE.Color(this.debugObject.surfaceColor)
+        ),
+
+        uColorOffset: new THREE.Uniform(0.925),
+        uColorMultiplier: new THREE.Uniform(1),
       },
     });
 
