@@ -1,6 +1,6 @@
 varying vec3 vNormal;
 varying vec3 vPosition;
-varying vec2 uResolution;
+uniform vec2 uResolution;
 
 void main()
 {
