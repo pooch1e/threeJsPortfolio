@@ -8,6 +8,7 @@ export default class Halftone {
     this.debug = this.world.shaderExperience.debug;
     this.resources = this.world.resources;
     this.resource = this.resources.items.suzanneModel;
+    this.sizes = this.world.shaderExperience.sizes;
 
     this.materialParameters = { color: '#ff794d' };
 
@@ -25,6 +26,12 @@ export default class Halftone {
         ),
         uShadeColor: new THREE.Uniform(
           new THREE.Color(this.materialParameters.shadeColor)
+        ),
+        uResolution: new THREE.Uniform(
+          new THREE.Vector2(
+            this.sizes.width * this.sizes.pixelRatio,
+            this.sizes.height * this.sizes.pixelRatio
+          )
         ),
       },
     });
