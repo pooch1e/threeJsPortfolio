@@ -20,7 +20,7 @@ export default class Waves {
     this.setDebug();
 
     // Set Helper
-    this.helper.setAxisHelper();
+    // this.helper.setAxisHelper();
   }
 
   setShader() {
