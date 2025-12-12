@@ -7,6 +7,7 @@ export default class Waves {
     this.world = world;
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
+    this.helper = this.world.helpers;
 
     // Colours for debug
     this.debugObject = {};
@@ -17,6 +18,9 @@ export default class Waves {
 
     this.setShader();
     this.setDebug();
+
+    // Set Helper
+    this.helper.setAxisHelper();
   }
 
   setShader() {
@@ -29,6 +33,14 @@ export default class Waves {
         uBigWavesFrequency: new THREE.Uniform(new THREE.Vector2(4, 1.5)),
         uTime: new THREE.Uniform(0),
         uWaveSpeed: new THREE.Uniform(0.75),
+        uBigWavesSpeed: new THREE.Uniform(0.75), // Alias for wave speed in waveElevation
+
+        // Small waves uniforms
+        uSmallIterations: new THREE.Uniform(4.0),
+        uSmallWavesElevation: new THREE.Uniform(0.15),
+        uSmallWavesFrequency: new THREE.Uniform(3.0),
+        uSmallWavesSpeed: new THREE.Uniform(0.2),
+
         uDepthColour: new THREE.Uniform(
           new THREE.Color(this.debugObject.depthColor)
         ),

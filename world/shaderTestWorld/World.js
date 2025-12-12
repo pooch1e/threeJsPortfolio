@@ -2,6 +2,7 @@ import { shaderPractices } from './shaderConfig';
 import { Environment } from './Environment.js';
 import { Resources } from '../utils/Resources.js';
 import { sources } from '../sources/sources.js';
+import { Helpers } from '../utils/Helpers.js';
 
 export class World {
   constructor(shaderExperience) {
@@ -10,9 +11,9 @@ export class World {
     this.shader = null;
 
     this.resources = new Resources(sources);
+    this.helpers = new Helpers(this);
 
     this.resources.on('ready', () => {
-  
       //default
       this.loadPractice('basicShader');
     });
@@ -95,5 +96,4 @@ export class World {
       this.shader = null;
     }
   }
-  
 }
