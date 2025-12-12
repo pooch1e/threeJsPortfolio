@@ -58,6 +58,11 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
             onClick={() => handleButtonClick('lightingBasicsShader')}>
             Lighting Basics
           </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('halftoneShader')}>
+            Halftone Shader
+          </li>
         </ul>
       )}
     </div>

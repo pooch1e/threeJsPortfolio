@@ -7,4 +7,5 @@ export const shaderPractices = {
   hologramShader: () => import('./Hologram'),
   fireworksShader: () => import('./Fireworks'),
   lightingBasicsShader: () => import('./LightingBasics'),
+  halftoneShader: () => import('./Halftone'),
 };
