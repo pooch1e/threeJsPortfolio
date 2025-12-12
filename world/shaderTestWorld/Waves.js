@@ -53,6 +53,8 @@ export default class Waves {
       },
     });
 
+    this.geometry.deleteAttribute('normal')
+
     this.mesh = new THREE.Mesh(this.geometry, this.shaderMaterial);
 
     this.mesh.rotation.x = -Math.PI * 0.5;
