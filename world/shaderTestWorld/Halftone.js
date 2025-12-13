@@ -10,7 +10,11 @@ export default class Halftone {
     this.resource = this.resources.items.suzanneModel;
     this.sizes = this.world.shaderExperience.sizes;
 
-    this.materialParameters = { color: '#ff794d', shadowColor: '#8e19b8' };
+    this.materialParameters = {
+      color: '#ff794d',
+      shadowColor: '#8e19b8',
+      lightColor: '#e5ffe0',
+    };
 
     this.setModels();
     this.setDebug();
@@ -24,18 +28,19 @@ export default class Halftone {
         uColor: new THREE.Uniform(
           new THREE.Color(this.materialParameters.color)
         ),
-        uShadeColor: new THREE.Uniform(
-          new THREE.Color(this.materialParameters.shadeColor)
-        ),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
         ),
-        uShadowRepititions: new THREE.Uniform(100),
+        uShadowRepetitions: new THREE.Uniform(100),
         uShadowColor: new THREE.Uniform(
           new THREE.Color(this.materialParameters.shadowColor)
+        ),
+        uLightRepetitions: new THREE.Uniform(130),
+        uLightColor: new THREE.Uniform(
+          new THREE.Color(this.materialParameters.lightColor)
         ),
       },
     });
@@ -71,7 +76,7 @@ export default class Halftone {
         });
 
       this.debugFolder
-        .add(this.material.uniforms.uShadowRepititions, 'value')
+        .add(this.material.uniforms.uShadowRepetitions, 'value')
         .min(1)
         .max(100)
         .step(1);
@@ -81,6 +86,20 @@ export default class Halftone {
         .onChange(() => {
           this.material.uniforms.uShadowColor.value.set(
             this.materialParameters.shadowColor
+          );
+        });
+
+      this.debugFolder
+        .add(this.material.uniforms.uLightRepetitions, 'value')
+        .min(1)
+        .max(300)
+        .step(1);
+
+      this.debugFolder
+        .addColor(this.materialParameters, 'lightColor')
+        .onChange(() => {
+          this.material.uniforms.uLightColor.value.set(
+            this.materialParameters.lightColor
           );
         });
     }
