@@ -2,3 +2,4 @@ float remap(float value, float originMin, float originMax, float destinationMin,
 {
     return destinationMin + (value - originMin) * (destinationMax - destinationMin) / (originMax - originMin);
 }
+
