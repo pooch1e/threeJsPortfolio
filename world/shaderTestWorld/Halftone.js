@@ -10,7 +10,7 @@ export default class Halftone {
     this.resource = this.resources.items.suzanneModel;
     this.sizes = this.world.shaderExperience.sizes;
 
-    this.materialParameters = { color: '#ff794d' };
+    this.materialParameters = { color: '#ff794d', shadowColor: '#8e19b8' };
 
     this.setModels();
     this.setDebug();
@@ -32,6 +32,10 @@ export default class Halftone {
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
+        ),
+        uShadowRepititions: new THREE.Uniform(100),
+        uShadowColor: new THREE.Uniform(
+          new THREE.Color(this.materialParameters.shadowColor)
         ),
       },
     });
@@ -63,6 +67,20 @@ export default class Halftone {
         .onChange(() => {
           this.material.uniforms.uColor.value.set(
             this.materialParameters.color
+          );
+        });
+
+      this.debugFolder
+        .add(this.material.uniforms.uShadowRepititions, 'value')
+        .min(1)
+        .max(100)
+        .step(1);
+
+      this.debugFolder
+        .addColor(this.materialParameters, 'shadowColor')
+        .onChange(() => {
+          this.material.uniforms.uShadowColor.value.set(
+            this.materialParameters.shadowColor
           );
         });
     }

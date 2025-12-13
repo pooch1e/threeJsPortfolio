@@ -5,9 +5,12 @@ varying vec3 vPosition;
 
 
 uniform vec2 uResolution;
+uniform vec3 uShadowColor;
+uniform float uShadowRepititions;
 
 #include ../includes/ambientLight.glsl
 #include ../includes/specularLight.glsl
+#include ../includes/halftone.glsl
 
 
 void main()
@@ -38,26 +41,21 @@ void main()
     color *= light;
 
     // PARAMS
-    float repitions = 50.0;
-    vec3 directions = vec3(0.0, -1.0, 0.0);
-    float low = - 0.8;
-    float high = 1.5;
-    float intensity = dot(normal, directions);
-    vec3 pointColor = vec3(1.0, 0.0, 0.0);
+    
+    
 
-    // Grid
-    vec2 uv = gl_FragCoord.xy /uResolution.y;
-    uv *= repitions;
-    uv = mod(uv, 1.0);
-
-    float point = distance(uv, vec2(0.5));
-    point = 1.0 - step(0.5 * intensity, point);
-
-    // color
-    color = mix(color, pointColor, point);
+    // Halftone
+    color = halftone(
+        color,                 // Input color
+        uShadowRepititions,                  // Repetitions
+        vec3(0.0, - 1.0, 0.0), // Direction
+        - 0.8,                 // Low
+        1.5,                   // High
+        uShadowColor,   // Point color
+        normal                 // Normal
+    );
 
     
-    intensity = smoothstep(low, high, intensity);
 
     // Final color
     gl_FragColor = vec4(color, 1.0);
