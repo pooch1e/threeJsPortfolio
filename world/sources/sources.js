@@ -26,6 +26,23 @@ export const sources = [
     ],
   },
   {
+    name: 'earthTextures',
+    type: 'textureArray',
+    path: [
+      '/static/textures/earth/day.jpg',
+      '/static/textures/earth/night.jpg',
+      '/static/textures/earth/specularClouds.jpg',
+    ],
+  },
+  {
+    name: 'lensesTextures',
+    type: 'textureArray',
+    path: [
+      '/static/textures/lenses/lensflare0.png',
+      '/static/textures/lenses/lensflare1.png',
+    ],
+  },
+  {
     name: 'foxModel',
     type: 'gltfModel',
     path: '/static/models/Fox/glTF/Fox.gltf',
