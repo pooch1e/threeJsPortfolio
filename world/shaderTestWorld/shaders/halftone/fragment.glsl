@@ -43,6 +43,7 @@ void main()
     float low = - 0.8;
     float high = 1.5;
     float intensity = dot(normal, directions);
+    vec3 pointColor = vec3(1.0, 0.0, 0.0);
 
     // Grid
     vec2 uv = gl_FragCoord.xy /uResolution.y;
@@ -52,11 +53,14 @@ void main()
     float point = distance(uv, vec2(0.5));
     point = 1.0 - step(0.5 * intensity, point);
 
+    // color
+    color = mix(color, pointColor, point);
+
     
     intensity = smoothstep(low, high, intensity);
 
     // Final color
-    gl_FragColor = vec4(point, point, point, 1.0);
+    gl_FragColor = vec4(color, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 }
