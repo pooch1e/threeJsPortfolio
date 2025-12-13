@@ -131,5 +131,9 @@ export default class Hologram {
         }
       });
     }
+
+    if (this.debugFolder) {
+      this.debug.ui.destroy();
+    }
   }
 }

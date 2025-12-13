@@ -116,6 +116,10 @@ export default class LeePerry {
       this.plane.geometry?.dispose();
       this.plane.material?.dispose();
     }
+
+    if (this.debugFolder) {
+      this.debug.ui.destroy();
+    }
   }
 
   update(time) {

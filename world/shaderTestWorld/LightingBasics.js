@@ -184,6 +184,10 @@ export default class LightingBasics {
       this.scene.remove(this.textMesh);
       this.textMesh.geometry?.dispose();
     }
+    // Debug folder
+    if (this.debugFolder) {
+      this.debug.ui.destroy();
+    }
   }
 
   update(time) {

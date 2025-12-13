@@ -42,6 +42,7 @@ export default class Halftone {
         uLightColor: new THREE.Uniform(
           new THREE.Color(this.materialParameters.lightColor)
         ),
+        uAlpha: new THREE.Uniform(1.0),
       },
     });
 
@@ -79,7 +80,8 @@ export default class Halftone {
         .add(this.material.uniforms.uShadowRepetitions, 'value')
         .min(1)
         .max(100)
-        .step(1);
+        .step(1)
+        .name('repetitions');
 
       this.debugFolder
         .addColor(this.materialParameters, 'shadowColor')
@@ -93,7 +95,8 @@ export default class Halftone {
         .add(this.material.uniforms.uLightRepetitions, 'value')
         .min(1)
         .max(300)
-        .step(1);
+        .step(1)
+        .name('repetitions');
 
       this.debugFolder
         .addColor(this.materialParameters, 'lightColor')
@@ -102,6 +105,13 @@ export default class Halftone {
             this.materialParameters.lightColor
           );
         });
+
+      this.debugFolder
+        .add(this.material.uniforms.uAlpha, 'value')
+        .min(0)
+        .max(1)
+        .step(0.01)
+        .name('Alpha');
     }
   }
 
@@ -120,6 +130,9 @@ export default class Halftone {
           }
         }
       });
+    }
+    if (this.debugFolder) {
+      this.debug.ui.destroy();
     }
   }
 }

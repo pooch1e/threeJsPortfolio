@@ -11,6 +11,8 @@ uniform float uShadowRepetitions;
 uniform float uLightRepetitions;
 uniform vec3 uLightColor;
 
+uniform float uAlpha;
+
 #include ../includes/ambientLight.glsl
 #include ../includes/specularLight.glsl
 #include ../includes/halftone.glsl
@@ -72,7 +74,7 @@ void main()
     
 
     // Final color
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, uAlpha);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 }

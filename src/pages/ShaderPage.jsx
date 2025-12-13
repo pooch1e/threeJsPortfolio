@@ -6,13 +6,22 @@ import { useState, useEffect } from 'react';
 export default function AnimalRenderPage() {
   const [shaderChoice, setShaderChoice] = useState(null);
   const [searchParams] = useSearchParams();
+  const [isDebug, setDebugMode] = useState(false);
   const debugMode = searchParams.get('debug') === 'true';
 
   const { canvasRef, worldRef } = useWorld(
     ShaderExperience,
     { debug: debugMode },
-    [debugMode]
+    [isDebug]
   );
+
+  useEffect(() => {
+    if (debugMode) {
+      setDebugMode(true);
+    } else {
+      setDebugMode(false);
+    }
+  }, [isDebug, debugMode]);
 
   useEffect(() => {
     if (shaderChoice && worldRef.current?.world) {

@@ -93,5 +93,9 @@ export default class CoffeeSmoke {
       this.material?.dispose();
       this.smokeTexture?.dispose();
     }
+
+    if (this.debugFolder) {
+      this.debug.ui.destroy();
+    }
   }
 }
