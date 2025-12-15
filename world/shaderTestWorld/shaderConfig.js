@@ -8,4 +8,5 @@ export const shaderPractices = {
   fireworksShader: () => import('./Fireworks'),
   lightingBasicsShader: () => import('./LightingBasics'),
   halftoneShader: () => import('./Halftone'),
+  earthShader: () => import('./Earth'),
 };
