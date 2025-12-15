@@ -2,6 +2,11 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 
+// Uniforms
+uniform sampler2D uEarthDayTexture;
+uniform sampler2D uNightTexture;
+uniform sampler2D uSpecularCloudsTexture;
+
 void main()
 {
     vec3 viewDirection = normalize(vPosition - cameraPosition);

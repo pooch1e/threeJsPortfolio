@@ -10,6 +10,16 @@ export default class Earth {
 
     // Setup
     this.setModel();
+    this.setDebug();
+
+    // Textures
+    this.earthDayTexture = this.resources.items.earthTextures[0];
+    this.earthDayTexture.colorSpace = THREE.SRGBColorSpace;
+
+    this.earthNightTexture = this.resources.items.earthTextures[1];
+    this.earthNightTexture.colorSpace = THREE.SRGBColorSpace;
+
+    this.earthSpecularCloudTexture = this.resources.items.earthTextures[2];
   }
 
   setModel() {
@@ -17,6 +27,13 @@ export default class Earth {
     this.sphereMaterial = new THREE.ShaderMaterial({
       vertexShader: earthVertex,
       fragmentShader: earthFragment,
+      uniforms: {
+        uDayTexture: new THREE.Uniform(this.earthDayTexture),
+        uNightTexture: new THREE.Uniform(this.uNightTexture),
+        uSpecularCloudsTexture: new THREE.Uniform(
+          this.earthSpecularCloudTexture
+        ),
+      },
     });
 
     this.earthMesh = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
