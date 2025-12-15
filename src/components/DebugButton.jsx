@@ -4,9 +4,9 @@ export default function DebugButton() {
   const [isClicked, setIsClicked] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const handleButtonClick = (e) => {
-    setIsClicked(e);
-    if (isClicked) {
+  const handleButtonClick = (newState) => {
+    setIsClicked(newState);
+    if (newState) {
       setSearchParams('?debug=true');
     } else {
       setSearchParams('');

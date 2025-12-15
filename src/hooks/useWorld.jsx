@@ -5,7 +5,7 @@ export function useWorld(worldClass, options = {}, dependencies = []) {
   const worldRef = useRef(null);
 
   useEffect(() => {
-    if (canvasRef.current && !worldRef.current && worldClass) {
+    if (canvasRef.current && worldClass) {
       worldRef.current = new worldClass(canvasRef.current, options);
     }
 
