@@ -15,8 +15,18 @@ void main()
     // Color
     vec3 color = vec3(0.0);
 
-    
+    // Light direction
+    vec3 uSunDirection = vec3(0.0, 0.0, 1.0);
+    // Calculates how close normal (ie side facing sun) is to light. If +1 it is facing, if -1 it is shadow and if 0.5 is perpendicular
+    float sunOrientation = dot(uSunDirection, normal);
+    // float dayMix = sunOrientation;
 
+    vec3 dayColor = texture2D(uEarthDayTexture, vUv).rgb;
+    vec3 nightColor = texture2D(uNightTexture, vUv).rgb;
+    color = mix(dayColor, nightColor, sunOrientation);
+
+    
+    
     // Final color
     gl_FragColor = vec4(color, 1.0);
     #include <tonemapping_fragment>
