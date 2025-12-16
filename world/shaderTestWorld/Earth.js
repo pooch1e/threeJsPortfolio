@@ -8,10 +8,6 @@ export default class Earth {
     this.debug = this.world.shaderExperience.debug;
     this.resources = world.resources;
 
-    // Setup
-    this.setModel();
-    this.setDebug();
-
     // Textures
     this.earthDayTexture = this.resources.items.earthTextures[0];
     this.earthDayTexture.colorSpace = THREE.SRGBColorSpace;
@@ -20,6 +16,10 @@ export default class Earth {
     this.earthNightTexture.colorSpace = THREE.SRGBColorSpace;
 
     this.earthSpecularCloudTexture = this.resources.items.earthTextures[2];
+
+    // Setup
+    this.setModel();
+    this.setDebug();
   }
 
   setModel() {
@@ -29,7 +29,7 @@ export default class Earth {
       fragmentShader: earthFragment,
       uniforms: {
         uDayTexture: new THREE.Uniform(this.earthDayTexture),
-        uNightTexture: new THREE.Uniform(this.uNightTexture),
+        uNightTexture: new THREE.Uniform(this.earthNightTexture),
         uSpecularCloudsTexture: new THREE.Uniform(
           this.earthSpecularCloudTexture
         ),
