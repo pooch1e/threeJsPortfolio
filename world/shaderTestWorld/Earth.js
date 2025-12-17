@@ -32,9 +32,9 @@ export default class Earth {
 
     // Setup
     this.setModel();
+    this.setAtmosphere();
     this.setSun();
     this.updateSun();
-    this.setAtmosphere();
     this.setDebug();
   }
 
@@ -66,10 +66,19 @@ export default class Earth {
   setAtmosphere() {
     this.atmosGeometry = new THREE.SphereGeometry(2, 64, 64);
     this.atmosMaterial = new THREE.ShaderMaterial({
-      wireframe: true,
       side: THREE.BackSide,
+      transparent: true,
       vertexShader: atmosphereVertexShader,
       fragmentShader: atmosphereFragmentShader,
+      uniforms: {
+        uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
+        uAtmosphereDayColor: new THREE.Uniform(
+          new THREE.Color(this.earthParams.atmosphereDayColor)
+        ),
+        uAtmosphereTwilightColor: new THREE.Uniform(
+          new THREE.Color(this.earthParams.atmosphereTwilightColor)
+        ),
+      },
     });
     this.atmosMesh = new THREE.Mesh(this.atmosGeometry, this.atmosMaterial);
 
