@@ -11,11 +11,14 @@ export default class Earth {
     // Textures
     this.earthDayTexture = this.resources.items.earthTextures[0];
     this.earthDayTexture.colorSpace = THREE.SRGBColorSpace;
+    this.earthDayTexture.anisotropy = 6;
 
     this.earthNightTexture = this.resources.items.earthTextures[1];
     this.earthNightTexture.colorSpace = THREE.SRGBColorSpace;
+    this.earthNightTexture.anisotropy = 6;
 
     this.earthSpecularCloudTexture = this.resources.items.earthTextures[2];
+    this.earthSpecularCloudTexture.anisotropy = 6;
 
     // Setup
     this.setModel();
@@ -64,7 +67,7 @@ export default class Earth {
       this.debugSun.position.copy(this.sunDirection).multiplyScalar(5);
 
       // Update sun
-      console.log(this.sphereMaterial.uniforms.uSunDirection, 'undefined?')
+      console.log(this.sphereMaterial.uniforms.uSunDirection, 'undefined?');
       this.sphereMaterial.uniforms.uSunDirection.clone(this.sunDirection);
     }
   }
@@ -89,8 +92,9 @@ export default class Earth {
   }
 
   update(time) {
-    if (this.time && this.sphereMaterial) {
-      this.earthMesh.rotation.y += time.elapsedTime;
+    if (time && this.sphereMaterial) {
+      this.earthMesh.rotation.y = time.elapsedTime * 0.0002;
+      this.earthMesh.rotation.x = time.elapsedTime * 0.0004;
     }
   }
 
