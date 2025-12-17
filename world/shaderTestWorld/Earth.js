@@ -67,7 +67,7 @@ export default class Earth {
       this.debugSun.position.copy(this.sunDirection).multiplyScalar(5);
 
       // Update sun
-      console.log(this.sphereMaterial.uniforms.uSunDirection, 'undefined?');
+
       this.sphereMaterial.uniforms.uSunDirection.clone(this.sunDirection);
     }
   }
