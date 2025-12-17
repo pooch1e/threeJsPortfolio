@@ -122,13 +122,13 @@ export default class Earth {
         .add(this.sunSpherical, 'phi')
         .min(0)
         .max(Math.PI)
-        .onChange(this.updateSun);
+        .onChange(() => this.updateSun());
 
       this.debugFolder
         .add(this.sunSpherical, 'theta')
         .min(-Math.PI)
         .max(Math.PI)
-        .onChange(this.updateSun);
+        .onChange(() => this.updateSun());
 
       this.debugFolder
         .addColor(this.earthParams, 'atmosphereDayColor')
@@ -156,7 +156,7 @@ export default class Earth {
   update(time) {
     if (time && this.sphereMaterial) {
       this.earthMesh.rotation.y = time.elapsedTime * 0.0002;
-      this.earthMesh.rotation.x = time.elapsedTime * 0.0004;
+      
     }
   }
 
