@@ -19,6 +19,8 @@ export default class Earth {
 
     // Setup
     this.setModel();
+    this.setSun();
+    this.updateSun();
     this.setDebug();
   }
 
@@ -33,6 +35,7 @@ export default class Earth {
         uSpecularCloudsTexture: new THREE.Uniform(
           this.earthSpecularCloudTexture
         ),
+        uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
       },
     });
 
@@ -40,13 +43,56 @@ export default class Earth {
     this.scene.add(this.earthMesh);
   }
 
-  setDebug() {
-    if (this.debug.active) {
-      this.debugFolder = this.debug.ui.addFolder('Earth Shader');
+  setSun() {
+    // Debug Sun
+    this.debugSun = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.1, 2),
+      new THREE.MeshBasicMaterial()
+    );
+
+    this.sunSpherical = new THREE.Spherical(1, Math.PI * 0.5, 0.5);
+    this.sunDirection = new THREE.Vector3();
+
+    this.scene.add(this.debugSun);
+  }
+
+  updateSun() {
+    if (this.sunDirection) {
+      this.sunDirection.setFromSpherical(this.sunSpherical);
+
+      // Debug
+      this.debugSun.position.copy(this.sunDirection).multiplyScalar(5);
+
+      // Update sun
+      console.log(this.sphereMaterial.uniforms.uSunDirection, 'undefined?')
+      this.sphereMaterial.uniforms.uSunDirection.clone(this.sunDirection);
     }
   }
 
-  update(time) {}
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Earth Shader');
+
+      // Debug Sun Spherical
+      this.debugFolder
+        .add(this.sunSpherical, 'phi')
+        .min(0)
+        .max(Math.PI)
+        .onChange(this.updateSun);
+
+      this.debugFolder
+        .add(this.sunSpherical, 'theta')
+        .min(-Math.PI)
+        .max(Math.PI)
+        .onChange(this.updateSun);
+    }
+  }
+
+  update(time) {
+    if (this.time && this.sphereMaterial) {
+      this.earthMesh.rotation.y += time.elapsedTime;
+    }
+  }
 
   destroy() {}
 }

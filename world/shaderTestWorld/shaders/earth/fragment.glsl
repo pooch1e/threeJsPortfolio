@@ -6,6 +6,7 @@ varying vec3 vPosition;
 uniform sampler2D uDayTexture;
 uniform sampler2D uNightTexture;
 uniform sampler2D uSpecularCloudsTexture;
+uniform vec3 uSunDirection;
 
 void main()
 {
