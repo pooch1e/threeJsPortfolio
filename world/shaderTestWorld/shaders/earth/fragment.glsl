@@ -47,8 +47,18 @@ void main()
     // Atmosphere
     float atmosphereDayMix = smoothstep(-0.5, 1.0, sunOrientation);
     vec3 atmosphereColor = mix(uAtmosphereTwilightColor, uAtmosphereDayColor, atmosphereDayMix);
-    color = mix(color, atmosphereColor, fresnel * 0.5);
+    color = mix(color, atmosphereColor, fresnel * atmosphereDayMix);
 
+
+    // Specular
+    vec3 reflection = reflect(- uSunDirection, normal);
+    float specular = - dot(reflection, viewDirection);
+    specular = max(specular, 0.0);
+    specular = pow(specular, 32.0);
+    
+
+    vec3 specularColor = mix(vec3(1.0), atmosphereColor, fresnel);
+    color += specular * specularColor;
     
     
     // Final color
