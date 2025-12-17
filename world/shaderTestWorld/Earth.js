@@ -79,8 +79,7 @@ export default class Earth {
       this.debugSun.position.copy(this.sunDirection).multiplyScalar(5);
 
       // Update sun
-
-      this.sphereMaterial.uniforms.uSunDirection.clone(this.sunDirection);
+      this.sphereMaterial.uniforms.uSunDirection.value.copy(this.sunDirection);
     }
   }
 
@@ -125,5 +124,14 @@ export default class Earth {
     }
   }
 
-  destroy() {}
+  destroy() {
+    if (this.mesh) {
+      this.scene.remove(this.mesh);
+      this.geometry?.dispose();
+      this.sphereMaterial?.dispose();
+    }
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
+    }
+  }
 }
