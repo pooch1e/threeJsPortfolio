@@ -55,6 +55,8 @@ void main()
     float specular = - dot(reflection, viewDirection);
     specular = max(specular, 0.0);
     specular = pow(specular, 32.0);
+
+    specular *= cloudColor.r;
     
 
     vec3 specularColor = mix(vec3(1.0), atmosphereColor, fresnel);

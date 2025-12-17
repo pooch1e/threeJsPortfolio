@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import earthVertex from './shaders/earth/vertex.glsl';
 import earthFragment from './shaders/earth/fragment.glsl';
+
+import atmosphereVertexShader from './shaders/atmosphere/vertex.glsl';
+import atmosphereFragmentShader from './shaders/atmosphere/fragment.glsl';
+
 export default class Earth {
   constructor(world) {
     this.world = world;
@@ -30,6 +34,7 @@ export default class Earth {
     this.setModel();
     this.setSun();
     this.updateSun();
+    this.setAtmosphere();
     this.setDebug();
   }
 
@@ -58,6 +63,21 @@ export default class Earth {
     this.scene.add(this.earthMesh);
   }
 
+  setAtmosphere() {
+    this.atmosGeometry = new THREE.SphereGeometry(2, 64, 64);
+    this.atmosMaterial = new THREE.ShaderMaterial({
+      wireframe: true,
+      side: THREE.BackSide,
+      vertexShader: atmosphereVertexShader,
+      fragmentShader: atmosphereFragmentShader,
+    });
+    this.atmosMesh = new THREE.Mesh(this.atmosGeometry, this.atmosMaterial);
+
+    this.atmosMesh.scale.set(1.04, 1.04, 1.04);
+
+    this.scene.add(this.atmosMesh);
+  }
+
   setSun() {
     // Debug Sun
     this.debugSun = new THREE.Mesh(
@@ -80,6 +100,7 @@ export default class Earth {
 
       // Update sun
       this.sphereMaterial.uniforms.uSunDirection.value.copy(this.sunDirection);
+      this.atmosMaterial.uniforms.uSunDirection.value.copy(this.sunDirection);
     }
   }
 
@@ -106,11 +127,17 @@ export default class Earth {
           this.sphereMaterial.uniforms.uAtmosphereDayColor.value.set(
             this.earthParams.atmosphereDayColor
           );
+          this.atmosMaterial.uniforms.uAtmosphereDayColor.value.set(
+            this.earthParams.atmosphereDayColor
+          );
         });
       this.debugFolder
         .addColor(this.earthParams, 'atmosphereTwilightColor')
         .onChange(() => {
           this.sphereMaterial.uniforms.uAtmosphereTwilightColor.value.set(
+            this.earthParams.atmosphereTwilightColor
+          );
+          this.atmosMaterial.uniforms.uAtmosphereTwilightColor.value.set(
             this.earthParams.atmosphereTwilightColor
           );
         });
