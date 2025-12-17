@@ -7,6 +7,8 @@ uniform sampler2D uDayTexture;
 uniform sampler2D uNightTexture;
 uniform sampler2D uSpecularCloudsTexture;
 uniform vec3 uSunDirection;
+uniform vec3 uAtmosphereDayColor;
+uniform vec3 uAtmosphereTwilightColor;
 
 void main()
 {
@@ -16,7 +18,7 @@ void main()
     // Color
     vec3 color = vec3(0.0);
 
-   
+
     // Color is black and white here------:
 
     // Calculates how close normal (ie side facing sun) is to light. If +1 it is facing, if -1 it is shadow and if 0.5 is perpendicular
@@ -32,7 +34,10 @@ void main()
     // Cloud texture
     vec2 cloudColor = texture2D(uSpecularCloudsTexture, vUv).rg;
     float cloudsMix = cloudColor.g;
-    cloudsMix = smoothstep(0.5, 1.0, cloudsMix);
+    cloudsMix = smoothstep(0.5, 1.0, cloudColor.g);
+
+    cloudsMix *= dayMix; // clouds dissapear at night
+
     color = mix(color, vec3(1.0), cloudsMix);
 
     

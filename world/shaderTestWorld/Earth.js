@@ -20,6 +20,12 @@ export default class Earth {
     this.earthSpecularCloudTexture = this.resources.items.earthTextures[2];
     this.earthSpecularCloudTexture.anisotropy = 6;
 
+    // Params
+    this.earthParams = {
+      atmosphereDayColor: '#00aaff',
+      atmosphereTwilightColor: '#ff6600',
+    };
+
     // Setup
     this.setModel();
     this.setSun();
@@ -39,6 +45,12 @@ export default class Earth {
           this.earthSpecularCloudTexture
         ),
         uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
+        uAtmosphereDayColor: new THREE.Uniform(
+          new THREE.Color(this.earthParams.atmosphereDayColor)
+        ),
+        uAtmosphereTwilightColor: new THREE.Uniform(
+          new THREE.Color(this.earthParams.atmosphereTwilightColor)
+        ),
       },
     });
 
@@ -88,6 +100,21 @@ export default class Earth {
         .min(-Math.PI)
         .max(Math.PI)
         .onChange(this.updateSun);
+
+      this.debugFolder
+        .addColor(this.earthParams, 'atmosphereDayColor')
+        .onChange(() => {
+          this.sphereMaterial.uniforms.uAtmosphereDayColor.value.set(
+            this.earthParams.atmosphereDayColor
+          );
+        });
+      this.debugFolder
+        .addColor(this.earthParams, 'atmosphereTwilightColor')
+        .onChange(() => {
+          this.sphereMaterial.uniforms.uAtmosphereTwilightColor.value.set(
+            this.earthParams.atmosphereTwilightColor
+          );
+        });
     }
   }
 
