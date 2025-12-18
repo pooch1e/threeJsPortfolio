@@ -3,15 +3,21 @@ import particlesVertexShader from './shaders/particles/vertex.glsl';
 import particlesFragmentShader from './shaders/particles/fragment.glsl';
 
 export default class ParticleAnimation {
-  constructor(world) {
+  constructor(world, canvas2D = null) {
     this.world = world;
     this.scene = world.scene;
     this.resources = this.world.resources;
+    this.canvas2D = canvas2D;
+    this.ctx2D = canvas2D ? canvas2D.getContext('2d') : null;
 
     // Setup
 
     this.glowTexture = this.resources.items.glowTexture;
     this.imageTexture = this.resources.items.joelTypeTexture;
+
+    this.displacementParams = {
+      
+    }
 
     this.setParticles();
   }

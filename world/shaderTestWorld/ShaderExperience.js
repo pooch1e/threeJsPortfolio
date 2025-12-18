@@ -102,7 +102,7 @@ export class ShaderExperience {
             : [child.material];
 
           materials.forEach((material) => {
-            // Loop through material properties
+        
             for (const key in material) {
               const value = material[key];
 

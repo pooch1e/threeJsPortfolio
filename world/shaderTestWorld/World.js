@@ -19,7 +19,7 @@ export class World {
     });
   }
 
-  async loadPractice(key) {
+  async loadPractice(key, canvas2D = null) {
     // Store reference to old shader
     const oldShader = this.shader;
 
@@ -27,7 +27,7 @@ export class World {
     try {
       const shaderModule = await shaderPractices[key]();
       const ShaderClass = shaderModule.default;
-      this.shader = new ShaderClass(this);
+      this.shader = new ShaderClass(this, canvas2D);
 
       // clean up old environment if exists
       if (this.environment) {
