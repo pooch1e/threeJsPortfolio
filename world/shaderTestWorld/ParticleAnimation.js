@@ -12,14 +12,24 @@ export default class ParticleAnimation {
 
     // Setup
 
-    this.glowTexture = this.resources.items.glowTexture;
     this.imageTexture = this.resources.items.joelTypeTexture;
 
     this.displacementParams = {
-      
-    }
+      canvasWidth: 128,
+      canvasHeight: 128,
+      glowImage: new Image(),
+      imageSrc: '/static/textures/glow/glow.png',
+    };
+
+    this.ctx2D.fillRect(
+      0,
+      0,
+      this.displacementParams.canvasWidth,
+      this.displacementParams.canvasHeight
+    );
 
     this.setParticles();
+    this.setInteractivePane();
   }
 
   setParticles() {
@@ -45,6 +55,14 @@ export default class ParticleAnimation {
       this.particlesMaterial
     );
     this.scene.add(this.particles);
+  }
+
+  setInteractivePane() {
+    this.displacementParams.interactivePlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 10),
+      new THREE.MeshBasicMaterial({ color: 'red' })
+    );
+    this.scene.add(this.displacementParams.interactivePlane)
   }
 
   update(time) {}
