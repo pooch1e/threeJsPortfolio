@@ -68,6 +68,11 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
             onClick={() => handleButtonClick('earthShader')}>
             Earth
           </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('particlesAnimationShader')}>
+            Particles Animation
+          </li>
         </ul>
       )}
     </div>

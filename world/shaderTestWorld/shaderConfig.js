@@ -9,4 +9,5 @@ export const shaderPractices = {
   lightingBasicsShader: () => import('./LightingBasics'),
   halftoneShader: () => import('./Halftone'),
   earthShader: () => import('./Earth'),
+  particlesAnimationShader: () => import('./ParticleAnimation'),
 };
