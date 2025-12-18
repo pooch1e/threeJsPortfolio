@@ -6,8 +6,13 @@ export default class ParticleAnimation {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
+    this.resources = this.world.resources;
 
     // Setup
+
+    this.glowTexture = this.resources.items.glowTexture;
+    this.imageTexture = this.resources.items.joelTypeTexture;
+
     this.setParticles();
   }
 
@@ -36,4 +41,6 @@ export default class ParticleAnimation {
   }
 
   update(time) {}
+
+  destroy() {}
 }

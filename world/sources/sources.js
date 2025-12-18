@@ -107,4 +107,14 @@ export const sources = [
     type: 'texture',
     path: '/static/textures/perlin/perlin.png',
   },
+  {
+    name: 'joelTypeTexture',
+    type: 'texture',
+    path: '/static/textures/joelText/joel.png',
+  },
+  {
+    name: 'glowTexture',
+    type: 'texture',
+    path: '/static/textures/glow/glow.png',
+  },
 ];
