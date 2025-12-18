@@ -17,7 +17,7 @@ export default class ParticleAnimation {
   }
 
   setParticles() {
-    this.particlesGeometry = new THREE.PlaneGeometry(10, 10, 32, 32);
+    this.particlesGeometry = new THREE.PlaneGeometry(10, 10, 128, 128);
 
     this.particlesMaterial = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
@@ -31,6 +31,7 @@ export default class ParticleAnimation {
               this.world.shaderExperience.sizes.pixelRatio
           )
         ),
+        uPictureTexture: new THREE.Uniform(this.imageTexture),
       },
     });
     this.particles = new THREE.Points(
