@@ -21,6 +21,7 @@ export default class ParticleAnimation {
       screenCursor: new THREE.Vector2(9999, 9999),
       canvasWidth: 128,
       canvasHeight: 128,
+      drawImage: new Image(),
     };
 
     this.setup2DCanvas();
@@ -98,7 +99,6 @@ export default class ParticleAnimation {
 
       if (intersections.length > 0) {
         const intersect = intersections[0];
-        console.log(intersect);
 
         if (this.ctx2D && intersect.uv) {
           // Convert UV to canvas coordinates
@@ -106,8 +106,14 @@ export default class ParticleAnimation {
           const canvasY = (1 - intersect.uv.y) * this.canvas2D.height;
 
           //draw here
-
-          
+          const size = 32;
+          this.ctx2D.drawImage(
+            this.glowTexture.image,
+            canvasX - size / 2,
+            canvasY - size / 2,
+            size,
+            size
+          );
         }
       }
     }
