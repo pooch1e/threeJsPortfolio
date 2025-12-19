@@ -9,27 +9,43 @@ export default class ParticleAnimation {
     this.resources = this.world.resources;
     this.canvas2D = canvas2D;
     this.ctx2D = canvas2D ? canvas2D.getContext('2d') : null;
+    this.mouse = this.world.shaderExperience.mouse;
+    this.raycaster = new THREE.Raycaster();
 
     // Setup
 
+    this.glowTexture = this.resources.items.glowTexture;
     this.imageTexture = this.resources.items.joelTypeTexture;
 
     this.displacementParams = {
+      screenCursor: new THREE.Vector2(9999, 9999),
       canvasWidth: 128,
       canvasHeight: 128,
-      glowImage: new Image(),
-      imageSrc: '/static/textures/glow/glow.png',
     };
 
-    this.ctx2D.fillRect(
-      0,
-      0,
-      this.displacementParams.canvasWidth,
-      this.displacementParams.canvasHeight
-    );
-
+    this.setup2DCanvas();
     this.setParticles();
-    this.setInteractivePane();
+    this.setInteractivePlane();
+    this.setupMouseEvents();
+  }
+
+  setup2DCanvas() {
+    if (this.ctx2D) {
+      this.canvas2D.width = this.displacementParams.canvasWidth;
+      this.canvas2D.height = this.displacementParams.canvasHeight;
+
+      this.ctx2D.fillStyle = 'black';
+      this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
+    }
+  }
+
+  setupMouseEvents() {
+    this.handleMouseMove = (position, event) => {
+      // Save normalized screen coordinates for raycaster
+      this.displacementParams.screenCursor.copy(position);
+    };
+
+    this.mouse.on('move', this.handleMouseMove);
   }
 
   setParticles() {
@@ -57,15 +73,50 @@ export default class ParticleAnimation {
     this.scene.add(this.particles);
   }
 
-  setInteractivePane() {
-    this.displacementParams.interactivePlane = new THREE.Mesh(
+  setInteractivePlane() {
+    this.interactivePlane = new THREE.Mesh(
       new THREE.PlaneGeometry(10, 10),
-      new THREE.MeshBasicMaterial({ color: 'red' })
+      new THREE.MeshBasicMaterial({ color: 'red', visible: false })
     );
-    this.scene.add(this.displacementParams.interactivePlane)
+    this.scene.add(this.interactivePlane);
   }
 
-  update(time) {}
+  update(time) {
+    if (this.raycaster && this.interactivePlane) {
+      const camera =
+        this.world.shaderExperience.camera.instance ||
+        this.world.shaderExperience.camera.perspectiveCamera;
 
-  destroy() {}
+      this.raycaster.setFromCamera(
+        this.displacementParams.screenCursor,
+        camera
+      );
+
+      const intersections = this.raycaster.intersectObject(
+        this.interactivePlane
+      );
+
+      if (intersections.length > 0) {
+        const intersect = intersections[0];
+        console.log(intersect);
+
+        if (this.ctx2D && intersect.uv) {
+          // Convert UV to canvas coordinates
+          const canvasX = intersect.uv.x * this.canvas2D.width;
+          const canvasY = (1 - intersect.uv.y) * this.canvas2D.height;
+
+          //draw here
+
+          
+        }
+      }
+    }
+  }
+
+  destroy() {
+    // Clean up mouse event listener
+    if (this.mouse && this.handleMouseMove) {
+      this.mouse.off('move', this.handleMouseMove);
+    }
+  }
 }
