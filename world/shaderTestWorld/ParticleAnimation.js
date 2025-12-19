@@ -11,6 +11,7 @@ export default class ParticleAnimation {
     this.ctx2D = canvas2D ? canvas2D.getContext('2d') : null;
     this.mouse = this.world.shaderExperience.mouse;
     this.raycaster = new THREE.Raycaster();
+    this.canvasTexture = new THREE.CanvasTexture(this.canvas2D);
 
     // Setup
 
@@ -64,6 +65,7 @@ export default class ParticleAnimation {
           )
         ),
         uPictureTexture: new THREE.Uniform(this.imageTexture),
+        uDisplacementTexture: new THREE.Uniform(this.canvasTexture),
       },
     });
     this.particles = new THREE.Points(
@@ -120,6 +122,8 @@ export default class ParticleAnimation {
           this.ctx2D.globalCompositeOperation = 'source-over';
           this.ctx2D.globalAlpha = 0.1;
           this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
+
+          this.canvasTexture.needsUpdate = true;
         }
       }
     }

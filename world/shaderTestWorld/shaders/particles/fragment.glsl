@@ -1,6 +1,9 @@
 // Varyings
 varying vec3 vColor;
 
+// Uniforms
+
+
 void main()
 {
 
