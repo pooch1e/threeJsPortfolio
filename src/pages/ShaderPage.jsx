@@ -28,7 +28,7 @@ export default function AnimalRenderPage() {
       {shaderChoice === 'particlesAnimationShader' && (
         <canvas
           ref={canvas2dRef}
-          className="fixed w-[512px] h-[512px] top-0 left-0 z-10 pointer-events-none"></canvas>
+          className="fixed w-[256px] h-[256px] top-14 left-0 z-10 pointer-events-none"></canvas>
       )}
     </div>
   );

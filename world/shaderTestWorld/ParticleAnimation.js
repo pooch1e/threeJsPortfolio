@@ -21,7 +21,6 @@ export default class ParticleAnimation {
       screenCursor: new THREE.Vector2(9999, 9999),
       canvasWidth: 128,
       canvasHeight: 128,
-      drawImage: new Image(),
     };
 
     this.setup2DCanvas();
@@ -106,14 +105,21 @@ export default class ParticleAnimation {
           const canvasY = (1 - intersect.uv.y) * this.canvas2D.height;
 
           //draw here
-          const size = 32;
+          this.ctx2D.globalCompositeOperation = 'lighten';
+          const glowSize = this.displacementParams.canvasWidth * 0.25;
+          this.ctx2D.globalAlpha = 1;
           this.ctx2D.drawImage(
             this.glowTexture.image,
-            canvasX - size / 2,
-            canvasY - size / 2,
-            size,
-            size
+            canvasX - glowSize / 2,
+            canvasY - glowSize / 2,
+            glowSize,
+            glowSize
           );
+
+          // fade out
+          this.ctx2D.globalCompositeOperation = 'source-over';
+          this.ctx2D.globalAlpha = 0.1;
+          this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
         }
       }
     }
