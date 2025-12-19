@@ -134,7 +134,6 @@ export default class ParticleAnimation {
         const intersect = intersections[0];
 
         if (this.ctx2D && intersect.uv) {
-          // fade out FIRST (before drawing new)
           this.ctx2D.globalCompositeOperation = 'source-over';
           this.ctx2D.globalAlpha = 0.02;
           this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
@@ -143,7 +142,6 @@ export default class ParticleAnimation {
           const canvasX = intersect.uv.x * this.canvas2D.width;
           const canvasY = (1 - intersect.uv.y) * this.canvas2D.height;
 
-          //speedAlpha - calculate speed from cursor movement
           const cursorDistance =
             this.displacementParams.prevScreenCursor.distanceTo(
               this.displacementParams.screenCursor
@@ -153,7 +151,7 @@ export default class ParticleAnimation {
             this.displacementParams.screenCursor
           );
 
-          // Scale alpha based on speed (distance is in NDC, typically 0-2)
+          // Scale alpha based on speed
           const alpha = Math.min(cursorDistance * 10.0, 1.0);
 
           //draw here
@@ -178,6 +176,38 @@ export default class ParticleAnimation {
     // Clean up mouse event listener
     if (this.mouse && this.handleMouseMove) {
       this.mouse.off('move', this.handleMouseMove);
+    }
+
+    if (this.particles) {
+      this.scene.remove(this.particles);
+    }
+
+    if (this.interactivePlane) {
+      this.scene.remove(this.interactivePlane);
+    }
+
+    if (this.particlesGeometry) {
+      this.particlesGeometry.dispose();
+    }
+
+    if (this.interactivePlane?.geometry) {
+      this.interactivePlane.geometry.dispose();
+    }
+
+    if (this.particlesMaterial) {
+      this.particlesMaterial.dispose();
+    }
+
+    if (this.interactivePlane?.material) {
+      this.interactivePlane.material.dispose();
+    }
+
+    if (this.canvasTexture) {
+      this.canvasTexture.dispose();
+    }
+
+    if (this.ctx2D) {
+      this.ctx2D.clearRect(0, 0, this.canvas2D.width, this.canvas2D.height);
     }
   }
 }
