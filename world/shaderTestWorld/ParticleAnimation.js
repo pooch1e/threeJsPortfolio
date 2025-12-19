@@ -20,6 +20,7 @@ export default class ParticleAnimation {
 
     this.displacementParams = {
       screenCursor: new THREE.Vector2(9999, 9999),
+      prevScreenCursor: new THREE.Vector2(9999, 9999),
       canvasWidth: 128,
       canvasHeight: 128,
     };
@@ -51,6 +52,8 @@ export default class ParticleAnimation {
 
   setParticles() {
     this.particlesGeometry = new THREE.PlaneGeometry(10, 10, 128, 128);
+    this.particlesGeometry.setIndex(null); // improve performance by not rendering all vertices necessary
+    this.particlesGeometry.deleteAttribute('normal');
 
     this.particlesMaterial = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
@@ -68,6 +71,31 @@ export default class ParticleAnimation {
         uDisplacementTexture: new THREE.Uniform(this.canvasTexture),
       },
     });
+
+    // Attributes
+    const intensitiesArray = new Float32Array(
+      this.particlesGeometry.attributes.position.count
+    );
+
+    const anglesArray = new Float32Array(
+      this.particlesGeometry.attributes.position.count
+    );
+
+    for (let i = 0; i < this.particlesGeometry.attributes.position.count; i++) {
+      intensitiesArray[i] = Math.random();
+      anglesArray[i] = Math.random() * Math.PI * 2;
+    }
+
+    this.particlesGeometry.setAttribute(
+      'aIntensity',
+      new THREE.BufferAttribute(intensitiesArray, 1)
+    );
+
+    this.particlesGeometry.setAttribute(
+      'aAngles',
+      new THREE.BufferAttribute(anglesArray, 1)
+    );
+
     this.particles = new THREE.Points(
       this.particlesGeometry,
       this.particlesMaterial
@@ -78,7 +106,11 @@ export default class ParticleAnimation {
   setInteractivePlane() {
     this.interactivePlane = new THREE.Mesh(
       new THREE.PlaneGeometry(10, 10),
-      new THREE.MeshBasicMaterial({ color: 'red', visible: false })
+      new THREE.MeshBasicMaterial({
+        color: 'red',
+        visible: false,
+        side: THREE.DoubleSide,
+      })
     );
     this.scene.add(this.interactivePlane);
   }
@@ -102,14 +134,32 @@ export default class ParticleAnimation {
         const intersect = intersections[0];
 
         if (this.ctx2D && intersect.uv) {
+          // fade out FIRST (before drawing new)
+          this.ctx2D.globalCompositeOperation = 'source-over';
+          this.ctx2D.globalAlpha = 0.02;
+          this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
+
           // Convert UV to canvas coordinates
           const canvasX = intersect.uv.x * this.canvas2D.width;
           const canvasY = (1 - intersect.uv.y) * this.canvas2D.height;
 
+          //speedAlpha - calculate speed from cursor movement
+          const cursorDistance =
+            this.displacementParams.prevScreenCursor.distanceTo(
+              this.displacementParams.screenCursor
+            );
+
+          this.displacementParams.prevScreenCursor.copy(
+            this.displacementParams.screenCursor
+          );
+
+          // Scale alpha based on speed (distance is in NDC, typically 0-2)
+          const alpha = Math.min(cursorDistance * 10.0, 1.0);
+
           //draw here
           this.ctx2D.globalCompositeOperation = 'lighten';
           const glowSize = this.displacementParams.canvasWidth * 0.25;
-          this.ctx2D.globalAlpha = 1;
+          this.ctx2D.globalAlpha = alpha;
           this.ctx2D.drawImage(
             this.glowTexture.image,
             canvasX - glowSize / 2,
@@ -117,11 +167,6 @@ export default class ParticleAnimation {
             glowSize,
             glowSize
           );
-
-          // fade out
-          this.ctx2D.globalCompositeOperation = 'source-over';
-          this.ctx2D.globalAlpha = 0.1;
-          this.ctx2D.fillRect(0, 0, this.canvas2D.width, this.canvas2D.height);
 
           this.canvasTexture.needsUpdate = true;
         }
