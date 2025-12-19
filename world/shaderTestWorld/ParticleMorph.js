@@ -1,18 +1,21 @@
 import * as THREE from 'three';
 import morphingParticlesVertex from './shaders/morphingParticles/vertex.glsl';
 import morphingParticlesFragment from './shaders/morphingParticles/fragment.glsl';
+import gsap from 'gsap';
 export default class ParticleMorph {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
     this.resources = this.world.resources;
     this.sizes = this.world.shaderExperience.sizes;
+    this.debug = this.world.shaderExperience.debug;
 
     // Setup
     this.particles = {};
 
     // Models
     this.setModels();
+    this.setDebug();
   }
 
   setModels() {
@@ -39,5 +42,11 @@ export default class ParticleMorph {
       this.particles.material
     );
     this.scene.add(this.particles.points);
+  }
+
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Particle Morph');
+    }
   }
 }
