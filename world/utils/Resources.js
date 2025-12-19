@@ -9,7 +9,7 @@ export class Resources extends EventEmitter {
     // Options
     this.sources = sources;
 
-    // !! Need to add Draco config and loader here
+    
 
     this.items = {};
     this.toLoad = this.sources.length;
@@ -28,6 +28,9 @@ export class Resources extends EventEmitter {
     this.loaders.textureLoader = new THREE.TextureLoader();
     this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader();
     this.loaders.dracoLoader = new DRACOLoader();
+    this.loaders.dracoLoader.setDecoderPath('./draco/')
+    this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader)
+
   }
 
   startLoading() {
@@ -44,6 +47,17 @@ export class Resources extends EventEmitter {
             this.sourceLoaded(source, null);
           }
         );
+      } else if (source.type === 'dracoModel') {
+        this.loaders.dracoLoader.load(
+          source.path, 
+          (file) => {
+            this.sourceLoaded(source, file)
+          }, undefined,
+          (error) => {
+            console.error(`Error loading ${source.name}:`, error);
+            this.sourceLoaded(source, null);
+          }
+        )
       } else if (source.type === 'texture') {
         this.loaders.textureLoader.load(
           source.path,

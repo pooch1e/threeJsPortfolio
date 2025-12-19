@@ -1,0 +1,43 @@
+import * as THREE from 'three';
+import morphingParticlesVertex from './shaders/morphingParticles/vertex.glsl';
+import morphingParticlesFragment from './shaders/morphingParticles/fragment.glsl';
+export default class ParticleMorph {
+  constructor(world) {
+    this.world = world;
+    this.scene = world.scene;
+    this.resources = this.world.resources;
+    this.sizes = this.world.shaderExperience.sizes;
+
+    // Setup
+    this.particles = {};
+
+    // Models
+    this.setModels();
+  }
+
+  setModels() {
+    // Geometry
+    this.particles.geometry = new THREE.SphereGeometry(3);
+
+    // Material
+    this.particles.material = new THREE.ShaderMaterial({
+      vertexShader: morphingParticlesVertex,
+      fragmentShader: morphingParticlesFragment,
+      uniforms: {
+        uSize: new THREE.Uniform(0.4),
+        uResolution: new THREE.Uniform(
+          new THREE.Vector2(
+            this.sizes.width * this.sizes.pixelRatio,
+            this.sizes.height * this.sizes.pixelRatio
+          )
+        ),
+      },
+    });
+    // Points
+    this.particles.points = new THREE.Points(
+      this.particles.geometry,
+      this.particles.material
+    );
+    this.scene.add(this.particles.points);
+  }
+}
