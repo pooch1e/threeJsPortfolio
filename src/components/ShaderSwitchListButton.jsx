@@ -71,7 +71,12 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
           <li
             className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
             onClick={() => handleButtonClick('particlesAnimationShader')}>
-            Particles Animation
+            Mouse Particles Animation
+          </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('morphingPartcilesShader')}>
+            Morphing Particles
           </li>
         </ul>
       )}

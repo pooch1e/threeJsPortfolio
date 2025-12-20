@@ -27,7 +27,7 @@ export default class ParticleMorph {
       vertexShader: morphingParticlesVertex,
       fragmentShader: morphingParticlesFragment,
       uniforms: {
-        uSize: new THREE.Uniform(0.4),
+        uSize: new THREE.Uniform(0.1),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
             this.sizes.width * this.sizes.pixelRatio,
@@ -47,6 +47,11 @@ export default class ParticleMorph {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Particle Morph');
+    }
+  }
+
+  update(time) {
+    if (time) {
     }
   }
 }

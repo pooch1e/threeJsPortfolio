@@ -10,4 +10,5 @@ export const shaderPractices = {
   halftoneShader: () => import('./Halftone'),
   earthShader: () => import('./Earth'),
   particlesAnimationShader: () => import('./ParticleAnimation'),
+  morphingPartcilesShader: () => import('./ParticleMorph'),
 };
