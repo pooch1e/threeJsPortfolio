@@ -61,17 +61,46 @@ export default class ParticleMorph {
   }
 
   setModels() {
-    //extract positions on models
-    this.modelPositions = this.models.scene.children.map((child) => {
-      return child.geometry.attributes.position;
+    // Extract position attributes from all meshes in the loaded model
+    const positionAttributes = [];
+    this.models.scene.traverse((child) => {
+      if (child.isMesh && child.geometry?.attributes?.position) {
+        positionAttributes.push(child.geometry.attributes.position);
+      }
     });
 
-    let maxCount = 0;
-    for (const position of this.modelPositions) {
-      if (maxCount < position.count) maxCount = position.count;
+    if (positionAttributes.length === 0) {
+      console.warn('No geometries found in draco model');
+      return;
     }
 
-    
+    // Find max vertex count across all geometries
+    this.particles.maxCount = 0;
+    for (const attr of positionAttributes) {
+      if (attr.count > this.particles.maxCount) {
+        this.particles.maxCount = attr.count;
+      }
+    }
+
+    // Harmonise position arrays to be same size - pad with 0's if not same size
+    this.modelPositions = [];
+    for (const positionAttr of positionAttributes) {
+      const originalArray = positionAttr.array;
+      const paddedArray = new Float32Array(this.particles.maxCount * 3);
+
+      
+      for (let i = 0; i < positionAttr.count; i++) {
+        const i3 = i * 3;
+        paddedArray[i3 + 0] = originalArray[i3 + 0];
+        paddedArray[i3 + 1] = originalArray[i3 + 1];
+        paddedArray[i3 + 2] = originalArray[i3 + 2];
+      }
+      // Pad remaining with 0's
+
+      this.modelPositions.push(new THREE.BufferAttribute(paddedArray, 3));
+    }
+
+    console.log('Particle Morph - Max vertices:', this.particles.maxCount, 'Geometries:', this.modelPositions.length);
   }
 
   setDebug() {
