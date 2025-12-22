@@ -1,23 +1,21 @@
 import { useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
 export default function DebugButton() {
-  const [isClicked, setIsClicked] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const debugMode = searchParams.get('debug') === 'true';
 
-  const handleButtonClick = (newState) => {
-    setIsClicked(newState);
-    if (newState) {
-      setSearchParams('?debug=true');
-    } else {
+  const handleButtonClick = () => {
+    if (debugMode) {
       setSearchParams('');
+    } else {
+      setSearchParams({ debug: 'true' });
     }
   };
 
   return (
     <button
       className="rounded-md transition-colors ease-linear hover:bg-cyan-300 p-2"
-      onClick={() => handleButtonClick(!isClicked)}>
-      Debug Mode
+      onClick={handleButtonClick}>
+      Debug Mode {debugMode ? '✓' : ''}
     </button>
   );
 }

@@ -191,19 +191,21 @@ export default class Fireworks {
       this.mouse.off('click');
     }
 
-    if (this.sky) {
-      this.scene.remove(this.sky);
-      if (this.sky.geometry) this.sky.geometry.dispose();
-      if (this.sky.material) this.sky.material.dispose();
-    }
-
-    this.scene.traverse((child) => {
-      if (child instanceof THREE.Points) {
-        this.scene.remove(child);
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) child.material.dispose();
+    if (this.scene) {
+      if (this.sky) {
+        this.scene.remove(this.sky);
+        if (this.sky.geometry) this.sky.geometry.dispose();
+        if (this.sky.material) this.sky.material.dispose();
       }
-    });
+
+      this.scene.traverse((child) => {
+        if (child instanceof THREE.Points) {
+          this.scene.remove(child);
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+        }
+      });
+    }
 
     if (this.debugFolder) {
       this.debugFolder.destroy();

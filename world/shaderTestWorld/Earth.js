@@ -161,7 +161,7 @@ export default class Earth {
 
   destroy() {
     if (this.earthMesh) {
-      this.scene.remove(this.mesh);
+      this.scene.remove(this.earthMesh);
       this.sphereGeometry?.dispose();
       this.sphereMaterial?.dispose();
     }
