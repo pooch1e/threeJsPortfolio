@@ -88,7 +88,6 @@ export default class ParticleMorph {
       const originalArray = positionAttr.array;
       const paddedArray = new Float32Array(this.particles.maxCount * 3);
 
-      
       for (let i = 0; i < positionAttr.count; i++) {
         const i3 = i * 3;
         paddedArray[i3 + 0] = originalArray[i3 + 0];
@@ -100,7 +99,8 @@ export default class ParticleMorph {
       this.modelPositions.push(new THREE.BufferAttribute(paddedArray, 3));
     }
 
-    console.log('Particle Morph - Max vertices:', this.particles.maxCount, 'Geometries:', this.modelPositions.length);
+    this.suzanneModelGeometry = new THREE.BufferGeometry();
+    this.suzanneModelGeometry.setAttribute('position', this.modelPositions[1]);
   }
 
   setDebug() {
