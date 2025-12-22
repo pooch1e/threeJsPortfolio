@@ -1,35 +1,46 @@
 import * as THREE from 'three';
-import morphingParticlesVertex from './shaders/morphingParticles/vertex.glsl';
-import morphingParticlesFragment from './shaders/morphingParticles/fragment.glsl';
+import morphingVertex from './shaders/morphingParticles/vertex.glsl';
+import morphingFragment from './shaders/morphingParticles/fragment.glsl';
+
 import gsap from 'gsap';
+
 export default class ParticleMorph {
   constructor(world) {
-    this.world = world;
-    this.scene = world.scene;
-    this.resources = this.world.resources;
-    this.sizes = this.world.shaderExperience.sizes;
-    this.debug = this.world.shaderExperience.debug;
+    try {
+      this.world = world;
+      this.scene = world.scene;
+      this.resources = this.world.resources;
+      this.sizes = this.world.shaderExperience.sizes;
+      this.debug = this.world.shaderExperience.debug;
 
-    // Setup
-    this.particles = {};
+      // Setup
+      this.particles = {};
+      // this.models = this.resources.items.dracoModels || null;
+      // console.log('Draco Models:', this.models);
 
-    // Models
-    this.setModels();
-    this.setDebug();
+      // Models
+      this.setParticles();
+      this.setModels();
+      this.setDebug();
+    } catch (error) {
+      console.error('ParticleMorph Error:', error);
+      throw error;
+    }
   }
 
-  setModels() {
+  setParticles() {
     // Geometry
     this.particles.geometry = new THREE.SphereGeometry(3);
     this.particles.geometry.setIndex(null);
 
     // Attributes
+    // Will control morphing with poitions attribute - new pos attribute and a float transtition which I will animate
     this.positionArray = new Float32Array();
 
     // Material
     this.particles.material = new THREE.ShaderMaterial({
-      vertexShader: morphingParticlesVertex,
-      fragmentShader: morphingParticlesFragment,
+      vertexShader: morphingVertex,
+      fragmentShader: morphingFragment,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       uniforms: {
@@ -49,6 +60,8 @@ export default class ParticleMorph {
     );
     this.scene.add(this.particles.points);
   }
+
+  setModels() {}
 
   setDebug() {
     if (this.debug.active) {

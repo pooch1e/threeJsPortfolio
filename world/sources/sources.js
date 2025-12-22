@@ -68,6 +68,11 @@ export const sources = [
     path: '/static/models/Suzanne/suzanne.glb',
   },
   {
+    name: 'dracoModels',
+    type: 'gltfModel',
+    path: '/static/models/draco/models.glb',
+  },
+  {
     name: 'grassColorTexture',
     type: 'texture',
     path: '/static/textures/dirt/color.jpg',

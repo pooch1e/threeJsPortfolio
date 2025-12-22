@@ -156,15 +156,24 @@ export default class Earth {
   update(time) {
     if (time && this.sphereMaterial) {
       this.earthMesh.rotation.y = time.elapsedTime * 0.0002;
-      
     }
   }
 
   destroy() {
-    if (this.mesh) {
+    if (this.earthMesh) {
       this.scene.remove(this.mesh);
-      this.geometry?.dispose();
+      this.sphereGeometry?.dispose();
       this.sphereMaterial?.dispose();
+    }
+
+    if (this.debugSun) {
+      this.scene.remove(this.debugSun);
+    }
+
+    if (this.atmosMesh) {
+      this.scene.remove(this.atmosMesh);
+      this.atmosGeometry?.dispose();
+      this.atmosMaterial?.dispose();
     }
     if (this.debugFolder) {
       this.debugFolder.destroy();

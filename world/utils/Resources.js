@@ -28,7 +28,7 @@ export class Resources extends EventEmitter {
     this.loaders.textureLoader = new THREE.TextureLoader();
     this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader();
     this.loaders.dracoLoader = new DRACOLoader();
-    this.loaders.dracoLoader.setDecoderPath('./draco/')
+    this.loaders.dracoLoader.setDecoderPath('/static/draco/')
     this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader)
 
   }
@@ -47,17 +47,6 @@ export class Resources extends EventEmitter {
             this.sourceLoaded(source, null);
           }
         );
-      } else if (source.type === 'dracoModel') {
-        this.loaders.dracoLoader.load(
-          source.path, 
-          (file) => {
-            this.sourceLoaded(source, file)
-          }, undefined,
-          (error) => {
-            console.error(`Error loading ${source.name}:`, error);
-            this.sourceLoaded(source, null);
-          }
-        )
       } else if (source.type === 'texture') {
         this.loaders.textureLoader.load(
           source.path,
