@@ -15,8 +15,7 @@ export default class ParticleMorph {
 
       // Setup
       this.particles = {};
-      // this.models = this.resources.items.dracoModels || null;
-      // console.log('Draco Models:', this.models);
+      this.models = this.resources.items.dracoModels;
 
       // Models
       this.setParticles();
@@ -61,7 +60,19 @@ export default class ParticleMorph {
     this.scene.add(this.particles.points);
   }
 
-  setModels() {}
+  setModels() {
+    //extract positions on models
+    this.modelPositions = this.models.scene.children.map((child) => {
+      return child.geometry.attributes.position;
+    });
+
+    let maxCount = 0;
+    for (const position of this.modelPositions) {
+      if (maxCount < position.count) maxCount = position.count;
+    }
+
+    
+  }
 
   setDebug() {
     if (this.debug.active) {
