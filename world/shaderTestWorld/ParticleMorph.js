@@ -21,11 +21,17 @@ export default class ParticleMorph {
   setModels() {
     // Geometry
     this.particles.geometry = new THREE.SphereGeometry(3);
+    this.particles.geometry.setIndex(null);
+
+    // Attributes
+    this.positionArray = new Float32Array();
 
     // Material
     this.particles.material = new THREE.ShaderMaterial({
       vertexShader: morphingParticlesVertex,
       fragmentShader: morphingParticlesFragment,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
       uniforms: {
         uSize: new THREE.Uniform(0.1),
         uResolution: new THREE.Uniform(
