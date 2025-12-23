@@ -211,29 +211,24 @@ export default class ParticleMorph {
     if (time) {
     }
   }
-  
+
   destroy() {
-    // Remove mesh from scene
     if (this.suzanneMesh) {
       this.scene.remove(this.suzanneMesh);
     }
 
-    // Dispose geometry
     if (this.suzanneModelGeometry) {
       this.suzanneModelGeometry.dispose();
     }
 
-    // Dispose material
     if (this.suzanneModelMaterial) {
       this.suzanneModelMaterial.dispose();
     }
 
-    // Clean up GSAP animations
     if (this.suzanneModelMaterial?.uniforms?.uProgress) {
       gsap.killTweensOf(this.suzanneModelMaterial.uniforms.uProgress);
     }
 
-    // Dispose debug folder
     if (this.debugFolder) {
       this.debugFolder.destroy();
     }
