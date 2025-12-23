@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import particlesVertexShader from './shaders/particles/vertex.glsl';
-import particlesFragmentShader from './shaders/particles/fragment.glsl';
+import particlesVertexShader from './shaders/gppuFlowField/vertex.glsl';
+import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
 export default class GppuFlowField {
   constructor(world) {
     this.world = world;
