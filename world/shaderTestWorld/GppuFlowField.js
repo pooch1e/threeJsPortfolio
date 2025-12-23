@@ -10,6 +10,7 @@ export default class GppuFlowField {
     this.debug = this.world.shdaerExperience.debug;
     this.sizes = world.shdaerExperience.sizes;
 
+    this.model = this.resources.items.shipModel;
     this.debugObject = {};
 
     this.setModel();
@@ -40,7 +41,7 @@ export default class GppuFlowField {
     this.scene.add(this.points);
   }
 
-  setDbug() {
+  setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('GPPU Flow Field');
       this.debugFolder
