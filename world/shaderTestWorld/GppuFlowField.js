@@ -7,8 +7,8 @@ export default class GppuFlowField {
     this.world = world;
     this.scene = world.scene;
     this.resources = world.resources;
-    this.debug = this.world.shdaerExperience.debug;
-    this.sizes = world.shdaerExperience.sizes;
+    this.debug = this.world.shaderExperience.debug;
+    this.sizes = world.shaderExperience.sizes;
 
     this.model = this.resources.items.shipModel;
     this.debugObject = {};
@@ -26,7 +26,7 @@ export default class GppuFlowField {
       vertexShader: particlesVertexShader,
       fragmentShader: particlesFragmentShader,
       uniforms: {
-        uSize: new THREE.Uniform(0.4),
+        uSize: new THREE.Uniform(0.1),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
             this.sizes.width * this.sizes.pixelRatio,
