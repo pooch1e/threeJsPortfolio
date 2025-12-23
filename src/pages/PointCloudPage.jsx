@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { useWorld } from '../hooks/useWorld';
 import { PointExperience } from '../../world/pointCloudWorld/PointExperience';
-export default function AnimalRenderPage() {
+export default function PointCloudPage() {
   const [searchParams] = useSearchParams();
   const debugMode = searchParams.get('debug') === 'true';
 

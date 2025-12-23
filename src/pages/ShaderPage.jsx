@@ -3,7 +3,7 @@ import { useWorld } from '../hooks/useWorld';
 import { ShaderExperience } from '../../world/shaderTestWorld/ShaderExperience';
 import ShaderSwitchListButton from '../components/ShaderSwitchListButton';
 import { useState, useEffect, useRef } from 'react';
-export default function AnimalRenderPage() {
+export default function ShaderPage() {
   const [shaderChoice, setShaderChoice] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const canvas2dRef = useRef(null);
