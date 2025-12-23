@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import particlesVertexShader from './shaders/gppuFlowField/vertex.glsl';
 import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
+import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 export default class GppuFlowField {
   constructor(world) {
     this.world = world;
@@ -9,6 +10,7 @@ export default class GppuFlowField {
     this.resources = world.resources;
     this.debug = this.world.shaderExperience.debug;
     this.sizes = world.shaderExperience.sizes;
+    this.renderer = world.shaderExperience.render;
 
     this.model = this.resources.items.shipModel;
     this.debugObject = {};
@@ -18,9 +20,28 @@ export default class GppuFlowField {
   }
 
   setModel() {
-    // Geometry
-    this.geometry = new THREE.SphereGeometry(3);
+    this.baseGeometry = {};
 
+    // Geometry
+    this.baseGeometry.instance = new THREE.SphereGeometry(3);
+    this.baseGeometry.count =
+      this.baseGeometry.instance.attributes.position.count;
+
+    // GPU COMPUTE - Ping pong render
+    this.gpgpu = {};
+    this.gpgpu.size = Math.ceil(Math.sqrt(this.baseGeometry.count));
+
+    // Each pixel of the FBOs (texture) will correspond to one particle
+    this.gpgpu.computation = new GPUComputationRenderer(
+      this.gpgpu.size,
+      this.gpgpu.size,
+      this.renderer
+    );
+
+    // Base Particle Texture
+    this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
+
+    
     // Material
     this.material = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
@@ -37,7 +58,7 @@ export default class GppuFlowField {
     });
 
     // Points
-    this.points = new THREE.Points(this.geometry, this.material);
+    this.points = new THREE.Points(this.baseGeometry.instance, this.material);
     this.scene.add(this.points);
   }
 
