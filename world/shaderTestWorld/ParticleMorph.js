@@ -115,8 +115,8 @@ export default class ParticleMorph {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       uniforms: {
-        uSize: new THREE.Uniform(0),
-        uProgress: new THREE.Uniform(0.1),
+        uSize: new THREE.Uniform(0.1),
+        uProgress: new THREE.Uniform(0),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
             this.sizes.width * this.sizes.pixelRatio,
@@ -141,7 +141,7 @@ export default class ParticleMorph {
         .add(this.suzanneModelMaterial.uniforms.uProgress, 'value')
         .min(0)
         .max(1)
-        .step(0.01)
+        .step(0.001)
         .name('Tranform Particles');
     }
   }
