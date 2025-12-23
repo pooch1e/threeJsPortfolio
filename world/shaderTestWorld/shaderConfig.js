@@ -11,4 +11,5 @@ export const shaderPractices = {
   earthShader: () => import('./Earth'),
   particlesAnimationShader: () => import('./ParticleAnimation'),
   morphingParticlesShader: () => import('./ParticleMorph'),
+  gppuFlowFieldShader: () => import('./GppuFlowField'),
 };
