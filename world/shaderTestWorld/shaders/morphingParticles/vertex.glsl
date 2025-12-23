@@ -1,9 +1,12 @@
 uniform vec2 uResolution;
 uniform float uSize;
 uniform float uProgress;
+uniform vec3 uColorA;
+uniform vec3 uColorB;
 
 // Attr
 attribute vec3 aTargetPosition;
+attribute float aSize;
 
 //Varying
 varying vec3 vColor;
@@ -29,6 +32,8 @@ void main()
      // Mixed position
     vec3 mixedPosition = mix(position, aTargetPosition, progress);
 
+    
+
     // Final position
     vec4 modelPosition = modelMatrix * vec4(mixedPosition, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
@@ -36,9 +41,11 @@ void main()
     gl_Position = projectedPosition;
 
     // Point size
-    gl_PointSize = uSize * uResolution.y;
+    gl_PointSize = aSize * uSize * uResolution.y;
     gl_PointSize *= (1.0 / - viewPosition.z);
 
     // Varyings
     vColor = vec3(noise);
+    // Color
+    vColor = mix(uColorA, uColorB, noise);
 }

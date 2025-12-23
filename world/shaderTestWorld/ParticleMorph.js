@@ -19,6 +19,8 @@ export default class ParticleMorph {
         particlesMorph1: () => this.morph(1),
         particlesMorph2: () => this.morph(2),
         particlesMorph3: () => this.morph(3),
+        colorA: '#ff7300',
+        colorB: '#0091ff',
       };
       this.models = this.resources.items.dracoModels;
 
@@ -39,7 +41,6 @@ export default class ParticleMorph {
 
     // Attributes
     // Will control morphing with poitions attribute - new pos attribute and a float transtition which I will animate
-    this.positionArray = new Float32Array();
 
     // Material
     this.particles.material = new THREE.ShaderMaterial({
@@ -109,6 +110,13 @@ export default class ParticleMorph {
       this.modelPositions.push(new THREE.BufferAttribute(paddedArray, 3));
     }
 
+    // Randomise size of points
+    const sizesArray = new Float32Array(this.particles.maxCount);
+
+    for (let i = 0; i < this.particles.maxCount; i++) {
+      sizesArray[i] = Math.random();
+    }
+
     this.suzanneModelGeometry = new THREE.BufferGeometry();
     this.suzanneModelGeometry.setAttribute(
       'position',
@@ -117,6 +125,10 @@ export default class ParticleMorph {
     this.suzanneModelGeometry.setAttribute(
       'aTargetPosition',
       this.modelPositions[2]
+    );
+    this.suzanneModelGeometry.setAttribute(
+      'aSize',
+      new THREE.BufferAttribute(sizesArray, 1)
     );
 
     this.suzanneModelMaterial = new THREE.ShaderMaterial({
@@ -133,6 +145,8 @@ export default class ParticleMorph {
             this.sizes.height * this.sizes.pixelRatio
           )
         ),
+        uColorA: new THREE.Uniform(new THREE.Color(this.particles.colorA)),
+        uColorB: new THREE.Uniform(new THREE.Color(this.particles.colorB)),
       },
     });
 
@@ -172,12 +186,24 @@ export default class ParticleMorph {
         .min(0)
         .max(1)
         .step(0.001)
-        .name('Tranform Particles');
+        .name('Tranform Particles')
+        .listen();
 
       this.debugFolder.add(this.particles, 'particlesMorph0');
       this.debugFolder.add(this.particles, 'particlesMorph1');
       this.debugFolder.add(this.particles, 'particlesMorph2');
       this.debugFolder.add(this.particles, 'particlesMorph3');
+
+      this.debugFolder.addColor(this.particles, 'colorA').onChange(() => {
+        this.suzanneModelMaterial.uniforms.uColorA.value.set(
+          this.particles.colorA
+        );
+      });
+      this.debugFolder.addColor(this.particles, 'colorB').onChange(() => {
+        this.suzanneModelMaterial.uniforms.uColorB.value.set(
+          this.particles.colorB
+        );
+      });
     }
   }
 
