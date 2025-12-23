@@ -14,7 +14,12 @@ export default class ParticleMorph {
       this.debug = this.world.shaderExperience.debug;
 
       // Setup
-      this.particles = {};
+      this.particles = {
+        particlesMorph0: () => this.morph(0),
+        particlesMorph1: () => this.morph(1),
+        particlesMorph2: () => this.morph(2),
+        particlesMorph3: () => this.morph(3),
+      };
       this.models = this.resources.items.dracoModels;
 
       // Models
@@ -76,6 +81,8 @@ export default class ParticleMorph {
 
     // Find max vertex count across all geometries
     this.particles.maxCount = 0;
+    // reset index to 0
+    this.particles.index = 0;
 
     for (const attr of positionAttributes) {
       if (attr.count > this.particles.maxCount) {
@@ -103,7 +110,10 @@ export default class ParticleMorph {
     }
 
     this.suzanneModelGeometry = new THREE.BufferGeometry();
-    this.suzanneModelGeometry.setAttribute('position', this.modelPositions[1]);
+    this.suzanneModelGeometry.setAttribute(
+      'position',
+      this.modelPositions[this.particles.index]
+    );
     this.suzanneModelGeometry.setAttribute(
       'aTargetPosition',
       this.modelPositions[2]
@@ -133,6 +143,26 @@ export default class ParticleMorph {
     this.scene.add(this.suzanneMesh);
   }
 
+  morph(index) {
+    // update attr
+    this.suzanneModelGeometry.setAttribute(
+      'position',
+      this.modelPositions[this.particles.index]
+    );
+    this.suzanneModelGeometry.setAttribute(
+      'aTargetPosition',
+      this.modelPositions[index]
+    );
+
+    gsap.fromTo(
+      this.suzanneModelMaterial.uniforms.uProgress,
+      { value: 0 },
+      { value: 1, duration: 3, ease: 'linear' }
+    );
+
+    this.particles.index = index;
+  }
+
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Particle Morph');
@@ -143,6 +173,11 @@ export default class ParticleMorph {
         .max(1)
         .step(0.001)
         .name('Tranform Particles');
+
+      this.debugFolder.add(this.particles, 'particlesMorph0');
+      this.debugFolder.add(this.particles, 'particlesMorph1');
+      this.debugFolder.add(this.particles, 'particlesMorph2');
+      this.debugFolder.add(this.particles, 'particlesMorph3');
     }
   }
 
