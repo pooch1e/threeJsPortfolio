@@ -18,7 +18,7 @@ export default class ParticleMorph {
       this.models = this.resources.items.dracoModels;
 
       // Models
-      this.setParticles();
+      // this.setParticles();
       this.setModels();
       this.setDebug();
     } catch (error) {
@@ -76,6 +76,7 @@ export default class ParticleMorph {
 
     // Find max vertex count across all geometries
     this.particles.maxCount = 0;
+
     for (const attr of positionAttributes) {
       if (attr.count > this.particles.maxCount) {
         this.particles.maxCount = attr.count;
@@ -90,9 +91,11 @@ export default class ParticleMorph {
 
       for (let i = 0; i < positionAttr.count; i++) {
         const i3 = i * 3;
-        paddedArray[i3 + 0] = originalArray[i3 + 0];
-        paddedArray[i3 + 1] = originalArray[i3 + 1];
-        paddedArray[i3 + 2] = originalArray[i3 + 2];
+        // change this to random index
+        const randomIndex = Math.floor(positionAttr.count * Math.random()) * 3;
+        paddedArray[i3 + 0] = originalArray[randomIndex + 0];
+        paddedArray[i3 + 1] = originalArray[randomIndex + 1];
+        paddedArray[i3 + 2] = originalArray[randomIndex + 2];
       }
       // Pad remaining with 0's
 
@@ -101,11 +104,45 @@ export default class ParticleMorph {
 
     this.suzanneModelGeometry = new THREE.BufferGeometry();
     this.suzanneModelGeometry.setAttribute('position', this.modelPositions[1]);
+    this.suzanneModelGeometry.setAttribute(
+      'aTargetPosition',
+      this.modelPositions[2]
+    );
+
+    this.suzanneModelMaterial = new THREE.ShaderMaterial({
+      vertexShader: morphingVertex,
+      fragmentShader: morphingFragment,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      uniforms: {
+        uSize: new THREE.Uniform(0),
+        uProgress: new THREE.Uniform(0.1),
+        uResolution: new THREE.Uniform(
+          new THREE.Vector2(
+            this.sizes.width * this.sizes.pixelRatio,
+            this.sizes.height * this.sizes.pixelRatio
+          )
+        ),
+      },
+    });
+
+    this.suzanneMesh = new THREE.Points(
+      this.suzanneModelGeometry,
+      this.suzanneModelMaterial
+    );
+    this.scene.add(this.suzanneMesh);
   }
 
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Particle Morph');
+
+      this.debugFolder
+        .add(this.suzanneModelMaterial.uniforms.uProgress, 'value')
+        .min(0)
+        .max(1)
+        .step(0.01)
+        .name('Tranform Particles');
     }
   }
 
