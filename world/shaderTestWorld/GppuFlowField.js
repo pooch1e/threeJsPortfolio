@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import particlesVertexShader from './shaders/gppuFlowField/vertex.glsl';
 import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
+
+// particle shader
+import gppiParticleShader from './shaders/gppuuParticle/particles.glsl';
 export default class GppuFlowField {
   constructor(world) {
     this.world = world;
@@ -40,6 +43,20 @@ export default class GppuFlowField {
 
     // Base Particle Texture
     this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
+
+    // Particle Variable
+    this.gpgpu.particleVariable = this.gpgpu.computation.addVariable(
+      'uParticles',
+      gppiParticleShader,
+      this.gpgpu.baseParticleTexture
+    );
+    this.gpgpu.computation.setVariableDependencies(
+      this.gpgpu.particleVariable,
+      [this.gpgpu.particleVariable]
+    );
+
+    // Init
+    this.gpgpu.computation.init();
 
     
     // Material
