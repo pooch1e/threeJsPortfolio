@@ -55,6 +55,14 @@ export default class GppuFlowField {
       [this.gpgpu.particleVariable]
     );
 
+    // Debug
+    this.gpgpu.debug = new THREE.Mesh(
+      new THREE.PlaneGeometry(3, 3),
+      new THREE.MeshBasicMaterial()
+    );
+    this.gpgpu.debug.position.x = 3;
+    this.scene.add(this.gpgpu.debug);
+
     // Init
     this.gpgpu.computation.init();
 
