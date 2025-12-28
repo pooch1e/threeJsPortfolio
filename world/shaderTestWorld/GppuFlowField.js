@@ -58,7 +58,6 @@ export default class GppuFlowField {
     // Init
     this.gpgpu.computation.init();
 
-    
     // Material
     this.material = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
@@ -91,7 +90,11 @@ export default class GppuFlowField {
     }
   }
 
-  update(time) {}
+  update(time) {
+    if (time) {
+      this.gpgpu.computation.compute(); // may need to check this in renderer
+    }
+  }
 
   destroy() {}
 }
