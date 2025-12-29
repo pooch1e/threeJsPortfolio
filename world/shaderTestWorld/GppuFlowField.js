@@ -5,7 +5,7 @@ import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 // particle shader
-import gppiParticleShader from './shaders/gppuParticle/particles.glsl';
+import gppuParticlesShader from './shaders/gppuParticle/particles.glsl';
 export default class GppuFlowField {
   constructor(world) {
     this.world = world;
@@ -47,13 +47,16 @@ export default class GppuFlowField {
     // Particle Variable
     this.gpgpu.particleVariable = this.gpgpu.computation.addVariable(
       'uParticles',
-      gppiParticleShader,
+      gppuParticlesShader,
       this.gpgpu.baseParticleTexture
     );
     this.gpgpu.computation.setVariableDependencies(
       this.gpgpu.particleVariable,
       [this.gpgpu.particleVariable]
     );
+
+    // Init
+    this.gpgpu.computation.init();
 
     // Debug
     this.gpgpu.debug = new THREE.Mesh(
@@ -66,13 +69,6 @@ export default class GppuFlowField {
     );
     this.gpgpu.debug.position.x = 3;
     this.scene.add(this.gpgpu.debug);
-
-    console.log(
-      this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particleVariable)
-    );
-
-    // Init
-    this.gpgpu.computation.init();
 
     // Material
     this.material = new THREE.ShaderMaterial({
@@ -113,17 +109,38 @@ export default class GppuFlowField {
   }
 
   destroy() {
-    if (this.baseGeometry) {
-      this.baseGeometry?.dispose(); // not a function - fix
+    if (this.baseGeometry?.instance) {
+      this.baseGeometry.instance.dispose();
     }
-    if (this.gpgpu.debug) {
-      this.gpgpu.debug?.dispose();
+
+    if (this.gpgpu?.debug) {
+      this.scene.remove(this.gpgpu.debug);
+      this.gpgpu.debug.geometry?.dispose();
+      this.gpgpu.debug.material?.dispose();
     }
+
     if (this.material) {
-      this.material?.dispose();
+      this.material.dispose();
     }
+
     if (this.points) {
-      this.points?.dispose();
+      this.scene.remove(this.points);
+    }
+
+    // Dispose GPGPU computation textures
+    if (this.gpgpu?.computation) {
+      // Dispose render targets created by GPUComputationRenderer
+      if (this.gpgpu.particleVariable) {
+        const renderTargets = this.gpgpu.particleVariable.renderTargets;
+        if (renderTargets) {
+          renderTargets.forEach((rt) => rt?.dispose());
+        }
+      }
+    }
+
+    // Dispose debug folder
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
     }
   }
 }
