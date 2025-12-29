@@ -58,7 +58,11 @@ export default class GppuFlowField {
     // Debug
     this.gpgpu.debug = new THREE.Mesh(
       new THREE.PlaneGeometry(3, 3),
-      new THREE.MeshBasicMaterial()
+      new THREE.MeshBasicMaterial({
+        map: this.gpgpu.computation.getCurrentRenderTarget(
+          this.gpgpu.particleVariable
+        ).texture,
+      })
     );
     this.gpgpu.debug.position.x = 3;
     this.scene.add(this.gpgpu.debug);
@@ -110,7 +114,7 @@ export default class GppuFlowField {
 
   destroy() {
     if (this.baseGeometry) {
-      this.baseGeometry?.dispose();
+      this.baseGeometry?.dispose(); // not a function - fix
     }
     if (this.gpgpu.debug) {
       this.gpgpu.debug?.dispose();
