@@ -5,7 +5,7 @@ import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 // particle shader
-import gppiParticleShader from './shaders/gppuuParticle/particles.glsl';
+import gppiParticleShader from './shaders/gppuParticle/particles.glsl';
 export default class GppuFlowField {
   constructor(world) {
     this.world = world;
@@ -13,7 +13,7 @@ export default class GppuFlowField {
     this.resources = world.resources;
     this.debug = this.world.shaderExperience.debug;
     this.sizes = world.shaderExperience.sizes;
-    this.renderer = world.shaderExperience.render;
+    this.renderer = world.shaderExperience.renderer.renderer;
 
     this.model = this.resources.items.shipModel;
     this.debugObject = {};
@@ -62,6 +62,12 @@ export default class GppuFlowField {
     );
     this.gpgpu.debug.position.x = 3;
     this.scene.add(this.gpgpu.debug);
+
+    console.log(
+      this.gpgpu.computation.getCurrentRenderTarget(
+        this.gpgpu.particleVariable
+      )
+    );
 
     // Init
     this.gpgpu.computation.init();
