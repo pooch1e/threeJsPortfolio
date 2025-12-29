@@ -64,9 +64,7 @@ export default class GppuFlowField {
     this.scene.add(this.gpgpu.debug);
 
     console.log(
-      this.gpgpu.computation.getCurrentRenderTarget(
-        this.gpgpu.particleVariable
-      )
+      this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particleVariable)
     );
 
     // Init
@@ -110,5 +108,18 @@ export default class GppuFlowField {
     }
   }
 
-  destroy() {}
+  destroy() {
+    if (this.baseGeometry) {
+      this.baseGeometry?.dispose();
+    }
+    if (this.gpgpu.debug) {
+      this.gpgpu.debug?.dispose();
+    }
+    if (this.material) {
+      this.material?.dispose();
+    }
+    if (this.points) {
+      this.points?.dispose();
+    }
+  }
 }
