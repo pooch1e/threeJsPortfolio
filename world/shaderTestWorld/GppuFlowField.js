@@ -44,6 +44,12 @@ export default class GppuFlowField {
     // Base Particle Texture
     this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
 
+    // Fill particle with values
+    for (let i = 0; i < this.gpgpu.baseGeometry.count; i++) {
+      const i3 = i * 3;
+      const i4 = i * 4;
+    }
+
     // Particle Variable
     this.gpgpu.particleVariable = this.gpgpu.computation.addVariable(
       'uParticles',
