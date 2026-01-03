@@ -40,20 +40,24 @@ export default class GppuFlowField {
       this.gpgpu.size,
       this.renderer
     );
-
+    
     // Base Particle Texture
     this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
 
     // Fill particle with values
-    for (let i = 0; i < this.gpgpu.baseGeometry.count; i++) {
+    for (let i = 0; i < this.baseGeometry.count; i++) {
       const i3 = i * 3;
       const i4 = i * 4;
 
       // Position based on Geometry
-      this.gpgpu.baseParticleTexture.image.data[i4 + 0] = this.baseGeometry.instance.attributes.position.array[i3 + 0];
-      this.gpgpu.baseParticleTexture.image.data[i4 + 1] = this.baseGeometry.instance.attributes.position.array[i3 + 1];
-      this.gpgpu.baseParticleTexture.image.data[i4 + 2] = this.baseGeometry.instance.attributes.position.array[i3 + 2];
-      this.gpgpu.baseParticleTexture.image.data[i4 + 3] = this.baseGeometry.instance.attributes.position.array[i3 + 3];
+      this.gpgpu.baseParticleTexture.image.data[i4 + 0] =
+        this.baseGeometry.instance.attributes.position.array[i3 + 0];
+      this.gpgpu.baseParticleTexture.image.data[i4 + 1] =
+        this.baseGeometry.instance.attributes.position.array[i3 + 1];
+      this.gpgpu.baseParticleTexture.image.data[i4 + 2] =
+        this.baseGeometry.instance.attributes.position.array[i3 + 2];
+      this.gpgpu.baseParticleTexture.image.data[i4 + 3] =
+        this.baseGeometry.instance.attributes.position.array[i3 + 3];
     }
 
     // Particle Variable
