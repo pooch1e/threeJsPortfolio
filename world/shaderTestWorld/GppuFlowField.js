@@ -90,7 +90,7 @@ export default class GppuFlowField {
 
   setParticles() {
     this.particles = {};
-
+    
     // Create empty geometry
     this.particles.geometry = new THREE.BufferGeometry();
 
@@ -140,7 +140,7 @@ export default class GppuFlowField {
       },
     });
 
-    // Create points
+    // Create points with empty geometry
     this.particles.points = new THREE.Points(
       this.particles.geometry,
       this.particles.material
@@ -164,32 +164,43 @@ export default class GppuFlowField {
 
   update(time) {
     if (time) {
+      // Compute GPGPU
       this.gpgpu.computation.compute();
+      
+      // Update particles texture uniform
+      this.particles.material.uniforms.uParticlesTexture.value =
+        this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particleVariable).texture;
     }
   }
 
   destroy() {
+    // Dispose base geometry
     if (this.baseGeometry?.instance) {
       this.baseGeometry.instance.dispose();
     }
 
+    // Dispose GPGPU debug mesh
     if (this.gpgpu?.debug) {
       this.scene.remove(this.gpgpu.debug);
       this.gpgpu.debug.geometry?.dispose();
       this.gpgpu.debug.material?.dispose();
     }
 
-    if (this.material) {
-      this.material.dispose();
-    }
-
-    if (this.points) {
-      this.scene.remove(this.points);
+    // Dispose particles
+    if (this.particles) {
+      if (this.particles.points) {
+        this.scene.remove(this.particles.points);
+      }
+      if (this.particles.geometry) {
+        this.particles.geometry.dispose();
+      }
+      if (this.particles.material) {
+        this.particles.material.dispose();
+      }
     }
 
     // Dispose GPGPU computation textures
     if (this.gpgpu?.computation) {
-      // Dispose render targets created by GPUComputationRenderer
       if (this.gpgpu.particleVariable) {
         const renderTargets = this.gpgpu.particleVariable.renderTargets;
         if (renderTargets) {
