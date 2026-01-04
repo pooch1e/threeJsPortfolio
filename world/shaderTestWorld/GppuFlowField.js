@@ -120,7 +120,7 @@ export default class GppuFlowField {
 
   update(time) {
     if (time) {
-      this.gpgpu.computation.compute(); // may need to check this in renderer
+      this.gpgpu.computation.compute();
     }
   }
 
