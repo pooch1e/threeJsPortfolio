@@ -86,13 +86,51 @@ export default class GppuFlowField {
     );
     this.gpgpu.debug.position.x = 3;
     this.scene.add(this.gpgpu.debug);
+  }
+
+  setParticles() {
+    this.particles = {};
+
+    // Create empty geometry
+    this.particles.geometry = new THREE.BufferGeometry();
+
+    // Create particle UV array for GPGPU texture lookup
+    const particlesUvArray = new Float32Array(this.baseGeometry.count * 2);
+    const sizesArray = new Float32Array(this.baseGeometry.count);
+
+    for (let y = 0; y < this.gpgpu.size; y++) {
+      for (let x = 0; x < this.gpgpu.size; x++) {
+        const i = y * this.gpgpu.size + x;
+        const i2 = i * 2;
+
+        // Particle UV coordinates for texture lookup
+        const uvX = (x + 0.5) / this.gpgpu.size;
+        const uvY = (y + 0.5) / this.gpgpu.size;
+
+        particlesUvArray[i2 + 0] = uvX;
+        particlesUvArray[i2 + 1] = uvY;
+
+        sizesArray[i] = Math.random();
+      }
+    }
+
+    // Set attributes
+    this.particles.geometry.setAttribute(
+      'aParticlesUv',
+      new THREE.BufferAttribute(particlesUvArray, 2)
+    );
+    this.particles.geometry.setAttribute(
+      'aSize',
+      new THREE.BufferAttribute(sizesArray, 1)
+    );
 
     // Material
-    this.material = new THREE.ShaderMaterial({
+    this.particles.material = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
       fragmentShader: particlesFragmentShader,
       uniforms: {
         uSize: new THREE.Uniform(0.1),
+        uParticlesTexture: new THREE.Uniform(),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
             this.sizes.width * this.sizes.pixelRatio,
@@ -102,19 +140,13 @@ export default class GppuFlowField {
       },
     });
 
-    // Points
-    this.points = new THREE.Points(this.baseGeometry.instance, this.material);
-    this.scene.add(this.points);
-  }
-
-  setParticles() {
-    this.particles = {};
-    this.particles.geometry = new THREE.BufferGeometry();
-
+    // Create points
     this.particles.points = new THREE.Points(
       this.particles.geometry,
-      this.material
+      this.particles.material
     );
+
+    this.particles.geometry.setDrawRange(0, this.baseGeometry.count);
     this.scene.add(this.particles.points);
   }
 
@@ -122,7 +154,7 @@ export default class GppuFlowField {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('GPPU Flow Field');
       this.debugFolder
-        .add(this.material.uniforms.uSize, 'value')
+        .add(this.particles.material.uniforms.uSize, 'value')
         .min(0)
         .max(1)
         .step(0.001)
