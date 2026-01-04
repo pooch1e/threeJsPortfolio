@@ -19,6 +19,7 @@ export default class GppuFlowField {
     this.debugObject = {};
 
     this.setModel();
+    this.setParticles();
     this.setDebug();
   }
 
@@ -40,7 +41,7 @@ export default class GppuFlowField {
       this.gpgpu.size,
       this.renderer
     );
-    
+
     // Base Particle Texture
     this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
 
@@ -104,6 +105,17 @@ export default class GppuFlowField {
     // Points
     this.points = new THREE.Points(this.baseGeometry.instance, this.material);
     this.scene.add(this.points);
+  }
+
+  setParticles() {
+    this.particles = {};
+    this.particles.geometry = new THREE.BufferGeometry();
+
+    this.particles.points = new THREE.Points(
+      this.particles.geometry,
+      this.material
+    );
+    this.scene.add(this.particles.points);
   }
 
   setDebug() {
