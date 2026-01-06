@@ -5,9 +5,10 @@ uniform sampler2D uDisplacementTexture;
 // Varyings
 varying vec3 vColor;
 
-// Attr
+// Attributes
 attribute float aIntensity;
 attribute float aAngles;
+attribute vec2 uv;
 
 void main()
 {
