@@ -28,7 +28,6 @@ export default class GppuFlowField {
 
     this.loadModel();
     this.baseGeometry.instance = this.gltf.scene.children[0].geometry;
-    
 
     // Geometry
     // this.baseGeometry.instance = new THREE.SphereGeometry(3);
@@ -95,7 +94,6 @@ export default class GppuFlowField {
   async loadModel() {
     this.gltf = this.model;
     return;
-    
   }
 
   setParticles() {
@@ -133,13 +131,17 @@ export default class GppuFlowField {
       'aSize',
       new THREE.BufferAttribute(sizesArray, 1)
     );
+    this.particles.geometry.setAttribute(
+      'aColor',
+      this.baseGeometry.instance.attributes.color
+    );
 
     // Material
     this.particles.material = new THREE.ShaderMaterial({
       vertexShader: particlesVertexShader,
       fragmentShader: particlesFragmentShader,
       uniforms: {
-        uSize: new THREE.Uniform(0.1),
+        uSize: new THREE.Uniform(0.01),
         uParticlesTexture: new THREE.Uniform(),
         uResolution: new THREE.Uniform(
           new THREE.Vector2(
