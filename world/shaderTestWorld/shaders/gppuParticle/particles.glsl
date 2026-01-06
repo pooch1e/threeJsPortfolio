@@ -1,4 +1,4 @@
-uniform sampler2D uParticles;
+
 
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;

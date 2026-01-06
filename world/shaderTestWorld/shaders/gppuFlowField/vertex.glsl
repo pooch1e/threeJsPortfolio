@@ -12,6 +12,7 @@ void main()
     // Get particle position from GPGPU texture
     vec4 particle = texture2D(uParticlesTexture, aParticlesUv);
     
+    
     // Final position
     vec4 modelPosition = modelMatrix * vec4(particle.xyz, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
@@ -21,6 +22,8 @@ void main()
     // Point size
     gl_PointSize = uSize * aSize * uResolution.y;
     gl_PointSize *= (1.0 / - viewPosition.z);
+    
+    
 
     // Varyings
     vColor = vec3(1.0);

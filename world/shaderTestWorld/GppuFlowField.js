@@ -26,8 +26,12 @@ export default class GppuFlowField {
   setModel() {
     this.baseGeometry = {};
 
+    this.loadModel();
+    this.baseGeometry.instance = this.gltf.scene.children[0].geometry;
+    
+
     // Geometry
-    this.baseGeometry.instance = new THREE.SphereGeometry(3);
+    // this.baseGeometry.instance = new THREE.SphereGeometry(3);
     this.baseGeometry.count =
       this.baseGeometry.instance.attributes.position.count;
 
@@ -88,9 +92,15 @@ export default class GppuFlowField {
     this.scene.add(this.gpgpu.debug);
   }
 
+  async loadModel() {
+    this.gltf = this.model;
+    return;
+    
+  }
+
   setParticles() {
     this.particles = {};
-    
+
     // Create empty geometry
     this.particles.geometry = new THREE.BufferGeometry();
 
@@ -166,10 +176,12 @@ export default class GppuFlowField {
     if (time) {
       // Compute GPGPU
       this.gpgpu.computation.compute();
-      
+
       // Update particles texture uniform
       this.particles.material.uniforms.uParticlesTexture.value =
-        this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particleVariable).texture;
+        this.gpgpu.computation.getCurrentRenderTarget(
+          this.gpgpu.particleVariable
+        ).texture;
     }
   }
 
