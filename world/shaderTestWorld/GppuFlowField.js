@@ -77,6 +77,9 @@ export default class GppuFlowField {
 
     // Uniforms on GPGPU
     this.gpgpu.particleVariable.material.uniforms.uTime = new THREE.Uniform(0);
+    this.gpgpu.particleVariable.material.uniforms.uBase = new THREE.Uniform(
+      this.baseParticleTexture
+    );
 
     // Init
     this.gpgpu.computation.init();
