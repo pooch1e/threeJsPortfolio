@@ -8,7 +8,7 @@ varying vec3 vColor;
 // Attributes
 attribute float aIntensity;
 attribute float aAngles;
-attribute vec2 uv;
+// attribute vec2 uv;
 
 void main()
 {
