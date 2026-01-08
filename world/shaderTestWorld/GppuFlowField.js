@@ -75,6 +75,9 @@ export default class GppuFlowField {
       [this.gpgpu.particleVariable]
     );
 
+    // Uniforms on GPGPU
+    this.gpgpu.particleVariable.material.uniforms.uTime = new THREE.Uniform(0);
+
     // Init
     this.gpgpu.computation.init();
 
@@ -171,11 +174,22 @@ export default class GppuFlowField {
         .max(1)
         .step(0.001)
         .name('uSize');
+
+      this.debugFolder
+        .add(this.gpgpu.particleVariable.material.uniforms.uTime, 'value')
+        .min(0.02)
+        .max(0.2)
+        .step(0.01)
+        .name('Time');
     }
   }
 
   update(time) {
     if (time) {
+      //Update time uniform in gpgpu
+      this.gpgpu.particleVariable.material.uniforms.uTime.value =
+        time.elapsedTime * 0.2;
+
       // Compute GPGPU
       this.gpgpu.computation.compute();
 
