@@ -54,7 +54,7 @@ export default class GppuFlowField {
       const i4 = i * 4;
 
       // Position based on Geometry
-      this.gpgpu.baseParticleTexture.image.data[i4 + 0] =
+      this.gpgpu.baseParticleTexture.image.data[i4 + Math.random()] =
         this.baseGeometry.instance.attributes.position.array[i3 + 0];
       this.gpgpu.baseParticleTexture.image.data[i4 + 1] =
         this.baseGeometry.instance.attributes.position.array[i3 + 1];
@@ -80,6 +80,8 @@ export default class GppuFlowField {
     this.gpgpu.particleVariable.material.uniforms.uBase = new THREE.Uniform(
       this.baseParticleTexture
     );
+    this.gpgpu.particleVariable.material.uniforms.uDeltaTime =
+      new THREE.Uniform(0);
 
     // Init
     this.gpgpu.computation.init();
@@ -192,6 +194,8 @@ export default class GppuFlowField {
       //Update time uniform in gpgpu
       this.gpgpu.particleVariable.material.uniforms.uTime.value =
         time.elapsedTime * 0.2;
+      this.gpgpu.particleVariable.material.uniforms.uDeltaTime.value =
+        time.deltaTime;
 
       // Compute GPGPU
       this.gpgpu.computation.compute();
