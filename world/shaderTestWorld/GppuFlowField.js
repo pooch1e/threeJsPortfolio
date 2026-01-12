@@ -82,6 +82,8 @@ export default class GppuFlowField {
     );
     this.gpgpu.particleVariable.material.uniforms.uDeltaTime =
       new THREE.Uniform(0);
+    this.gpgpu.particleVariable.material.uniforms.uFieldInfluence =
+      new THREE.Uniform(0.5);
 
     // Init
     this.gpgpu.computation.init();
@@ -186,6 +188,8 @@ export default class GppuFlowField {
         .max(0.2)
         .step(0.01)
         .name('Time');
+      
+      this.debugFolder.add(this.gpgpu.particleVariable.material.uniforms.uFieldInfluence, 'value').min(0).max(1).step(0.001).name('Flow Field Influence')
     }
   }
 

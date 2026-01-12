@@ -4,6 +4,7 @@
 uniform float uTime;
 uniform sampler2D uBase;
 uniform float uDeltaTime;
+uniform float uFieldInfluence;
 void main() {
 
   float time = uTime * 0.002;
@@ -33,8 +34,9 @@ void main() {
     particle.a * uDeltaTime * 0.3;
 
     // Strength
-    float strength = simplexNoise4d(vec4(base.xyz, time + 1.0));
-    strength = smoothstep(- 1.0, 1.0, strength);
+    float influence = (uFieldInfluence - 0.5) * (- 2.0);
+    float strength = simplexNoise4d(vec4(base.xyz * 0.2, time + 1.0));
+    strength = smoothstep(influence, 1.0, strength);
     particle.xyz += flowField * uDeltaTime * strength * 0.001;
 
     }
