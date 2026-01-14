@@ -12,6 +12,11 @@ export const sources = [
     ],
   },
   {
+    name: 'urbanStreet',
+    type: 'texture',
+    path: '/static/textures/urbanStreet',
+  },
+  {
     name: 'fireworksTextures',
     type: 'textureArray',
     path: [

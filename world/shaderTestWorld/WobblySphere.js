@@ -4,11 +4,13 @@ export default class WobblySphere {
     this.world = world;
     this.scene = world.scene;
     this.resources = this.world.resources;
+    this.debug = this.world.shaderExperience.debug;
 
     // setup
     this.setLights();
     this.setModels();
     this.setDebugPlane();
+    this.setDebug();
   }
 
   setLights() {
@@ -20,6 +22,8 @@ export default class WobblySphere {
     this.directionalLight.position.set(0.25, 2, -2.25);
     this.scene.add(this.directionalLight);
   }
+
+  setBackground() {}
 
   setModels() {
     this.material = new THREE.MeshPhysicalMaterial({
@@ -51,6 +55,19 @@ export default class WobblySphere {
     this.plane.position.y = -5;
     this.plane.position.z = 5;
     this.scene.add(this.plane);
+  }
+
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Wobbly Sphere');
+
+      this.debugFolder.add(this.material, 'metalness', 0, 1, 0.001);
+      this.debugFolder.add(this.material, 'roughness', 0, 1, 0.001);
+      this.debugFolder.add(this.material, 'transmission', 0, 1, 0.001);
+      this.debugFolder.add(this.material, 'ior', 0, 10, 0.001);
+      this.debugFolder.add(this.material, 'thickness', 0, 10, 0.001);
+      this.debugFolder.addColor(this.material, 'color');
+    }
   }
 
   update(time) {
