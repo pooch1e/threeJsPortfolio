@@ -1,0 +1,64 @@
+import * as THREE from 'three';
+export default class WobblySphere {
+  constructor(world) {
+    this.world = world;
+    this.scene = world.scene;
+    this.resources = this.world.resources;
+
+    // setup
+    this.setLights();
+    this.setModels();
+    this.setDebugPlane();
+  }
+
+  setLights() {
+    this.directionalLight = new THREE.DirectionalLight('#ffffff', 3);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.set(1024, 1024);
+    this.directionalLight.shadow.camera.far = 15;
+    this.directionalLight.shadow.normalBias = 0.05;
+    this.directionalLight.position.set(0.25, 2, -2.25);
+    this.scene.add(this.directionalLight);
+  }
+
+  setModels() {
+    this.material = new THREE.MeshPhysicalMaterial({
+      metalness: 0,
+      roughness: 0.5,
+      color: '#ffffff',
+      transmission: 0,
+      ior: 1.5,
+      thickness: 1.5,
+      transparent: true,
+      wireframe: false,
+    });
+
+    this.geometry = new THREE.IcosahedronGeometry(2.5, 50);
+
+    this.WobbleMesh = new THREE.Mesh(this.geometry, this.material);
+    this.WobbleMesh.receiveShadow = true;
+    this.WobbleMesh.castShadow = true;
+    this.scene.add(this.WobbleMesh);
+  }
+
+  setDebugPlane() {
+    this.plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(15, 15, 15),
+      new THREE.MeshStandardMaterial()
+    );
+    this.plane.receiveShadow = true;
+    this.plane.rotation.y = Math.PI;
+    this.plane.position.y = -5;
+    this.plane.position.z = 5;
+    this.scene.add(this.plane);
+  }
+
+  update(time) {
+    if (time) {
+      // animate something
+    }
+  }
+  destroy() {
+    // destroy something
+  }
+}

@@ -92,6 +92,7 @@ export default class GppuFlowField {
     this.gpgpu.debug = new THREE.Mesh(
       new THREE.PlaneGeometry(3, 3),
       new THREE.MeshBasicMaterial({
+        visible: false,
         map: this.gpgpu.computation.getCurrentRenderTarget(
           this.gpgpu.particleVariable
         ).texture,

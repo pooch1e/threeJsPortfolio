@@ -12,4 +12,5 @@ export const shaderPractices = {
   particlesAnimationShader: () => import('./ParticleAnimation'),
   morphingParticlesShader: () => import('./ParticleMorph'),
   gppuFlowFieldShader: () => import('./GppuFlowField'),
+  wobblySphereShader: () => import('./WobblySphere'),
 };
