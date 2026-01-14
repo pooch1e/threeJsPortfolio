@@ -86,5 +86,24 @@ export default class WobblySphere {
   }
   destroy() {
     // destroy something
+    // Destroy lights
+    if (this.directionalLight) {
+      this.scene.destroy(this.directionalLight);
+    }
+    // Background
+    if (this.environment && this.environmentMap) {
+      this.scene.destroy(this.environment);
+    }
+    // Sphere material
+    if (this.WobbleMesh) {
+      this.geometry.dispose();
+      this.material.dispose();
+      this.WobbleMesh.destroy();
+    }
+    // Debug plane
+    if (this.plane) {
+      this.plane.destroy();
+      this.PlaneGeometry.dispose();
+    }
   }
 }
