@@ -5,7 +5,7 @@ export default class WobblySphere {
     this.scene = world.scene;
     this.resources = this.world.resources;
     this.debug = this.world.shaderExperience.debug;
-
+    this.streetMap = this.resources.items.urbanStreet;
     // setup
     this.setLights();
     this.setModels();

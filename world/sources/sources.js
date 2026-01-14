@@ -13,8 +13,8 @@ export const sources = [
   },
   {
     name: 'urbanStreet',
-    type: 'texture',
-    path: '/static/textures/urbanStreet',
+    type: 'hdrTexture',
+    path: '/static/textures/urbanStreet/urban_alley_01_1k.hdr',
   },
   {
     name: 'fireworksTextures',

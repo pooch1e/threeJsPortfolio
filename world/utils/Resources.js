@@ -2,14 +2,13 @@ import EventEmitter from './EventEmitter.js';
 import * as THREE from 'three';
 import { DRACOLoader } from 'three/examples/jsm/Addons.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 export class Resources extends EventEmitter {
   constructor(sources) {
     super();
 
     // Options
     this.sources = sources;
-
-    
 
     this.items = {};
     this.toLoad = this.sources.length;
@@ -26,11 +25,11 @@ export class Resources extends EventEmitter {
 
     this.loaders.gltfLoader = new GLTFLoader();
     this.loaders.textureLoader = new THREE.TextureLoader();
+    this.loaders.hdrLoader = new HDRLoader();
     this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader();
     this.loaders.dracoLoader = new DRACOLoader();
-    this.loaders.dracoLoader.setDecoderPath('/static/draco/')
-    this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader)
-
+    this.loaders.dracoLoader.setDecoderPath('/static/draco/');
+    this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader);
   }
 
   startLoading() {
@@ -49,6 +48,18 @@ export class Resources extends EventEmitter {
         );
       } else if (source.type === 'texture') {
         this.loaders.textureLoader.load(
+          source.path,
+          (file) => {
+            this.sourceLoaded(source, file);
+          },
+          undefined,
+          (error) => {
+            console.error(`Error loading ${source.name}:`, error);
+            this.sourceLoaded(source, null);
+          }
+        );
+      } else if (source.type === 'hdrTexture') {
+        this.loaders.hdrLoader.load(
           source.path,
           (file) => {
             this.sourceLoaded(source, file);
