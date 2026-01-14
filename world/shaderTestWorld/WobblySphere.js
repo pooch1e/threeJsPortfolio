@@ -3,11 +3,13 @@ export default class WobblySphere {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
+    this.environment = this.world.environment;
     this.resources = this.world.resources;
     this.debug = this.world.shaderExperience.debug;
-    this.streetMap = this.resources.items.urbanStreet;
+    this.environmentMap = this.resources.items.urbanStreet;
     // setup
     this.setLights();
+    this.setBackground();
     this.setModels();
     this.setDebugPlane();
     this.setDebug();
@@ -23,7 +25,14 @@ export default class WobblySphere {
     this.scene.add(this.directionalLight);
   }
 
-  setBackground() {}
+  setBackground() {
+    if (this.environmentMap && this.environmentMap) {
+      this.environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+
+      this.scene.background = this.environmentMap;
+      this.scene.environment = this.environmentMap;
+    }
+  }
 
   setModels() {
     this.material = new THREE.MeshPhysicalMaterial({
