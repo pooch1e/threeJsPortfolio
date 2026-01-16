@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
+
+import wobbleVertexShader from './shaders/wobble/vertex.glsl';
+import wobbleFragmentShader from './shaders/wobble/fragment.glsl';
 export default class WobblySphere {
   constructor(world) {
     this.world = world;
@@ -35,7 +39,12 @@ export default class WobblySphere {
   }
 
   setModels() {
-    this.material = new THREE.MeshPhysicalMaterial({
+    this.material = new CustomShaderMaterial({
+      // CSM
+      baseMaterial: THREE.MeshPhysicalMaterial,
+      vertexShader: wobbleVertexShader,
+      fragmentShader: wobbleFragmentShader,
+      // Base Material
       metalness: 0,
       roughness: 0.5,
       color: '#ffffff',
@@ -104,6 +113,11 @@ export default class WobblySphere {
     if (this.plane) {
       this.plane.destroy();
       this.PlaneGeometry.dispose();
+    }
+
+    // Debug
+    if (this.debug) {
+      this.debug.destroy();
     }
   }
 }
