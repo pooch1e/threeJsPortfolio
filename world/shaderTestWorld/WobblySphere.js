@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 import wobbleVertexShader from './shaders/wobble/vertex.glsl';
 import wobbleFragmentShader from './shaders/wobble/fragment.glsl';
@@ -11,12 +12,14 @@ export default class WobblySphere {
     this.resources = this.world.resources;
     this.debug = this.world.shaderExperience.debug;
     this.environmentMap = this.resources.items.urbanStreet;
+    this.helper = this.world.helpers;
     // setup
     this.setLights();
     this.setBackground();
     this.setModels();
     this.setDebugPlane();
     this.setDebug();
+    this.helper.setAxisHelper();
   }
 
   setLights() {
