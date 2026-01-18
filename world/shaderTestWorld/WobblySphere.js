@@ -59,6 +59,9 @@ export default class WobblySphere {
     });
 
     this.geometry = new THREE.IcosahedronGeometry(2.5, 50);
+    this.geometry.mergeVertices()
+    this.geometry.computeTangents()
+    
 
     this.WobbleMesh = new THREE.Mesh(this.geometry, this.material);
     this.WobbleMesh.receiveShadow = true;
