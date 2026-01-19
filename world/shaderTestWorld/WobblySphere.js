@@ -20,7 +20,7 @@ export default class WobblySphere {
     this.setDebugPlane();
     this.setDebug();
     this.helper.setAxisHelper();
-    this.helper.scale.set(5);
+    // make axis helper bigger and move position
   }
 
   setLights() {
@@ -59,22 +59,32 @@ export default class WobblySphere {
       wireframe: false,
     });
 
+    this.depthMaterial = new CustomShaderMaterial({
+      // CSM
+      baseMaterial: THREE.MeshDepthMaterial,
+      vertexShader: wobbleVertexShader,
+      // Depth Material
+      depthPacking: THREE.RGBADepthPacking,
+    });
+
+
     this.geometry = new THREE.IcosahedronGeometry(2.5, 50);
 
     this.geometry = mergeVertices(this.geometry);
 
     this.geometry.computeTangents();
 
-    this.WobbleMesh = new THREE.Mesh(this.geometry, this.material);
-    this.WobbleMesh.receiveShadow = true;
-    this.WobbleMesh.castShadow = true;
-    this.scene.add(this.WobbleMesh);
+    this.wobbleMesh = new THREE.Mesh(this.geometry, this.material);
+    this.wobbleMesh.receiveShadow = true;
+    this.wobbleMesh.castShadow = true;
+    this.wobbleMesh.customDepthMaterial = this.depthMaterial;
+    this.scene.add(this.wobbleMesh);
   }
 
   setDebugPlane() {
     this.plane = new THREE.Mesh(
       new THREE.PlaneGeometry(15, 15, 15),
-      new THREE.MeshStandardMaterial()
+      new THREE.MeshStandardMaterial(),
     );
     this.plane.receiveShadow = true;
     this.plane.rotation.y = Math.PI;
@@ -112,10 +122,10 @@ export default class WobblySphere {
       this.scene.destroy(this.environment);
     }
     // Sphere material
-    if (this.WobbleMesh) {
+    if (this.wobbleMesh) {
       this.geometry.dispose();
       this.material.dispose();
-      this.WobbleMesh.destroy();
+      this.wobbleMesh.destroy();
     }
     // Debug plane
     if (this.plane) {
