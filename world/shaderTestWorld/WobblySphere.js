@@ -19,7 +19,7 @@ export default class WobblySphere {
     this.setModels();
     this.setDebugPlane();
     this.setDebug();
-    this.helper.setAxisHelper();
+    // this.helper.setAxisHelper();
     // make axis helper bigger and move position
   }
 

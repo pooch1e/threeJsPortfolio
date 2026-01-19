@@ -5,11 +5,15 @@ uniform float uTime;
 uniform float uPositionFrequency;
 uniform float uTimeFrequency;
 uniform float uStrength;
+// Warped position
+uniform float uWarpPositionFrequency;
+uniform float uWarpTimeFrequency;
+uniform float uWarpStrength;
 
 float getWobble(vec3 position)
 {
     vec3 warpedPosition = position;
-    warpedPosition += simplexNoise4d(vec4(position, uTime));
+    warpedPosition += simplexNoise4d(vec4(position * uWarpPositionFrequency, uTime * uWarpTimeFrequency) * uWarpStrength);
     return simplexNoise4d(vec4(
         warpedPosition * uPositionFrequency, // XYZ
         uTime * uTimeFrequency          // W
