@@ -51,6 +51,9 @@ export default class WobblySphere {
       uWarpPositionFrequency: new THREE.Uniform(0.38),
       uWarpTimeFrequency: new THREE.Uniform(0.12),
       uWarpStrength: new THREE.Uniform(1.7),
+      uResolution: new THREE.Uniform(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+      ),
     };
     this.material = new CustomShaderMaterial({
       // CSM
@@ -139,7 +142,7 @@ export default class WobblySphere {
   update(time) {
     if (time) {
       // animate something
-      this.uniforms.uTime.value = time.elapsedTime * 0.0002;
+      this.uniforms.uTime.value = time.elapsedTime * 0.002;
     }
   }
   destroy() {
