@@ -126,6 +126,7 @@ export default class WobblySphere {
   update(time) {
     if (time) {
       // animate something
+      this.uniforms.uTime.value = time.elapsedTime * 0.002;
     }
   }
   destroy() {
