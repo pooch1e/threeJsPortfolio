@@ -1,11 +1,12 @@
 #include ../includes/simplexNoise4d.glsl
-attribute tangent vec4;
+attribute vec4 tangent;
 
-float getWobble(position) {
-  return simplexNoise4d(vec4(
-    position, //x, y, z
-    0.0 // W
-  ))
+float getWobble(vec3 position)
+{
+    return simplexNoise4d(vec4(
+        position, // XYZ
+        0.0           // W
+    ));
 }
 
 void main(){
@@ -23,4 +24,11 @@ void main(){
   float wobble = getWobble(csm_Position);
 
   csm_Position += wobble * normal;
+  positionA    += getWobble(positionA) * normal;
+  positionB    += getWobble(positionB) * normal;
+
+  // Compute normal
+    vec3 toA = normalize(positionA - csm_Position);
+    vec3 toB = normalize(positionB - csm_Position);
+    csm_Normal = cross(toA, toB);
 }
