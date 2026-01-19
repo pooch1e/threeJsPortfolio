@@ -20,6 +20,7 @@ export default class WobblySphere {
     this.setDebugPlane();
     this.setDebug();
     this.helper.setAxisHelper();
+    this.helper.scale.set(5);
   }
 
   setLights() {
