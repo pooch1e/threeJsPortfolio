@@ -43,6 +43,12 @@ export default class WobblySphere {
   }
 
   setModels() {
+    this.uniforms = {
+      uTime: new THREE.Uniform(0),
+      uPositionFrequency: new THREE.Uniform(0.5),
+      uTimeFrequency: new THREE.Uniform(0.4),
+      uStrength: new THREE.Uniform(0.3),
+    };
     this.material = new CustomShaderMaterial({
       // CSM
       baseMaterial: THREE.MeshPhysicalMaterial,
@@ -57,6 +63,7 @@ export default class WobblySphere {
       thickness: 1.5,
       transparent: true,
       wireframe: false,
+      uniforms: this.uniforms,
     });
 
     this.depthMaterial = new CustomShaderMaterial({
@@ -65,8 +72,8 @@ export default class WobblySphere {
       vertexShader: wobbleVertexShader,
       // Depth Material
       depthPacking: THREE.RGBADepthPacking,
+      uniforms: this.uniforms,
     });
-
 
     this.geometry = new THREE.IcosahedronGeometry(2.5, 50);
 
@@ -103,6 +110,16 @@ export default class WobblySphere {
       this.debugFolder.add(this.material, 'ior', 0, 10, 0.001);
       this.debugFolder.add(this.material, 'thickness', 0, 10, 0.001);
       this.debugFolder.addColor(this.material, 'color');
+
+      this.debugFolder
+        .add(this.uniforms.uPositionFrequency, 'value', 0, 2, 0.001)
+        .name('uPositionFrequency');
+      this.debugFolder
+        .add(this.uniforms.uTimeFrequency, 'value', 0, 2, 0.001)
+        .name('uTimeFrequency');
+      this.debugFolder
+        .add(this.uniforms.uStrength, 'value', 0, 2, 0.001)
+        .name('uStrength');
     }
   }
 
