@@ -90,6 +90,16 @@ export const sources = [
     path: '/static/models/proceduralTerrain/cubeBaseTest.glb',
   },
   {
+    name: 'cubeBaseTest2',
+    type: 'gltfModel',
+    path: '/static/models/proceduralTerrain/cubeBaseTest2.glb',
+  },
+  {
+    name: 'cubeBaseTest3',
+    type: 'gltfModel',
+    path: '/static/models/proceduralTerrain/cubeBaseTest3.glb',
+  },
+  {
     name: 'shipModel',
     type: 'gltfModel',
     path: '/static/models/ship/model.glb',

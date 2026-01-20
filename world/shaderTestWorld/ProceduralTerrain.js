@@ -7,7 +7,7 @@ export default class ProceduralTerrain {
     this.environment = this.world.environment;
     this.resources = this.world.resources;
     this.environmentMap = this.resources.items.spruitSunset;
-    this.baseMeshModel = this.resources.items.cubeBaseTest.scene;
+    this.baseMeshModel = this.resources.items.cubeBaseTest3.scene;
 
     //setup
     this.setBackground();
