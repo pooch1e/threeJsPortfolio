@@ -7,10 +7,12 @@ export default class ProceduralTerrain {
     this.environment = this.world.environment;
     this.resources = this.world.resources;
     this.environmentMap = this.resources.items.spruitSunset;
+    this.baseMeshModel = this.resources.items.cubeBaseTest.scene;
 
     //setup
     this.setBackground();
-    this.addPlaceholder();
+    // this.addPlaceholder();
+    this.addBaseMesh();
     this.addLights();
   }
 
@@ -22,6 +24,10 @@ export default class ProceduralTerrain {
       this.scene.backgroundBlurriness = 0.5;
       this.scene.environment = this.environmentMap;
     }
+  }
+
+  addBaseMesh() {
+    this.scene.add(this.baseMeshModel);
   }
 
   addPlaceholder() {

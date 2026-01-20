@@ -1,3 +1,5 @@
+import ProceduralTerrain from '../shaderTestWorld/proceduralTerrain';
+
 export const sources = [
   {
     name: 'environmentMapTexture',
@@ -81,6 +83,11 @@ export const sources = [
     name: 'dracoModels',
     type: 'gltfModel',
     path: '/static/models/draco/models.glb',
+  },
+  {
+    name: 'cubeBaseTest',
+    type: 'gltfModel',
+    path: '/static/models/proceduralTerrain/cubeBaseTest.glb',
   },
   {
     name: 'shipModel',
