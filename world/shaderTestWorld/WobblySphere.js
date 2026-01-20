@@ -146,30 +146,33 @@ export default class WobblySphere {
     }
   }
   destroy() {
-    // destroy something
     // Destroy lights
     if (this.directionalLight) {
-      this.scene.destroy(this.directionalLight);
+      this.scene.remove(this.directionalLight);
+      this.directionalLight.dispose();
     }
     // Background
-    if (this.environment && this.environmentMap) {
-      this.scene.destroy(this.environment);
+    if (this.scene.background === this.environmentMap) {
+      this.scene.background = null;
+      this.scene.environment = null;
     }
     // Sphere material
     if (this.wobbleMesh) {
+      this.scene.remove(this.wobbleMesh);
       this.geometry.dispose();
       this.material.dispose();
-      this.wobbleMesh.destroy();
+      this.depthMaterial.dispose();
     }
     // Debug plane
     if (this.plane) {
-      this.plane.destroy();
-      this.PlaneGeometry.dispose();
+      this.scene.remove(this.plane);
+      this.plane.geometry.dispose();
+      this.plane.material.dispose();
     }
 
-    // Debug
-    if (this.debug) {
-      this.debug.destroy();
+    // Debug folder
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
     }
   }
 }
