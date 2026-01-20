@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-export default class ProceduralGeneration {
+export default class ProceduralTerrain {
   constructor(world) {
+    this.world = world;
     this.scene = world.scene;
     this.debug = this.world.shaderExperience.debug;
     this.environment = this.world.environment;
