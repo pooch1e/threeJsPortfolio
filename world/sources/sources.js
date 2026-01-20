@@ -17,6 +17,11 @@ export const sources = [
     path: '/static/textures/urbanStreet/urban_alley_01_1k.hdr',
   },
   {
+    name: 'spruitSunset',
+    type: 'hdrTexture',
+    path: '/static/textures/spruitSunset/spruit_sunrise.hdr',
+  },
+  {
     name: 'fireworksTextures',
     type: 'textureArray',
     path: [

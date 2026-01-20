@@ -88,6 +88,11 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
             onClick={() => handleButtonClick('wobblySphereShader')}>
             Wobbly Sphere
           </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('proceduralGenerator')}>
+            Procedural Generation
+          </li>
         </ul>
       )}
     </div>

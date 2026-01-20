@@ -13,4 +13,5 @@ export const shaderPractices = {
   morphingParticlesShader: () => import('./ParticleMorph'),
   gppuFlowFieldShader: () => import('./GppuFlowField'),
   wobblySphereShader: () => import('./WobblySphere'),
+  proceduralGenerator: () => import('./ProceduralTerrain'),
 };
