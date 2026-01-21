@@ -13,6 +13,7 @@ export default class ProceduralTerrain {
     this.setBackground();
     // this.addPlaceholder();
     this.addBaseMesh();
+    this.setTerrain();
     this.addLights();
   }
 
@@ -27,7 +28,19 @@ export default class ProceduralTerrain {
   }
 
   addBaseMesh() {
+    this.baseMeshModel.scale.set(3, 8, 6);
+    this.baseMeshModel.position.y = -1;
+
     this.scene.add(this.baseMeshModel);
+  }
+
+  setTerrain() {
+    this.planeGeometry = new THREE.PlaneGeometry(10, 10, 500, 500);
+    this.planeGeometry.rotateX(-Math.PI * 0.5);
+
+    this.planeMaterial = new THREE.MeshBasicMaterial();
+    this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
+    this.scene.add(this.planeMesh);
   }
 
   addPlaceholder() {
