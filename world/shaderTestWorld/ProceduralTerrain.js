@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
+import terrainVertexShader from './shaders/terrain/vertex.glsl';
+import terrainFragmentShader from './shaders/terrain/fragment.glsl';
+
 export default class ProceduralTerrain {
   constructor(world) {
     this.world = world;
@@ -35,11 +39,24 @@ export default class ProceduralTerrain {
   }
 
   setTerrain() {
-    this.planeGeometry = new THREE.PlaneGeometry(10, 10, 500, 500);
+    this.planeGeometry = new THREE.PlaneGeometry(12, 12, 500, 500);
     this.planeGeometry.rotateX(-Math.PI * 0.5);
 
-    this.planeMaterial = new THREE.MeshBasicMaterial();
+    // Material
+    this.planeMaterial = new CustomShaderMaterial({
+      // CSM
+      baseMaterial: THREE.MeshStandardMaterial,
+      vertexShader: terrainVertexShader,
+      fragmentShader: terrainFragmentShader,
+
+      // MeshStandardMaterial
+      metalness: 0,
+      roughness: 0.5,
+      color: '#85d534',
+    });
     this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
+    this.planeMesh.receiveShadow = true;
+    this.planeMesh.castShadow = true;
     this.scene.add(this.planeMesh);
   }
 
