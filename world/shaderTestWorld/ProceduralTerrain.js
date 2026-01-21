@@ -39,7 +39,9 @@ export default class ProceduralTerrain {
   }
 
   setTerrain() {
-    this.planeGeometry = new THREE.PlaneGeometry(12, 12, 500, 500);
+    this.planeGeometry = new THREE.PlaneGeometry(11.5, 11.5, 500, 500);
+    this.planeGeometry.deleteAttribute('normal');
+    this.planeGeometry.deleteAttribute('uv');
     this.planeGeometry.rotateX(-Math.PI * 0.5);
 
     // Material
@@ -55,6 +57,7 @@ export default class ProceduralTerrain {
       color: '#85d534',
     });
     this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
+    this.planeMesh.position.y = 0.5;
     this.planeMesh.receiveShadow = true;
     this.planeMesh.castShadow = true;
     this.scene.add(this.planeMesh);
