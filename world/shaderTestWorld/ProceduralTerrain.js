@@ -45,6 +45,14 @@ export default class ProceduralTerrain {
     this.planeGeometry.rotateX(-Math.PI * 0.5);
 
     // Material
+
+    this.uniforms = {
+      uPositionFrequency: new THREE.Uniform(0.2),
+      uStrength: new THREE.Uniform(2.0),
+      uWarpFrequency: new THREE.Uniform(5),
+      uWarpStrength: new THREE.Uniform(0.5),
+    };
+
     this.planeMaterial = new CustomShaderMaterial({
       // CSM
       baseMaterial: THREE.MeshStandardMaterial,
