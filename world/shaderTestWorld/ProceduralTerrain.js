@@ -19,6 +19,7 @@ export default class ProceduralTerrain {
     this.addBaseMesh();
     this.setTerrain();
     this.addLights();
+    this.setDebug();
   }
 
   setBackground() {
@@ -51,6 +52,7 @@ export default class ProceduralTerrain {
       uStrength: new THREE.Uniform(2.0),
       uWarpFrequency: new THREE.Uniform(5),
       uWarpStrength: new THREE.Uniform(0.5),
+      uTime: new THREE.Uniform(0),
     };
 
     this.planeMaterial = new CustomShaderMaterial({
@@ -63,6 +65,7 @@ export default class ProceduralTerrain {
       metalness: 0,
       roughness: 0.5,
       color: '#85d534',
+      uniforms: this.uniforms,
     });
     this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
     this.planeMesh.position.y = 0.5;
@@ -95,6 +98,26 @@ export default class ProceduralTerrain {
 
   update(time) {
     if (time) {
+      this.uniforms.uTime.value = time.elapsedTime * 0.02;
+    }
+  }
+
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Procedural Terrain');
+
+      this.debugFolder
+        .add(this.uniforms.uPositionFrequency, 'value', 0, 1, 0.001)
+        .name('uPositionFrequency');
+      this.debugFolder
+        .add(this.uniforms.uStrength, 'value', 0, 10, 0.001)
+        .name('uStrength');
+      this.debugFolder
+        .add(this.uniforms.uWarpFrequency, 'value', 0, 10, 0.001)
+        .name('uWarpFrequency');
+      this.debugFolder
+        .add(this.uniforms.uWarpStrength, 'value', 0, 1, 0.001)
+        .name('uWarpStrength');
     }
   }
 
