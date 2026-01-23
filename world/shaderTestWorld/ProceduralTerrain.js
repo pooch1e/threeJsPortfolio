@@ -46,6 +46,14 @@ export default class ProceduralTerrain {
     this.planeGeometry.rotateX(-Math.PI * 0.5);
 
     // Material
+    this.colors = {
+      waterDeep: '#002b3d',
+      waterSurface: '#66a8ff',
+      sand: '#ffe894',
+      grass: '#85d534',
+      snow: '#ffffff',
+      rock: '#bfbd8d',
+    };
 
     this.uniforms = {
       uPositionFrequency: new THREE.Uniform(0.2),
@@ -53,6 +61,16 @@ export default class ProceduralTerrain {
       uWarpFrequency: new THREE.Uniform(5),
       uWarpStrength: new THREE.Uniform(0.5),
       uTime: new THREE.Uniform(0),
+      uColorWaterDeep: new THREE.Uniform(
+        new THREE.Color(this.colors.waterDeep),
+      ),
+      uColorWaterSurface: new THREE.Uniform(
+        new THREE.Color(this.colors.waterSurface),
+      ),
+      uColorSand: new THREE.Uniform(new THREE.Color(this.colors.sand)),
+      uColorGrass: new THREE.Uniform(new THREE.Color(this.colors.grass)),
+      uColorSnow: new THREE.Uniform(new THREE.Color(this.colors.snow)),
+      uColorRock: new THREE.Uniform(new THREE.Color(this.colors.rock)),
     };
 
     this.planeMaterial = new CustomShaderMaterial({
@@ -130,6 +148,30 @@ export default class ProceduralTerrain {
       this.debugFolder
         .add(this.uniforms.uWarpStrength, 'value', 0, 1, 0.001)
         .name('uWarpStrength');
+
+      // colors
+      this.debugFolder
+        .addColor(this.colors, 'waterDeep')
+        .onChange(() =>
+          this.uniforms.uColorWaterDeep.value.set(this.colors.waterDeep),
+        );
+      this.debugFolder
+        .addColor(this.colors, 'waterSurface')
+        .onChange(() =>
+          this.uniforms.uColorWaterSurface.value.set(this.colors.waterSurface),
+        );
+      this.debugFolder
+        .addColor(this.colors, 'sand')
+        .onChange(() => this.uniforms.uColorSand.value.set(this.colors.sand));
+      this.debugFolder
+        .addColor(this.colors, 'grass')
+        .onChange(() => this.uniforms.uColorGrass.value.set(this.colors.grass));
+      this.debugFolder
+        .addColor(this.colors, 'snow')
+        .onChange(() => this.uniforms.uColorSnow.value.set(this.colors.snow));
+      this.debugFolder
+        .addColor(this.colors, 'rock')
+        .onChange(() => this.uniforms.uColorRock.value.set(this.colors.rock));
     }
   }
 
