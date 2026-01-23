@@ -67,10 +67,22 @@ export default class ProceduralTerrain {
       color: '#85d534',
       uniforms: this.uniforms,
     });
+
+    this.planeDepthMaterial = new CustomShaderMaterial({
+      // CSM
+      baseMaterial: THREE.MeshDepthMaterial,
+
+      vertexShader: terrainVertexShader,
+      uniforms: this.uniforms,
+
+      // MeshDepthMaterial
+      depthPacking: THREE.RGBADepthPacking,
+    });
     this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
     this.planeMesh.position.y = 0.5;
     this.planeMesh.receiveShadow = true;
     this.planeMesh.castShadow = true;
+    this.planeMesh.customDepthMaterial = this.planeDepthMaterial;
     this.scene.add(this.planeMesh);
   }
 
