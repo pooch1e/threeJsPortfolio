@@ -18,6 +18,7 @@ export default class ProceduralTerrain {
     // this.addPlaceholder();
     this.addBaseMesh();
     this.setTerrain();
+    this.setWaterTransmission();
     this.addLights();
     this.setDebug();
   }
@@ -102,6 +103,19 @@ export default class ProceduralTerrain {
     this.planeMesh.castShadow = true;
     this.planeMesh.customDepthMaterial = this.planeDepthMaterial;
     this.scene.add(this.planeMesh);
+  }
+
+  setWaterTransmission() {
+    this.waterMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(11.5, 11.5, 1, 1),
+      new THREE.MeshPhysicalMaterial({
+        transmission: 1,
+        roughness: 0.3,
+      }),
+    );
+    this.waterMesh.rotation.x = -Math.PI * 0.5;
+    this.waterMesh.position.y = -0.1;
+    this.scene.add(this.waterMesh);
   }
 
   addPlaceholder() {
