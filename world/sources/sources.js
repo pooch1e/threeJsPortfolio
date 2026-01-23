@@ -1,5 +1,3 @@
-import ProceduralTerrain from '../shaderTestWorld/proceduralTerrain';
-
 export const sources = [
   {
     name: 'environmentMapTexture',
@@ -12,6 +10,11 @@ export const sources = [
       '/static/textures/environmentMap/pz.jpg',
       '/static/textures/environmentMap/nz.jpg',
     ],
+  },
+  {
+    name: 'aerodynamicMapTexture',
+    type: 'hdrTexture',
+    path: '/static/textures/aerodynamic/aerodynamics_workshop.hdr',
   },
   {
     name: 'urbanStreet',
@@ -103,6 +106,11 @@ export const sources = [
     name: 'shipModel',
     type: 'gltfModel',
     path: '/static/models/ship/model.glb',
+  },
+  {
+    name: 'gearsModel',
+    type: 'gltfModel',
+    path: '/static/models/gears/gears.glb',
   },
   {
     name: 'grassColorTexture',

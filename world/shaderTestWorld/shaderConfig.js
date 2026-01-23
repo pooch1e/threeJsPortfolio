@@ -14,4 +14,5 @@ export const shaderPractices = {
   gppuFlowFieldShader: () => import('./GppuFlowField'),
   wobblySphereShader: () => import('./WobblySphere'),
   proceduralTerrain: () => import('./ProceduralTerrain'),
+  slicedModel: () => import('./SlicedModel.js'),
 };
