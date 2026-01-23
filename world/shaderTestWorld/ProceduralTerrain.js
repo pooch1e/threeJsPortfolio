@@ -18,7 +18,6 @@ export default class ProceduralTerrain {
     // this.addPlaceholder();
     this.addBaseMesh();
     this.setTerrain();
-    this.setWaterTransmission();
     this.addLights();
     this.setDebug();
   }
@@ -105,19 +104,6 @@ export default class ProceduralTerrain {
     this.scene.add(this.planeMesh);
   }
 
-  setWaterTransmission() {
-    this.waterMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(11.5, 11.5, 1, 1),
-      new THREE.MeshPhysicalMaterial({
-        transmission: 1,
-        roughness: 0.3,
-      }),
-    );
-    this.waterMesh.rotation.x = -Math.PI * 0.5;
-    this.waterMesh.position.y = -0.1;
-    this.scene.add(this.waterMesh);
-  }
-
   addPlaceholder() {
     this.placeholder = new THREE.Mesh(
       new THREE.IcosahedronGeometry(2, 5),
@@ -190,15 +176,53 @@ export default class ProceduralTerrain {
   }
 
   destroy() {
-    // destroy something
+    // Remove and dispose terrain mesh
+    if (this.planeMesh) {
+      this.scene.remove(this.planeMesh);
+      this.planeMesh.geometry.dispose();
+      this.planeMesh.material.dispose();
+      if (this.planeDepthMaterial) {
+        this.planeDepthMaterial.dispose();
+      }
+    }
 
-    // Lights
+    // Remove and dispose base mesh model
+    if (this.baseMeshModel) {
+      this.scene.remove(this.baseMeshModel);
+      this.baseMeshModel.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((material) => material.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    // Remove and dispose placeholder if it exists
+    if (this.placeholder) {
+      this.scene.remove(this.placeholder);
+      this.placeholder.geometry.dispose();
+      this.placeholder.material.dispose();
+    }
+
+    // Remove and dispose lights
     if (this.directionalLight) {
       this.scene.remove(this.directionalLight);
       this.directionalLight.dispose();
     }
 
-    // Debug folder
+    // Clear scene background and environment
+    if (this.scene.background === this.environmentMap) {
+      this.scene.background = null;
+    }
+    if (this.scene.environment === this.environmentMap) {
+      this.scene.environment = null;
+    }
+
+    // Destroy debug folder
     if (this.debugFolder) {
       this.debugFolder.destroy();
     }
