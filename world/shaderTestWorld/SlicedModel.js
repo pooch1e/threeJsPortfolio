@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
+
+import slicedVertexShader from './shaders/slicedGear/vertex.glsl';
+import slicedFragmentShader from './shaders/slicedGear/fragment.glsl';
 export default class SlicedModel {
   constructor(world) {
     this.world = world;
@@ -54,8 +58,6 @@ export default class SlicedModel {
   }
 
   addGearModel() {
-    
-
     // Material
     this.material = new THREE.MeshStandardMaterial({
       metalness: 0.5,
@@ -63,11 +65,42 @@ export default class SlicedModel {
       envMapIntensity: 0.5,
       color: '#858080',
     });
+    this.slicedMaterial = new CustomShaderMaterial({
+      //CSM
+      baseMaterial: THREE.MeshStandardMaterial,
+      vertexShader: slicedVertexShader,
+      fragmentShader: slicedFragmentShader,
 
-    this.scene.add(this.model.scene)
+      // Mesh Standard Material
+      metalness: 0.5,
+      roughness: 0.25,
+      envMapIntensity: 0.5,
+      color: '#858080',
+    });
+
+    this.model.scene.traverse((child) => {
+      if (child.isMesh) {
+        if (child.name === 'outerHull') {
+          child.material = this.slicedMaterial;
+        } else {
+          child.material = this.material;
+        }
+
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    this.scene.add(this.model.scene);
   }
 
-  update(time) {}
+  update(time) {
+    if (time) {
+      if (this.model) {
+        this.model.scene.rotation.y = time.elapsedTime * 0.0002;
+      }
+    }
+  }
 
   destroy() {
     if (this.mesh) {
