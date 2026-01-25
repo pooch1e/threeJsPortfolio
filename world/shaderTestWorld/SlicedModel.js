@@ -18,6 +18,7 @@ export default class SlicedModel {
     this.addLights();
     this.addGearModel();
     this.addPlane();
+    this.setDebug();
   }
 
   setBackground() {
@@ -58,6 +59,11 @@ export default class SlicedModel {
   }
 
   addGearModel() {
+    this.uniforms = {
+      uSliceStart: new THREE.Uniform(1.75),
+      uSliceArc: new THREE.Uniform(1.25),
+    };
+
     // Material
     this.material = new THREE.MeshStandardMaterial({
       metalness: 0.5,
@@ -76,14 +82,26 @@ export default class SlicedModel {
       roughness: 0.25,
       envMapIntensity: 0.5,
       color: '#858080',
+      uniforms: this.uniforms,
+      side: THREE.DoubleSide,
+    });
+    this.slicedDepthMaterial = new CustomShaderMaterial({
+      //CSM
+      baseMaterial: THREE.MeshDepthMaterial,
+      vertexShader: slicedVertexShader,
+      fragmentShader: slicedFragmentShader,
+
+      depthPacking: THREE.RGBADepthPacking,
     });
 
     this.model.scene.traverse((child) => {
       if (child.isMesh) {
         if (child.name === 'outerHull') {
           child.material = this.slicedMaterial;
+          child.depthPacking = this.slicedDepthMaterial;
         } else {
           child.material = this.material;
+          
         }
 
         child.castShadow = true;
@@ -92,6 +110,19 @@ export default class SlicedModel {
     });
 
     this.scene.add(this.model.scene);
+  }
+
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.ui.addFolder('Sliced Model');
+
+      this.debugFolder
+        .add(this.uniforms.uSliceStart, 'value', -Math.PI, Math.PI, 0.001)
+        .name('uSliceStart');
+      this.debugFolder
+        .add(this.uniforms.uSliceArc, 'value', 0, Math.PI * 2, 0.001)
+        .name('uSliceArc');
+    }
   }
 
   update(time) {
