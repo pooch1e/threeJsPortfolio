@@ -15,4 +15,5 @@ export const shaderPractices = {
   wobblySphereShader: () => import('./WobblySphere'),
   proceduralTerrain: () => import('./ProceduralTerrain'),
   slicedModel: () => import('./SlicedModel.js'),
+  postProcessing: () => import('./PostProcessing.js'),
 };

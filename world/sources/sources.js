@@ -113,6 +113,11 @@ export const sources = [
     path: '/static/models/gears/gears.glb',
   },
   {
+    name: 'helmetModel',
+    type: 'gltfModel',
+    path: '/static/models/DamagedHelmet/glTF/DamagedHelmet.gltf',
+  },
+  {
     name: 'grassColorTexture',
     type: 'texture',
     path: '/static/textures/dirt/color.jpg',

@@ -98,6 +98,11 @@ export default function ShaderSwitchListButton({ setShaderChoice }) {
             onClick={() => handleButtonClick('slicedModel')}>
             Sliced Model
           </li>
+          <li
+            className="py-2 px-4 hover:bg-gray-700 cursor-pointer"
+            onClick={() => handleButtonClick('postProcessing')}>
+            Post Processing
+          </li>
         </ul>
       )}
     </div>
