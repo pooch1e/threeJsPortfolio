@@ -1,16 +1,31 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/Addons.js';
 
 export default class PostProcessing {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
     this.resources = this.world.resources;
+    this.renderer = this.world.shaderExperience.renderer;
     this.debug = this.world.shaderExperience.debug;
+
+    this.renderer = this.world.shaderExperience.renderer;
+    console.log(this.renderer);
 
     // Textures and Models
     this.background = this.resources.items.environmentMapTexture;
     this.model = this.resources.items.helmetModel;
 
+    // Init Composer and Pass
+    this.effectComposer = new EffectComposer(this.renderer.renderer);
+    this.effectComposer.setSize(
+      this.renderer.sizes.width,
+      this.renderer.sizes.height,
+    );
+    this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Setup
     this.setBackground();
     this.setLights();
     this.setModel();

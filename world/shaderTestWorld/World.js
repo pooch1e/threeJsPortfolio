@@ -5,7 +5,7 @@ import { sources } from '../sources/sources.js';
 import { Helpers } from '../utils/Helpers.js';
 
 export class World {
-  constructor(shaderExperience) {
+constructor(shaderExperience) {
     this.shaderExperience = shaderExperience;
     this.scene = this.shaderExperience.scene;
     this.shader = null;
