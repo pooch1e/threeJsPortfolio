@@ -8,6 +8,7 @@ export default class PostProcessing {
     this.scene = this.world.scene;
     this.resources = this.world.resources;
     this.renderer = this.world.shaderExperience.renderer;
+    this.camera = this.world.shaderExperience.camera.camera;
     this.debug = this.world.shaderExperience.debug;
 
     this.renderer = this.world.shaderExperience.renderer;
@@ -24,6 +25,8 @@ export default class PostProcessing {
       this.renderer.sizes.height,
     );
     this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderPass = new RenderPass(this.world.scene, this.camera);
+    this.effectComposer.addPass(this.renderPass);
 
     // Setup
     this.setBackground();
@@ -78,8 +81,50 @@ export default class PostProcessing {
 
   update(time) {
     if (time) {
+      if (this.renderPass) {
+        this.effectComposer.render();
+      }
     }
   }
 
-  destroy() {}
+  destroy() {
+    // Remove and dispose model
+    if (this.model && this.model.scene) {
+      this.scene.remove(this.model.scene);
+      this.model.scene.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((material) => material.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
+    }
+
+    // Remove and dispose lights
+    if (this.directionalLight) {
+      this.scene.remove(this.directionalLight);
+      this.directionalLight.dispose();
+    }
+
+    // Dispose effect composer and passes
+    if (this.effectComposer) {
+      this.effectComposer.dispose();
+    }
+
+    // Clear scene background and environment
+    if (this.scene.background === this.background) {
+      this.scene.background = null;
+    }
+    if (this.scene.environment === this.background) {
+      this.scene.environment = null;
+    }
+
+    // Destroy debug folder
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
+    }
+  }
 }
