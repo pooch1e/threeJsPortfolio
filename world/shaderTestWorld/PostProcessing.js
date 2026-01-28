@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/Addons.js';
+import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass';
 
 export default class PostProcessing {
   constructor(world) {
@@ -33,6 +34,7 @@ export default class PostProcessing {
     this.setLights();
     this.setModel();
     this.setDebug();
+    this.setPasses();
   }
 
   setBackground() {
@@ -73,6 +75,11 @@ export default class PostProcessing {
     }
   }
 
+  setPasses() {
+    this.dotScreen = new DotScreenPass();
+    this.effectComposer.addPass(this.dotScreen);
+  }
+
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Post Processing');
@@ -81,9 +88,7 @@ export default class PostProcessing {
 
   update(time) {
     if (time) {
-      if (this.renderPass) {
-        this.effectComposer.render();
-      }
+      this.effectComposer.render();
     }
   }
 
