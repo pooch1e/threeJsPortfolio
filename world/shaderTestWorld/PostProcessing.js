@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/Addons.js';
 import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass';
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 export default class PostProcessing {
   constructor(world) {
@@ -36,8 +38,11 @@ export default class PostProcessing {
     this.setBackground();
     this.setLights();
     this.setModel();
-    this.setDebug();
+
     this.setDotScreenPass();
+    this.setGlitchPass();
+    this.setUnrealBloomPass();
+    this.setDebug();
   }
 
   setBackground() {
@@ -80,14 +85,29 @@ export default class PostProcessing {
 
   setDotScreenPass() {
     this.dotScreen = new DotScreenPass();
+    this.dotScreen.enabled = false;
     this.effectComposer.addPass(this.dotScreen);
+  }
+
+  setGlitchPass() {
+    this.glitchPass = new GlitchPass();
+    this.glitchPass.enabled = false;
+    this.effectComposer.addPass(this.glitchPass);
+  }
+
+  setUnrealBloomPass() {
+    this.unrealBloom = new UnrealBloomPass();
+    this.unrealBloom.enabled = false;
+    this.effectComposer.addPass(this.unrealBloom);
   }
 
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Post Processing');
 
-      
+      this.debugFolder.add(this.dotScreen, 'enabled').name('Dot Screen');
+      this.debugFolder.add(this.glitchPass, 'enabled').name('Glitch Pass');
+      this.debugFolder.add(this.unrealBloom, 'enabled').name('Unreal Bloom');
     }
   }
 
