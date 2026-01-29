@@ -86,6 +86,8 @@ export default class PostProcessing {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Post Processing');
+
+      
     }
   }
 
