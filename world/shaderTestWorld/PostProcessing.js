@@ -9,11 +9,14 @@ export default class PostProcessing {
     this.scene = this.world.scene;
     this.resources = this.world.resources;
     this.renderer = this.world.shaderExperience.renderer;
-    this.camera = this.world.shaderExperience.camera.camera;
+    this.camera = this.world.shaderExperience.camera.perspectiveCamera;
     this.debug = this.world.shaderExperience.debug;
 
     this.renderer = this.world.shaderExperience.renderer;
     console.log(this.renderer);
+
+    // Activate post-processing mode
+    this.renderer.usePostProcessing = true;
 
     // Textures and Models
     this.background = this.resources.items.environmentMapTexture;
@@ -34,7 +37,7 @@ export default class PostProcessing {
     this.setLights();
     this.setModel();
     this.setDebug();
-    this.setPasses();
+    this.setDotScreenPass();
   }
 
   setBackground() {
@@ -75,7 +78,7 @@ export default class PostProcessing {
     }
   }
 
-  setPasses() {
+  setDotScreenPass() {
     this.dotScreen = new DotScreenPass();
     this.effectComposer.addPass(this.dotScreen);
   }
@@ -93,6 +96,11 @@ export default class PostProcessing {
   }
 
   destroy() {
+    // Deactivate post-processing mode
+    if (this.renderer) {
+      this.renderer.usePostProcessing = false;
+    }
+
     // Remove and dispose model
     if (this.model && this.model.scene) {
       this.scene.remove(this.model.scene);

@@ -4,6 +4,7 @@ export class Renderer {
     this.canvas = canvas;
     this.sizes = sizes;
     (this.scene = scene), (this.camera = camera);
+    this.usePostProcessing = false;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -23,6 +24,9 @@ export class Renderer {
   }
 
   update() {
-    this.renderer.render(this.scene, this.camera.perspectiveCamera);
+    // Skip rendering if post-processing is handling it
+    if (!this.usePostProcessing) {
+      this.renderer.render(this.scene, this.camera.perspectiveCamera);
+    }
   }
 }
