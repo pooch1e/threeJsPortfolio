@@ -7,6 +7,7 @@ import { Renderer } from '../objects/Renderer.js';
 import { World } from './World.js';
 import EventEmitter from '../utils/EventEmitter.js';
 import { Mouse } from '../utils/Mouse.js';
+import Stats from 'stats.js';
 
 // Controller
 export class ShaderExperience {
@@ -19,6 +20,8 @@ export class ShaderExperience {
     this.time = new Time();
     this.scene = new THREE.Scene();
     this.resources = new EventEmitter();
+    this.stats = new Stats();
+    this.stats.showPanel(0);
 
     this.camera = new Camera({
       canvas: this.canvas,
@@ -48,7 +51,6 @@ export class ShaderExperience {
     });
 
     // Click events
-    
   }
 
   resize() {
@@ -57,10 +59,12 @@ export class ShaderExperience {
   }
 
   update() {
+    this.stats.begin();
     this.camera.update();
     this.renderer.update();
     // Pass time to world for animations
     this.world.update(this.time);
+    this.stats.end();
   }
 
   destroy() {
@@ -102,7 +106,6 @@ export class ShaderExperience {
             : [child.material];
 
           materials.forEach((material) => {
-        
             for (const key in material) {
               const value = material[key];
 

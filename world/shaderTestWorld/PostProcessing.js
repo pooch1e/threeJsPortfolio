@@ -4,7 +4,7 @@ import { AsciiEffect, RenderPass } from 'three/examples/jsm/Addons.js';
 import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
+
 
 export default class PostProcessing {
   constructor(world) {
