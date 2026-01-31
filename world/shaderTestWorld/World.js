@@ -3,9 +3,10 @@ import { Environment } from './Environment.js';
 import { Resources } from '../utils/Resources.js';
 import { sources } from '../sources/sources.js';
 import { Helpers } from '../utils/Helpers.js';
-
-export class World {
+import EventEmitter from '../utils/EventEmitter.js';
+export class World extends EventEmitter {
 constructor(shaderExperience) {
+    super();
     this.shaderExperience = shaderExperience;
     this.scene = this.shaderExperience.scene;
     this.shader = null;
@@ -22,6 +23,9 @@ constructor(shaderExperience) {
   async loadPractice(key, canvas2D = null) {
     // Store reference to old shader
     const oldShader = this.shader;
+
+    // Emit loading start event
+    this.trigger('loadstart', [{ shaderKey: key }]);
 
     // load new shader
     try {
@@ -50,6 +54,9 @@ constructor(shaderExperience) {
           oldShader.shaderMaterial?.dispose();
         }
       }
+
+      // Emit loading complete event
+      this.trigger('loadcomplete', [{ shaderKey: key }]);
     } catch (err) {
       console.error(`Failed to load ${key}, falling back to basicShader:`, err);
 
@@ -72,8 +79,13 @@ constructor(shaderExperience) {
             oldShader.shaderMaterial?.dispose();
           }
         }
+
+        // Emit loading complete for fallback
+        this.trigger('loadcomplete', [{ shaderKey: 'basicShader', fallback: true }]);
       } catch (fallbackErr) {
         console.error('Fallback to basicShader also failed:', fallbackErr);
+        // Emit loading complete even on failure
+        this.trigger('loadcomplete', [{ shaderKey: key, error: true }]);
       }
     }
   }
