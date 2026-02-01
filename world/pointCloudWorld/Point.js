@@ -110,7 +110,7 @@ export class Point {
       }
     }
 
-    // Convert the array to Float32Array (required by Three.js)
+    // Convert the array to Float32Array 
     // Set it as the position attribute for the line geometry
     lineGeometry.setAttribute(
       'position',
@@ -305,5 +305,29 @@ export class Point {
 
       this.points.geometry.attributes.position.needsUpdate = true;
     }
+  }
+
+  destroy() {
+    // Remove points from scene
+    if (this.points) {
+      this.scene.remove(this.points);
+      this.points.geometry.dispose();
+      this.points.material.dispose();
+    }
+
+    // Remove lines from scene
+    if (this.lines) {
+      this.scene.remove(this.lines);
+      this.lines.geometry.dispose();
+      this.lines.material.dispose();
+    }
+
+    // Clean up debug UI
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
+    }
+
+    // Clear references
+    this.originalPositions = null;
   }
 }

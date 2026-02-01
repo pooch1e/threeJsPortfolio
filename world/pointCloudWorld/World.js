@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Point } from './Point';
-import EventEmitter from '../utils/EventEmitter';
+
 
 export class World {
   constructor(pointExperience) {
@@ -26,6 +26,20 @@ export class World {
   update(time) {
     if (this.point) {
       this.point.update(time);
+    }
+  }
+
+  destroy() {
+    // Destroy point instance
+    if (this.point) {
+      this.point.destroy();
+    }
+
+    // Dispose test mesh if it exists
+    if (this.testMesh) {
+      this.scene.remove(this.testMesh);
+      this.testMesh.geometry.dispose();
+      this.testMesh.material.dispose();
     }
   }
 }
