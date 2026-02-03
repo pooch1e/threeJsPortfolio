@@ -4,7 +4,7 @@ import { Time } from '../utils/Time.js';
 import { Debug } from '../utils/Debug.js';
 import { Camera } from '../objects/Camera.js';
 import { Renderer } from '../objects/Renderer.js';
-import {SineWorld} from './SineWorld.js'
+import SineWorld from './SineWorld.js';
 import EventEmitter from '../utils/EventEmitter.js';
 
 // Controller
@@ -16,6 +16,7 @@ export class SineExperience {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x000000);
     this.resources = new EventEmitter();
 
     this.camera = new Camera({

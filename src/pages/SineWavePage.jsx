@@ -5,12 +5,10 @@ export default function SineWavePage() {
   const [searchParams] = useSearchParams();
   const debugMode = searchParams.get('debug') === 'true';
 
-  const { canvasRef } = useWorld(SineExperience, { debug: debugMode }, [
-    debugMode,
-  ]);
+  const { canvasRef } = useWorld(SineExperience, { debug: debugMode }, []);
   return (
-    <div className="border-2">
-      <canvas ref={canvasRef}></canvas>
+    <div className="w-full h-screen">
+      <canvas ref={canvasRef} className="w-full h-full"></canvas>
     </div>
   );
 }
