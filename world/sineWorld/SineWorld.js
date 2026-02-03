@@ -1,4 +1,4 @@
-export default class SineWorld {
+export class SineWorld {
   constructor(sineExperience) {
     this.sineExperience = sineExperience;
     this.scene = this.sineExperience.scene;
