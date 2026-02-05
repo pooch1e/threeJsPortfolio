@@ -60,16 +60,6 @@ export default class SinePoints {
 
   update(time) {
     if (time && this.positions) {
-      const positions = this.geometry.attributes.position.array;
-
-      for (let i = 0; i < this.params.count; i++) {
-        const i3 = i * 3;
-        const x = positions[i3];
-        positions[i3 + 1] =
-          Math.sin(x * this.params.frequency + time.elapsed * 0.001 * this.params.speed) *
-          this.params.amplitude;
-      }
-
       this.geometry.attributes.position.needsUpdate = true;
     }
   }
