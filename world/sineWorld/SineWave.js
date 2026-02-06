@@ -8,7 +8,7 @@ export default class SinePoints {
 
     this.params = {
       count: 100,
-      size: 10,
+      size: 5,
       amplitude: 2,
       frequency: 2,
       speed: 1,
@@ -53,7 +53,6 @@ export default class SinePoints {
 
     this.material = new THREE.PointsMaterial({
       size: this.params.size,
-      color: 0x00ffff,
       sizeAttenuation: false,
     });
 
@@ -75,22 +74,26 @@ export default class SinePoints {
         .onChange(() => {
           this.setPoints();
         });
+      this.debugFolder.add(this.params, 'size').min(1).max(10).step(1);
     }
   }
 
   update(time) {
     if (time && this.positions) {
       const positions = this.geometry.attributes.position.array;
-      
+
       // Modulate frequency with a sine wave
-      const modulatedFrequency = this.params.frequency + Math.sin(time.elapsedTime * 0.0005) * 2;
+      const modulatedFrequency =
+        this.params.frequency + Math.sin(time.elapsedTime * 0.0005) * 2;
 
       for (let i = 0; i < this.params.count; i++) {
         const i3 = i * 3;
         const x = positions[i3];
         positions[i3 + 1] =
-          Math.sin(x * modulatedFrequency + time.elapsedTime * 0.001 * this.params.speed) *
-          this.params.amplitude;
+          Math.sin(
+            x * modulatedFrequency +
+              time.elapsedTime * 0.001 * this.params.speed,
+          ) * this.params.amplitude;
       }
 
       this.geometry.attributes.position.needsUpdate = true;
