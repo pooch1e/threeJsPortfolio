@@ -1,6 +1,4 @@
-import p5 from 'p5';
-
-export class Ryoki {
+export class Ryoji {
   constructor(p) {
     this.p = p;
   }

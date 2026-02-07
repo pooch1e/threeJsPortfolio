@@ -22,12 +22,13 @@ export class Setup {
       if (this.world) {
         this.world.setup(this.canvasHeight, this.canvasWidth);
       }
+    };
 
-      p.draw = () => {
-        if (this.world) {
-          this.world.draw();
-        }
-      };
+    p.draw = () => {
+      if (this.world) {
+        this.world.draw();
+      }
+
       p.windowResized = () => {
         if (this.world.windowResized) {
           this.world.windowResized(this.canvasHeight, this.canvasWidth);
@@ -37,10 +38,9 @@ export class Setup {
   }
 
   dispose() {
-        if (this.world?.dispose) {
+    if (this.world?.dispose) {
       this.world.dispose();
     }
     this.p5Instance?.remove();
-  }
   }
 }
