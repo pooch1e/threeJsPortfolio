@@ -8,15 +8,8 @@ export function useP5World(WorldClass, options = {}, dependencies = []) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Create new p5 world
-    setupRef.current = new Setup(
-      WorldClass,
-      options.canvasWidth || window.innerWidth,
-      options.canvasHeight || window.innerHeight,
-      containerRef.current,
-    );
+    setupRef.current = new Setup(WorldClass, containerRef.current);
 
-    // Cleanup on unmount
     return () => {
       if (setupRef.current) {
         setupRef.current.dispose();

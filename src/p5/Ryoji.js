@@ -1,16 +1,25 @@
 export class Ryoji {
-  constructor(p) {
+  constructor(p, width, height) {
     this.p = p;
+    this.width = width;
+    this.height = height;
   }
 
-  setup(height, width) {
-    this.p.createCanvas(height, width);
+  drawSquare() {
+    this.p.rect(0, 0, this.width / 2, this.height);
   }
 
-  draw() {}
+  setup(width, height) {
+    this.p.createCanvas(width, height);
+  }
 
-  windowResized(height, width) {
-    this.p.resizeCanvas(height, width);
+  draw() {
+    this.p.background(0);
+    this.drawSquare();
+  }
+
+  windowResized(width, height) {
+    this.p.resizeCanvas(width, height);
   }
 
   dispose() {}

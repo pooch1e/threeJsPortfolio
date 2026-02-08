@@ -1,26 +1,22 @@
 import p5 from 'p5';
+
 export class Setup {
-  constructor(
-    WorldClass,
-    canvasWidth = window.innerWidth,
-    canvasHeight = window.innerHeight,
-    parent = document.body, // may check this with react
-  ) {
+  constructor(WorldClass, parent = document.body) {
     this.WorldClass = WorldClass;
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
     this.parent = parent;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
     this.world = null;
 
     this.p5Instance = new p5(this.sketch.bind(this), parent);
   }
 
   sketch(p) {
-    this.world = new this.WorldClass(p);
+    this.world = new this.WorldClass(p, this.width, this.height);
 
     p.setup = () => {
       if (this.world) {
-        this.world.setup(this.canvasHeight, this.canvasWidth);
+        this.world.setup(this.width, this.height);
       }
     };
 
@@ -28,12 +24,15 @@ export class Setup {
       if (this.world) {
         this.world.draw();
       }
+    };
 
-      p.windowResized = () => {
-        if (this.world.windowResized) {
-          this.world.windowResized(this.canvasHeight, this.canvasWidth);
-        }
-      };
+    p.windowResized = () => {
+      const width = this.parent.clientWidth || window.innerWidth;
+      const height = this.parent.clientHeight || window.innerHeight;
+
+      if (this.world?.windowResized) {
+        this.world.windowResized(width, height);
+      }
     };
   }
 
