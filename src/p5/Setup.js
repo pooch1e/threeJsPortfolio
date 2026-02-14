@@ -1,4 +1,5 @@
 import p5 from 'p5';
+import { Time } from '../../world/utils/Time';
 
 export class Setup {
   constructor(WorldClass, parent = document.body) {
@@ -7,6 +8,7 @@ export class Setup {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.world = null;
+    this.time = new Time();
 
     this.p5Instance = new p5(this.sketch.bind(this), parent);
   }
