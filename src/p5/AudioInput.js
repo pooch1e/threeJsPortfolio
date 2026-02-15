@@ -1,8 +1,8 @@
 /**
  * AudioInput - A reusable audio input utility for p5.js
  *
- * Captures microphone input and provides amplitude, frequency spectrum,
- * and beat detection for audio-reactive visualizations.
+ * Uses native Web Audio API to capture microphone input and provides
+ * amplitude, frequency spectrum, and beat detection for audio-reactive visualizations.
  *
  * @example
  * // In your World class constructor:
@@ -17,10 +17,10 @@
  */
 export class AudioInput {
   /**
-   * @param {p5} p - The p5 instance
+   * @param {p5} p - The p5 instance (used for utility functions)
    * @param {Object} options - Configuration options
    * @param {number} [options.smoothing=0.8] - FFT smoothing (0-1)
-   * @param {number} [options.fftBins=64] - Number of FFT frequency bins (16, 32, 64, 128, 256, 512, 1024)
+   * @param {number} [options.fftSize=256] - FFT size (power of 2: 32, 64, 128, 256, 512, 1024, 2048)
    * @param {number} [options.beatThreshold=0.5] - Default beat detection threshold
    * @param {number} [options.beatDecay=0.98] - Beat level decay rate
    */
@@ -28,23 +28,29 @@ export class AudioInput {
     this.p = p;
     this.options = {
       smoothing: 0.8,
-      fftBins: 64,
+      fftSize: 256,
       beatThreshold: 0.5,
       beatDecay: 0.98,
       ...options,
     };
 
-    this.mic = null;
-    this.fft = null;
-    this.amplitude = null;
+    // Web Audio API nodes
+    this.audioContext = null;
+    this.analyser = null;
+    this.microphone = null;
+    this.mediaStream = null;
+
+    // Data arrays
+    this.frequencyData = null;
+    this.timeDomainData = null;
+
     this.isRunning = false;
 
     // Beat detection state
-    this.beatLevel = 0;
     this.lastBeatTime = 0;
     this.beatCutoff = this.options.beatThreshold;
 
-    // Frequency band ranges (in Hz)
+    // Frequency band ranges as bin indices (calculated after start)
     this.bands = {
       bass: [20, 140],
       lowMid: [140, 400],
@@ -63,21 +69,25 @@ export class AudioInput {
     if (this.isRunning) return true;
 
     try {
-      // Create audio input
-      this.mic = new window.p5.AudioIn();
+      // Request microphone access
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // Create amplitude analyzer
-      this.amplitude = new window.p5.Amplitude();
+      // Create audio context
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-      // Create FFT analyzer
-      this.fft = new window.p5.FFT(this.options.smoothing, this.options.fftBins);
+      // Create analyser node
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = this.options.fftSize;
+      this.analyser.smoothingTimeConstant = this.options.smoothing;
 
-      // Start the microphone
-      await this.mic.start();
+      // Connect microphone to analyser
+      this.microphone = this.audioContext.createMediaStreamSource(this.mediaStream);
+      this.microphone.connect(this.analyser);
 
-      // Connect analyzers to mic input
-      this.amplitude.setInput(this.mic);
-      this.fft.setInput(this.mic);
+      // Initialize data arrays
+      const bufferLength = this.analyser.frequencyBinCount;
+      this.frequencyData = new Uint8Array(bufferLength);
+      this.timeDomainData = new Uint8Array(bufferLength);
 
       this.isRunning = true;
       return true;
@@ -93,8 +103,16 @@ export class AudioInput {
   stop() {
     if (!this.isRunning) return;
 
-    if (this.mic) {
-      this.mic.stop();
+    if (this.microphone) {
+      this.microphone.disconnect();
+    }
+
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach((track) => track.stop());
+    }
+
+    if (this.audioContext) {
+      this.audioContext.close();
     }
 
     this.isRunning = false;
@@ -105,55 +123,88 @@ export class AudioInput {
    * @returns {number} - Amplitude value between 0 and 1
    */
   getLevel() {
-    if (!this.isRunning || !this.amplitude) return 0;
-    return this.amplitude.getLevel();
+    if (!this.isRunning || !this.analyser) return 0;
+
+    this.analyser.getByteTimeDomainData(this.timeDomainData);
+
+    // Calculate RMS (root mean square) for amplitude
+    let sum = 0;
+    for (let i = 0; i < this.timeDomainData.length; i++) {
+      const normalized = (this.timeDomainData[i] - 128) / 128;
+      sum += normalized * normalized;
+    }
+    return Math.sqrt(sum / this.timeDomainData.length);
   }
 
   /**
    * Get the full frequency spectrum
-   * @returns {number[]} - Array of amplitude values for each frequency bin (0-255)
+   * @returns {Uint8Array} - Array of amplitude values for each frequency bin (0-255)
    */
   getSpectrum() {
-    if (!this.isRunning || !this.fft) return [];
-    return this.fft.analyze();
+    if (!this.isRunning || !this.analyser) return new Uint8Array(0);
+
+    this.analyser.getByteFrequencyData(this.frequencyData);
+    return this.frequencyData;
   }
 
   /**
    * Get the waveform data
-   * @returns {number[]} - Array of amplitude values (-1 to 1)
+   * @returns {Uint8Array} - Array of amplitude values (0-255, centered at 128)
    */
   getWaveform() {
-    if (!this.isRunning || !this.fft) return [];
-    return this.fft.waveform();
+    if (!this.isRunning || !this.analyser) return new Uint8Array(0);
+
+    this.analyser.getByteTimeDomainData(this.timeDomainData);
+    return this.timeDomainData;
+  }
+
+  /**
+   * Convert frequency (Hz) to FFT bin index
+   * @param {number} freq - Frequency in Hz
+   * @returns {number} - Bin index
+   */
+  freqToBin(freq) {
+    const nyquist = this.audioContext.sampleRate / 2;
+    return Math.round((freq / nyquist) * this.analyser.frequencyBinCount);
   }
 
   /**
    * Get energy for a specific frequency band
-   * @param {string|number|number[]} band - Band name ('bass', 'lowMid', 'mid', 'highMid', 'treble'),
-   *                                         single frequency, or [lowFreq, highFreq] range
+   * @param {string|number[]} band - Band name ('bass', 'lowMid', 'mid', 'highMid', 'treble')
+   *                                  or [lowFreq, highFreq] range in Hz
    * @returns {number} - Energy value between 0 and 255
    */
   getEnergy(band) {
-    if (!this.isRunning || !this.fft) return 0;
+    if (!this.isRunning || !this.analyser) return 0;
 
-    // Ensure spectrum is analyzed
-    this.fft.analyze();
+    this.analyser.getByteFrequencyData(this.frequencyData);
+
+    let lowFreq, highFreq;
 
     if (typeof band === 'string' && this.bands[band]) {
-      const [low, high] = this.bands[band];
-      return this.fft.getEnergy(low, high);
+      [lowFreq, highFreq] = this.bands[band];
+    } else if (Array.isArray(band)) {
+      [lowFreq, highFreq] = band;
+    } else {
+      return 0;
     }
 
-    if (Array.isArray(band)) {
-      return this.fft.getEnergy(band[0], band[1]);
+    const lowBin = this.freqToBin(lowFreq);
+    const highBin = this.freqToBin(highFreq);
+
+    let sum = 0;
+    let count = 0;
+    for (let i = lowBin; i <= highBin && i < this.frequencyData.length; i++) {
+      sum += this.frequencyData[i];
+      count++;
     }
 
-    return this.fft.getEnergy(band);
+    return count > 0 ? sum / count : 0;
   }
 
   /**
    * Get normalized energy for a frequency band (0-1)
-   * @param {string|number|number[]} band - Band specification
+   * @param {string|number[]} band - Band specification
    * @returns {number} - Normalized energy value between 0 and 1
    */
   getEnergyNormalized(band) {
@@ -197,16 +248,6 @@ export class AudioInput {
   }
 
   /**
-   * Get the centroid frequency (brightness indicator)
-   * @returns {number} - Centroid frequency in Hz
-   */
-  getCentroid() {
-    if (!this.isRunning || !this.fft) return 0;
-    this.fft.analyze();
-    return this.fft.getCentroid();
-  }
-
-  /**
    * Check if audio input is currently running
    * @returns {boolean}
    */
@@ -219,8 +260,10 @@ export class AudioInput {
    */
   dispose() {
     this.stop();
-    this.mic = null;
-    this.fft = null;
-    this.amplitude = null;
+    this.analyser = null;
+    this.microphone = null;
+    this.audioContext = null;
+    this.frequencyData = null;
+    this.timeDomainData = null;
   }
 }
