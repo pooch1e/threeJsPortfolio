@@ -8,9 +8,9 @@ export default function Header() {
             Home
           </h1>
         </Link>
-        <h2 className="text-center">A selection of ThreeJs experiments</h2>
+        <h2 className="text-center p-2">A selection of ThreeJs experiments</h2>
 
-        <hr></hr>
+        <hr className='h-24'></hr>
       </header>
     </section>
   );
