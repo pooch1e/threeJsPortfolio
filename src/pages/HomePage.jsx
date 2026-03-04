@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <HomeStyle>
       <main className="grid grid-cols-1 md:grid-cols-1 gap-4 max-w-3xl mx-auto px-4">
-        <section className="flex flex-col ">
+        <section className="flex flex-col mt-40">
           {projectLinks.map((project) => {
             return (
               <div
