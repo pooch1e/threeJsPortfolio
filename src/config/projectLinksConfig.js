@@ -4,5 +4,9 @@ export const projectLinks = [
   { order: '003', projectName: 'Shaders', url: '/shaders' },
   { order: '004', projectName: 'SineWave', url: '/sineWave' },
   { order: '005', projectName: 'P5', url: '/p5' },
-
+  {
+    order: '006',
+    projectName: 'Adaptive Precision',
+    url: '/AdaptivePrecision',
+  },
 ];
