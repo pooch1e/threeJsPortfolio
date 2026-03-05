@@ -9,7 +9,7 @@ export default function AdaptivePrecisionPage() {
   const { containerRef } = useP5World(AdaptivePrecision, { debug: debugMode }, [debugMode]);
 
   return (
-    <div className="border-2">
+    <div className="border-2 cursor-none">
       <div ref={containerRef}></div>
     </div>
   );

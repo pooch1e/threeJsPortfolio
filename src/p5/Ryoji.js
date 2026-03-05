@@ -200,6 +200,10 @@ export class Ryoji {
   }
 
   dispose() {
-    this.audio.dispose();
+    // Clean up audio and other resources
+    if (this.audio) {
+      this.audio.dispose();
+      this.audio = null;
+    }
   }
 }

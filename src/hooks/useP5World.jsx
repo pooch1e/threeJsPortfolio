@@ -16,7 +16,7 @@ export function useP5World(WorldClass, options = {}, dependencies = []) {
         setupRef.current = null;
       }
     };
-  }, dependencies);
+  }, [dependencies, WorldClass]);
 
   return { containerRef, setupInstance: setupRef.current };
 }

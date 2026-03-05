@@ -1,20 +1,70 @@
+let activeInstance = null; 
 
 export class AdaptivePrecision {
   constructor(p, width, height) {
+    if (activeInstance) {
+      activeInstance.dispose(); 
+    }
+    activeInstance = this; 
+
     this.p = p;
     this.width = width;
     this.height = height;
+    this.cursor = null;
+    this.icons = [];
+    this.radius = 200;
   }
 
-  setup(width, height) {
-    this.width = width;
-    this.height = height;
-    this.p.createCanvas(width, height);
-    };
+  setup() {
+    
+    this.p.createCanvas(this.width, this.height);
 
+    this.cursor = this.p.createVector(this.p.mouseX, this.p.mouseY);
+
+    this.icons = [];
+    const rows = 3;
+    const cols = 3;
+    const spacingX = this.width / 4;
+    const spacingY = this.height / 4;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = spacingX * (col + 1);
+        const y = spacingY * (row + 1);
+        this.icons.push(this.p.createVector(x, y));
+      }
+    }
+  }
 
   draw() {
-    this.p.background("#000435");
+    this.p.background('#000435');
+    let target = this.p.createVector(this.p.mouseX, this.p.mouseY);
+
+    let strongest = 0;
+
+    for (let icon of this.icons) {
+      let d = this.p.dist(this.p.mouseX, this.p.mouseY, icon.x, icon.y);
+
+      if (d < this.radius) {
+        let strength = 1 - d / this.radius;
+
+        if (strength > strongest) {
+          strongest = strength;
+          target = icon.copy();
+        }
+      }
+
+      // draw icon
+      this.p.fill(255);
+      this.p.circle(icon.x, icon.y, 60);
+    }
+
+    // smooth snap (moved outside the loop)
+    this.cursor.lerp(target, 0.4);
+
+    // draw cursor proxy
+    this.p.fill(255, 100, 100);
+    this.p.circle(this.cursor.x, this.cursor.y, 12);
   }
 
   windowResized(width, height) {
@@ -25,7 +75,12 @@ export class AdaptivePrecision {
     this.initCells();
   }
 
-  // dispose() {
-  //   this.audio.dispose();
-  // }
+  dispose() {
+    
+    this.icons = [];
+    this.cursor = null;
+    if (activeInstance === this) {
+      activeInstance = null; 
+    }
+  }
 }
