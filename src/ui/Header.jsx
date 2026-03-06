@@ -8,7 +8,7 @@ export default function Header() {
             Home
           </h1>
         </Link>
-        <h2 className="text-center text-[var(--font-size-300)] p-2">A selection of ThreeJs experiments</h2>
+        <h2 className="text-center text-[var(--font-size-300)] p-2">A selection of experiments</h2>
 
         <hr></hr>
       </header>
