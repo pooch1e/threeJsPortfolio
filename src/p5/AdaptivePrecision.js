@@ -1,6 +1,7 @@
 import { QuadTreeNode, Boundary } from './utils/QuadTree.js';
 
 let activeInstance = null;
+import glow from '../../static/textures/glow/glow.png'
 
 export class AdaptivePrecision {
   constructor(p, width, height) {
@@ -25,7 +26,7 @@ export class AdaptivePrecision {
     this.p.createCanvas(this.width, this.height);
 
     this.cursor = this.p.createVector(this.p.mouseX, this.p.mouseY);
-
+    this.reactImage = glow;
     this.icons = [];
     const rows = 3;
     const cols = 3;
