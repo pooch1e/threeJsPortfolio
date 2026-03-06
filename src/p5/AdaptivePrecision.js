@@ -12,7 +12,7 @@ export class AdaptivePrecision {
     this.height = height;
     this.cursor = null;
     this.icons = [];
-    this.radius = 200;
+    this.radius = 120;
   }
 
   setup() {
@@ -38,7 +38,8 @@ export class AdaptivePrecision {
   draw() {
     this.p.background('#000435');
     let target = this.p.createVector(this.p.mouseX, this.p.mouseY);
-    console.log(target.values)
+    console.log(target, 'target');
+    // console.log(target.values)
     let strongest = 0;
 
     for (let icon of this.icons) {
@@ -53,20 +54,26 @@ export class AdaptivePrecision {
         }
       }
 
+      const baseSize = 60;
+      const hoverSize = 90;
+      const iconRadius = baseSize / 2; // "on top" of icon
+      const hoverAmount = this.p.constrain(1 - d / iconRadius, 0, 1);
+      const iconSize = this.p.lerp(baseSize, hoverSize, hoverAmount);
+
       // draw icon
       this.p.fill(255);
-      this.p.circle(icon.x, icon.y, 60);
+      this.p.circle(icon.x, icon.y, iconSize);
     }
 
-    // smooth snap 
+    // smooth snap
     this.cursor.lerp(target, 0.4);
+    console.log(this.cursor, 'cursor vector');
 
     // draw cursor proxy
     this.p.fill(255, 100, 100);
     this.p.circle(this.cursor.x, this.cursor.y, 12);
 
     // grow icon on mouse hover
-    
   }
 
   windowResized(width, height) {
