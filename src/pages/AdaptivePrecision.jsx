@@ -10,7 +10,9 @@ export default function AdaptivePrecisionPage() {
 
   return (
     <div className="border-2 cursor-none">
-      <div ref={containerRef}></div>
+      <div ref={containerRef}>
+        
+      </div>
     </div>
   );
 }

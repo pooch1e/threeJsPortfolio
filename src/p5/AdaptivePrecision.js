@@ -1,11 +1,11 @@
-let activeInstance = null; 
+let activeInstance = null;
 
 export class AdaptivePrecision {
   constructor(p, width, height) {
     if (activeInstance) {
-      activeInstance.dispose(); 
+      activeInstance.dispose();
     }
-    activeInstance = this; 
+    activeInstance = this;
 
     this.p = p;
     this.width = width;
@@ -16,7 +16,6 @@ export class AdaptivePrecision {
   }
 
   setup() {
-    
     this.p.createCanvas(this.width, this.height);
 
     this.cursor = this.p.createVector(this.p.mouseX, this.p.mouseY);
@@ -39,7 +38,7 @@ export class AdaptivePrecision {
   draw() {
     this.p.background('#000435');
     let target = this.p.createVector(this.p.mouseX, this.p.mouseY);
-
+    console.log(target.values)
     let strongest = 0;
 
     for (let icon of this.icons) {
@@ -59,28 +58,26 @@ export class AdaptivePrecision {
       this.p.circle(icon.x, icon.y, 60);
     }
 
-    // smooth snap (moved outside the loop)
+    // smooth snap 
     this.cursor.lerp(target, 0.4);
 
     // draw cursor proxy
     this.p.fill(255, 100, 100);
     this.p.circle(this.cursor.x, this.cursor.y, 12);
+
+    // grow icon on mouse hover
+    
   }
 
   windowResized(width, height) {
-    this.width = width;
-    this.height = height;
     this.p.resizeCanvas(width, height);
-    this.calculateGrid();
-    this.initCells();
   }
 
   dispose() {
-    
     this.icons = [];
     this.cursor = null;
     if (activeInstance === this) {
-      activeInstance = null; 
+      activeInstance = null;
     }
   }
 }
