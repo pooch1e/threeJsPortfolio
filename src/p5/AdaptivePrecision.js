@@ -1,4 +1,4 @@
-import { QuadTreeNode, Boundary } from './utils/Quadtree.js';
+import { QuadTreeNode, Boundary } from './utils/QuadTree.js';
 
 let activeInstance = null;
 
@@ -15,7 +15,8 @@ export class AdaptivePrecision {
     this.cursor = null;
     this.icons = [];
     this.radius = 120;
-    this.snapStrength = 0.15;
+    this.snapThreshold = 40;
+    this.snapStrength = 2.0;
 
     this.quadtree = null;
   }
@@ -60,24 +61,35 @@ export class AdaptivePrecision {
       mousePos.x - this.radius,
       mousePos.y - this.radius,
       this.radius * 2,
-      this.radius * 2
+      this.radius * 2,
     );
     const nearbyIcons = this.quadtree.queryRange(range);
 
     let target = mousePos;
     let snapped = false;
+    let closestDist = Infinity;
+    let closestIcon = null;
 
     for (const icon of nearbyIcons) {
       const d = this.p.dist(mousePos.x, mousePos.y, icon.x, icon.y);
 
-      if (d < this.radius) {
-        const strength = 1 - d / this.radius;
-        const pullX = (icon.x - mousePos.x) * strength * this.snapStrength;
-        const pullY = (icon.y - mousePos.y) * strength * this.snapStrength;
+      if (d < closestDist) {
+        closestDist = d;
+        closestIcon = icon;
+      }
 
-        target.x += pullX;
-        target.y += pullY;
-        snapped = true;
+      if (d < this.radius) {
+        if (d < this.snapThreshold) {
+          target = icon.copy();
+          snapped = true;
+        } else {
+          const t =
+            1 - (d - this.snapThreshold) / (this.radius - this.snapThreshold);
+          const eased = t * t;
+          target.x = this.p.lerp(mousePos.x, icon.x, eased * this.snapStrength);
+          target.y = this.p.lerp(mousePos.y, icon.y, eased * this.snapStrength);
+          snapped = true;
+        }
       }
 
       const baseSize = 40;
@@ -91,6 +103,26 @@ export class AdaptivePrecision {
 
       this.p.fill(255);
       this.p.circle(icon.x, icon.y, iconSize * 0.6);
+    }
+
+    if (!snapped && closestIcon && closestDist < this.radius * 1.5) {
+      const t =
+        1 -
+        (closestDist - this.snapThreshold) /
+          (this.radius * 1.5 - this.snapThreshold);
+      if (t > 0) {
+        const eased = t * t * t;
+        target.x = this.p.lerp(
+          mousePos.x,
+          closestIcon.x,
+          eased * this.snapStrength * 0.5,
+        );
+        target.y = this.p.lerp(
+          mousePos.y,
+          closestIcon.y,
+          eased * this.snapStrength * 0.5,
+        );
+      }
     }
 
     this.cursor.lerp(target, snapped ? 0.3 : 0.15);
