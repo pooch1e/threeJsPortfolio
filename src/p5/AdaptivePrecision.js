@@ -73,7 +73,7 @@ export class AdaptivePrecision {
     this.p.fill(255, 100, 100);
     this.p.circle(this.cursor.x, this.cursor.y, 12);
 
-    // grow icon on mouse hover
+    
   }
 
   windowResized(width, height) {
