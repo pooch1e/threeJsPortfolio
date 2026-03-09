@@ -16,7 +16,8 @@ export function useP5World(WorldClass, options = {}, dependencies = []) {
         setupRef.current = null;
       }
     };
-  }, [dependencies, WorldClass]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [WorldClass, ...dependencies]);
 
   return { containerRef, setupInstance: setupRef.current };
 }

@@ -15,7 +15,8 @@ export function useWorld(worldClass, options = {}, dependencies = []) {
         worldRef.current = null;
       }
     };
-  }, dependencies);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldClass, ...dependencies]);
 
   return { canvasRef, worldRef };
 }

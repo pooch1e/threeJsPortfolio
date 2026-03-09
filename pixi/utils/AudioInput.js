@@ -1,5 +1,5 @@
 /**
- * AudioInput - A reusable audio input utility for p5.js
+ * AudioInput - A reusable audio input utility
  *
  * Uses native Web Audio API to capture microphone input and provides
  * amplitude, frequency spectrum, and beat detection for audio-reactive visualizations.
@@ -17,7 +17,7 @@
  */
 export class AudioInput {
   /**
-   * @param {p5} p - The p5 instance (used for utility functions)
+   * 
    * @param {Object} options - Configuration options
    * @param {number} [options.smoothing=0.8] - FFT smoothing (0-1)
    * @param {number} [options.fftSize=256] - FFT size (power of 2: 32, 64, 128, 256, 512, 1024, 2048)
@@ -25,7 +25,6 @@ export class AudioInput {
    * @param {number} [options.beatDecay=0.98] - Beat level decay rate
    */
   constructor(p, options = {}) {
-    this.p = p;
     this.options = {
       smoothing: 0.8,
       fftSize: 256,
