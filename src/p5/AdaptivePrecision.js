@@ -1,4 +1,4 @@
-import { QuadTreeNode, Boundary } from './utils/QuadTree.js';
+import { QuadTreeNode, Boundary } from './utils/Quadtree';
 
 let activeInstance = null;
 import glow from '../../static/textures/glow/glow.png'
