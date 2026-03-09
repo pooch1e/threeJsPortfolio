@@ -9,4 +9,9 @@ export const projectLinks = [
     projectName: 'Adaptive Precision',
     url: '/AdaptivePrecision',
   },
+  {
+    order: '007',
+    projectName: 'Particle Emitter',
+    url: '/particleEmitter',
+  },
 ];

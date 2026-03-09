@@ -10,6 +10,7 @@ import Footer from './ui/Footer';
 import SineWavePage from './pages/SineWavePage';
 import P5Page from './pages/P5Page';
 import AdaptivePrecisionPage from './pages/AdaptivePrecision';
+import ParticleEmitterPage from './pages/ParticleEmitter';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/sineWave" element={<SineWavePage />}></Route>
         <Route path="/p5" element={<P5Page />}></Route>
         <Route path="/AdaptivePrecision" element={<AdaptivePrecisionPage />}></Route>
+        <Route path="/particleEmitter" element={<ParticleEmitterPage />}></Route>
       </Routes>
       <Footer />
     </>
