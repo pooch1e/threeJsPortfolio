@@ -1,22 +1,16 @@
 import { Graphics, Text } from 'pixi.js';
-import { QuadTreeNode, Boundary } from './utils/Quadtree';
+import { QuadTreeNode, Boundary } from '../utils/Quadtree';
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const constrain = (v, min, max) => Math.min(Math.max(v, min), max);
 const dist = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1);
 
-let activeInstance = null;
-
-export class AdaptivePrecision {
-  constructor(app, sizes, options = {}) {
-    if (activeInstance) {
-      activeInstance.destroy();
-    }
-    activeInstance = this;
-
-    this.app = app;
-    this.sizes = sizes;
-    this.options = options;
+export class CursorSnap {
+  constructor(world) {
+    this.world = world;
+    this.app = world.experience.app;
+    this.stage = world.experience.renderer.stage;
+    this.sizes = world.experience.sizes;
 
     this.cursor = { x: 0, y: 0 };
     this.mouse = { x: 0, y: 0 };
@@ -29,15 +23,15 @@ export class AdaptivePrecision {
     this.g = null;
     this.statusLabel = null;
     this.nearbyLabel = null;
+    this._onPointerMove = null;
   }
 
-  async init() {
-    // Set background colour
+  init() {
     this.app.renderer.background.color = 0x000435;
 
     // Single Graphics object — cleared and redrawn each frame (immediate mode)
     this.g = new Graphics();
-    this.app.stage.addChild(this.g);
+    this.stage.addChild(this.g);
 
     // HUD text labels
     const labelStyle = { fontSize: 11, fill: 0xffffff, fontFamily: 'monospace' };
@@ -47,18 +41,18 @@ export class AdaptivePrecision {
     this.nearbyLabel = new Text({ text: 'nearby: 0', style: labelStyle });
     this.nearbyLabel.position.set(10, 26);
 
-    this.app.stage.addChild(this.statusLabel, this.nearbyLabel);
+    this.stage.addChild(this.statusLabel, this.nearbyLabel);
 
     // Build icon grid
     this._buildIcons();
 
     // Track mouse via PixiJS stage events
-    this.app.stage.eventMode = 'static';
+    this.stage.eventMode = 'static';
     this._onPointerMove = (e) => {
       this.mouse.x = e.global.x;
       this.mouse.y = e.global.y;
     };
-    this.app.stage.on('pointermove', this._onPointerMove);
+    this.stage.on('pointermove', this._onPointerMove);
 
     // Seed cursor at centre
     this.cursor.x = this.sizes.width / 2;
@@ -169,20 +163,16 @@ export class AdaptivePrecision {
 
   resize(width, height) {
     this._buildIcons();
-    // Re-seed cursor position proportionally would be ideal, but reset to centre is safe
     this.cursor.x = width / 2;
     this.cursor.y = height / 2;
   }
 
   destroy() {
     if (this._onPointerMove) {
-      this.app.stage.off('pointermove', this._onPointerMove);
+      this.stage.off('pointermove', this._onPointerMove);
       this._onPointerMove = null;
     }
     this.icons = [];
     this.quadtree = null;
-    if (activeInstance === this) {
-      activeInstance = null;
-    }
   }
 }

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Setup } from '../../pixi/Setup';
+import { PixiExperience } from '../../pixi/PixiExperience';
 
 export function usePixiWorld(WorldClass, options = {}, dependencies = []) {
   const containerRef = useRef(null);
@@ -8,7 +8,7 @@ export function usePixiWorld(WorldClass, options = {}, dependencies = []) {
   useEffect(() => {
     if (!containerRef.current || !WorldClass) return;
 
-    const setup = new Setup(WorldClass, containerRef.current, options);
+    const setup = new PixiExperience(WorldClass, containerRef.current, options);
     setupRef.current = setup;
 
     setup.init().catch(console.error);

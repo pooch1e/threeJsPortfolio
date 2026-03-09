@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { useWorld } from '../hooks/useWorld';
-import { ParticleExperience } from '../../world/particleEmitter/ParticleEmitterExperience';
+
 export default function ParticleEmitterPage() {
   const [searchParams] = useSearchParams();
   const debugMode = searchParams.get('debug') === 'true';

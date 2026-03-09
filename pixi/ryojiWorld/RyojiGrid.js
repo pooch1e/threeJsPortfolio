@@ -1,14 +1,15 @@
 import { Graphics, Text } from 'pixi.js';
 import { Noise } from 'noisejs';
-import { AudioInput } from './utils/AudioInput';
+import { AudioInput } from '../utils/AudioInput';
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
-export class Ryoji {
-  constructor(app, sizes, options = {}) {
-    this.app = app;
-    this.sizes = sizes;
-    this.options = options;
+export class RyojiGrid {
+  constructor(world) {
+    this.world = world;
+    this.app = world.experience.app;
+    this.stage = world.experience.renderer.stage;
+    this.sizes = world.experience.sizes;
 
     // Audio (fftSize: 64 gives 32 frequency bins)
     this.audio = new AudioInput({ smoothing: 0.7, fftSize: 64 });
@@ -31,16 +32,16 @@ export class Ryoji {
 
     this.g = null;
     this.promptText = null;
+    this._onClick = null;
+    this._onKeyDown = null;
   }
 
-  async init() {
-    // Background set to black via app init config in Setup;
-    // also enforce here in case background wasn't set
+  init() {
     this.app.renderer.background.color = 0x000000;
 
     // Single Graphics object, rebuilt each frame
     this.g = new Graphics();
-    this.app.stage.addChild(this.g);
+    this.stage.addChild(this.g);
 
     // "CLICK TO START" prompt
     this.promptText = new Text({
@@ -53,12 +54,12 @@ export class Ryoji {
     });
     this.promptText.anchor.set(0.5, 0.5);
     this.promptText.position.set(this.sizes.width / 2, this.sizes.height / 2);
-    this.app.stage.addChild(this.promptText);
+    this.stage.addChild(this.promptText);
 
     this._calculateGrid();
     this._initCells();
 
-    // Event listeners — stored as named functions for clean removal in destroy()
+    // Named handlers for clean removal in destroy()
     this._onClick = async () => {
       if (!this.audioStarted) {
         const success = await this.audio.start();
@@ -109,7 +110,7 @@ export class Ryoji {
     g.clear();
 
     if (!this.audioStarted) {
-      // Nothing to draw — prompt text is a retained Text object, always visible
+      // Prompt text is a retained Text object — always visible until audio starts
       return;
     }
 
@@ -160,7 +161,6 @@ export class Ryoji {
       });
     }
 
-    // Data bars
     this._drawDataBar(level, bass);
   }
 
@@ -181,12 +181,10 @@ export class Ryoji {
 
     // Top bar — driven by amplitude
     for (let i = 0; i < segments; i++) {
-      // noisejs perlin2 returns -1 to 1; rescale to 0-1 to match p5's noise()
+      // noisejs perlin2 returns -1 to 1; rescale to 0-1
       const n = (this.noise.perlin2(i * 0.1, t * 0.05) + 1) / 2;
       if (Math.random() < n * level * 3) {
-        const half = segmentWidth / 2;
         g.rect(i * segmentWidth, 0, segmentWidth - 1, barHeight).fill(0xffffff);
-        void half; // segmentWidth already in correct position (top-left origin)
       }
     }
 
