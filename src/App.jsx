@@ -25,7 +25,7 @@ function App() {
         <Route path="/sineWave" element={<SineWavePage />}></Route>
         <Route path="/ryoji" element={<RyojiPage />}></Route>
         <Route path="/AdaptivePrecision" element={<AdaptivePrecisionPage />}></Route>
-        {/* <Route path="/particleEmitter" element={<ParticleEmitterPage />}></Route> */}
+        <Route path="/particleEmitter" element={<ParticleEmitterPage />}></Route>
       </Routes>
       <Footer />
     </>

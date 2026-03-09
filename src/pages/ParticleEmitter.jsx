@@ -1,11 +1,12 @@
 import { useSearchParams } from 'react-router-dom';
-import { useWorld } from '../hooks/useWorld';
+import { usePixiWorld } from '../hooks/usePixiWorld';
+import { ParticleEmitterWorld } from '../../pixi/particleEmitter/ParticleEmitterWorld';
 
 export default function ParticleEmitterPage() {
   const [searchParams] = useSearchParams();
   const debugMode = searchParams.get('debug') === 'true';
 
-  const { canvasRef } = useWorld(ParticleExperience, { debug: debugMode }, [
+  const { canvasRef } = usePixiWorld(ParticleEmitterWorld, { debug: debugMode }, [
     debugMode,
   ]);
   return (

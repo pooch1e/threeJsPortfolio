@@ -47,7 +47,7 @@ export class PixiExperience {
       this.world?.resize?.(this.sizes.width, this.sizes.height);
     });
 
-    // Ticker drives the draw loop
+
     this.renderer.ticker.add(() => {
       this.world?.update?.(this.renderer.ticker);
     });
@@ -56,8 +56,7 @@ export class PixiExperience {
   destroy() {
     this._destroyed = true;
 
-    // If init() hasn't finished yet, it checks _destroyed at each await point
-    // and will clean up itself once async work resolves.
+
     if (!this._initialised) return;
 
     this.sizes.off('resize.pixi');
