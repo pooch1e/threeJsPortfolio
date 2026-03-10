@@ -2,7 +2,8 @@ import { Particles } from './Particles';
 export class ParticleEmitterWorld {
   constructor(experience) {
     this.experience = experience;
-    this.particles = new Particles(this);
+
+    this.grid = new Particles(this);
   }
 
   init() {
