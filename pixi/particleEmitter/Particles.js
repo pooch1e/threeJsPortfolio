@@ -1,5 +1,8 @@
-import { Graphics } from 'pixi.js';
+import {  Shader } from 'pixi.js';
 import { Mouse } from '../utils/Mouse';
+
+import particleFragment from './shaders/fragment.glsl'
+import particleVertex from './shaders/vertex.glsl'
 
 export class Particles {
   constructor(world) {
@@ -10,12 +13,15 @@ export class Particles {
 
     this.mouse = new Mouse(this.app.canvas);
     this.ellipse = null;
+    this.particleShader = null;
   }
 
   init() {
+
     this.ellipse = new Graphics();
     this.ellipse.ellipse(0, 0, 50, 50).fill({ color: 0xff0000 });
     this.stage.addChild(this.ellipse);
+
   }
 
   update() {
