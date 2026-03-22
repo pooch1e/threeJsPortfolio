@@ -1,0 +1,3 @@
+# Handlers
+Handles GET methods
+

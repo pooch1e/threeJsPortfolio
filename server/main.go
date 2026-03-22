@@ -1,10 +1,19 @@
 package main
 
 import (
-	"net/http"
+	"database/sql"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
+
+var port string = ":8080";
+
+// postgres db
+var db *sql.DB
+
+
 
 func home(c *gin.Context) {
 	c.JSON(200, gin.H{
@@ -17,4 +26,7 @@ func main() {
 
 	// get home
 	router.GET("/", home)
+
+	fmt.Println("server running on localhost:", port)
+	router.Run("localhost" + port)
 }

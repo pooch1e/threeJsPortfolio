@@ -1,0 +1,29 @@
+package config
+
+// DB connection + env vars
+
+import (
+	"database/sql"
+	"os"
+)
+
+type Config struct {
+	DB           *sql.DB
+	GithubClient string
+	GithubSecret string
+	FrontendURL  string
+}
+
+func Load() (*Config, error) {
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Config{
+		DB:           db,
+		GithubClient: os.Getenv("GITHUB_CLIENT_ID"),
+		GithubSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		FrontendURL:  os.Getenv("FRONTEND_URL"),
+	}, nil
+}
