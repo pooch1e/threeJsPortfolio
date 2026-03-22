@@ -4,7 +4,10 @@ package config
 
 import (
 	"database/sql"
+	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 type Config struct {
@@ -15,11 +18,16 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
+	// opens connection pool to db
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
-
+	// pings db pool
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+	log.Printf("DB connected successfully")
 	return &Config{
 		DB:           db,
 		GithubClient: os.Getenv("GITHUB_CLIENT_ID"),
