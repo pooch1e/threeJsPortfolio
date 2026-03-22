@@ -1,8 +1,8 @@
--- Create a new database
-CREATE DATABASE IF NOT EXISTS threejs_db;
-
 -- Connect to the database
-\c mydb;
+\c threejs_database;
+
+-- create extension for uuid
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create users table if not exists
 CREATE TABLE IF NOT EXISTS users (
