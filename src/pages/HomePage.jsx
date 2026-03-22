@@ -4,7 +4,7 @@ import { projectLinks } from '../config/projectLinksConfig';
 export default function HomePage() {
   return (
     <HomeStyle>
-      <main className="min-h-screen flex items-center justify-center px-4">
+      <main className="min-h-screen flex items-center justify-center px-4 cursor-cell">
         <section className="w-full max-w-3xl flex flex-col">
           {projectLinks.map((project) => {
             return (

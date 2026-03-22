@@ -8,9 +8,7 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './ui/Header';
 import Footer from './ui/Footer';
 import SineWavePage from './pages/SineWavePage';
-import RyojiPage from './pages/RyojiPage';
-import AdaptivePrecisionPage from './pages/AdaptivePrecision';
-import ParticleEmitterPage from './pages/ParticleEmitter';
+
 
 
 function App() {
@@ -23,9 +21,6 @@ function App() {
         <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
         <Route path="/shaders" element={<ShaderPage />}></Route>
         <Route path="/sineWave" element={<SineWavePage />}></Route>
-        <Route path="/ryoji" element={<RyojiPage />}></Route>
-        <Route path="/AdaptivePrecision" element={<AdaptivePrecisionPage />}></Route>
-        <Route path="/particleEmitter" element={<ParticleEmitterPage />}></Route>
       </Routes>
       <Footer />
     </>
