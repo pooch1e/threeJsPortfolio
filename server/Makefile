@@ -1,9 +1,9 @@
-.PHONY: db-create dev
-
-DB_URL ?= $(shell grep DATABASE_URL .env.local | cut -d '=' -f2-)
-
+.PHONY: db-create dev docker-up docker-down
+docker-up:
+	docker compose up -d
+docker-down:
+	docker compose down
 db-create:
-	psql "$(DB_URL)" -f db/seed/seed.sql
-
+	psql "$(DATABASE_URL)" -f db/seed/seed.sql
 dev:
-	go run cmd/server/main.go
+	go run cmd/main.go

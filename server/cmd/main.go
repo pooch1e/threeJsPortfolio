@@ -35,6 +35,7 @@ func main() {
 	}
 	log.Printf("whats in the config %v", cfg)
 
+
 	router := gin.Default()
 	println("Setting up server")
 

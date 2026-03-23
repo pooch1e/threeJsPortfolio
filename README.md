@@ -68,15 +68,13 @@ npm run lint
 
 To enable debug controls for Three.js scenes:
 
-```
-http://localhost:5173/?debug=true
-```
+### <http://localhost:5173/?debug=true>
 
 This activates the lil-gui debug panel for real-time parameter adjustments.
 
 ## Project Structure
 
-```
+```md
 threejsPortfolio/
 ├── src/
 │   ├── assets/          # Static assets (images, models, etc.)

@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: threejs_user
+      POSTGRES_PASSWORD: threejs_password
+      POSTGRES_DB: threejs_database
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/seed/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+volumes:
+  postgres_data:
