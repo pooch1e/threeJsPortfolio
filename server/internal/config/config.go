@@ -11,10 +11,11 @@ import (
 )
 
 type Config struct {
-	DB           *sql.DB
-	GithubClient string
-	GithubSecret string
-	FrontendURL  string
+	DB            *sql.DB
+	GithubClient  string
+	GithubSecret  string
+	FrontendURL   string
+	SessionSecret string
 }
 
 func Load() (*Config, error) {
@@ -28,10 +29,12 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	log.Printf("DB connected successfully")
+
 	return &Config{
-		DB:           db,
-		GithubClient: os.Getenv("GITHUB_CLIENT_ID"),
-		GithubSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-		FrontendURL:  os.Getenv("FRONTEND_URL"),
+		DB:            db,
+		GithubClient:  os.Getenv("GITHUB_CLIENT_ID"),
+		GithubSecret:  os.Getenv("GITHUB_CLIENT_SECRET"),
+		FrontendURL:   os.Getenv("FRONTEND_URL"),
+		SessionSecret: os.Getenv("SESSION_SECRET"),
 	}, nil
 }

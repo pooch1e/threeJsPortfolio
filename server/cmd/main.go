@@ -11,30 +11,22 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func loadPort() string {
-	err := godotenv.Load("../.env.local")
-	if err != nil {
-		log.Fatalf("Error loading .env.local: %v", err)
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Println("Warning: PORT not set in .env.local, defaulting to 8080")
-		port = "8080"
-	}
-	return port
-}
 
 func main() {
+	if err := godotenv.Load("../.env.local"); err != nil {
+		log.Fatal("Error loading .env.local")
+	}
 	// load port
-	port := loadPort()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	cfg, err := config.Load()
 	if err != nil {
-		log.Printf("couldnt load %v", err)
+		log.Fatalf("couldnt load %v", err)
 	}
 	log.Printf("whats in the config %v", cfg)
-
 
 	router := gin.Default()
 	println("Setting up server")
@@ -42,7 +34,7 @@ func main() {
 	// Get
 	router.GET("/", handlers.HandleLoginPage)
 
-	println("Server listening on", port)
+	log.Printf("Server listening on :%s", port)
 	router.Run(":" + port)
 
 }
