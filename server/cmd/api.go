@@ -9,6 +9,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// funcs in go have recievers (the application part in the statement below)
+// that point to what struct they are a part of
+// * indicates a reference, so it will mutate original reference whereas without * will copy
+
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
@@ -44,6 +48,8 @@ func (app *application) run(h http.Handler) error {
 	return server.ListenAndServe()
 }
 
+// Structs hold data
+// eg in JS would be values
 type application struct {
 	config config
 	// logger
