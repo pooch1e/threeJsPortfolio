@@ -25,8 +25,6 @@ func main() {
 		config: cfg,
 	}
 
-	// db, err := store.Open(cfg.db.dsn)
-
 	if err := api.run(api.mount()); err != nil {
 		slog.Error("Server faield to start", "error", err)
 	}
