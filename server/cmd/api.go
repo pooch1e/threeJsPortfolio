@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"threejsPortfolioServer/internal/handlers"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -29,6 +31,14 @@ func (app *application) mount() http.Handler {
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hi"))
+	})
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("username")
+		res := handlers.SanitizeQueryParam(query)
+		json.NewEncoder(w).Encode(res)
+	})
+	r.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("what does request look like %v", r)
 	})
 
 	return r
