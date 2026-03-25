@@ -6,4 +6,4 @@ docker-down:
 db-create:
 	psql "$(DATABASE_URL)" -f db/seed/seed.sql
 dev:
-	go run cmd/main.go
+	go run cmd/*.go

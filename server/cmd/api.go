@@ -37,10 +37,6 @@ func (app *application) mount() http.Handler {
 		res := handlers.SanitizeQueryParam(query)
 		json.NewEncoder(w).Encode(res)
 	})
-	r.Get("/test", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("what does request look like %v", r)
-	})
-
 	return r
 }
 
