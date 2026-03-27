@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"os/user"
+	"threejsPortfolioServer/internal/models"
 	"threejsPortfolioServer/internal/utils"
 )
 
@@ -19,12 +19,6 @@ type SignupRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-type SignUpDbParams struct {
-	cleanedUsername string
-	cleanedEmail string
-	cleanedPassword string
 }
 
 func SignupHandler(app *application) http.HandlerFunc {
@@ -51,7 +45,12 @@ func SignupHandler(app *application) http.HandlerFunc {
 		}
 
 		// call db
-		handledSignUpRequest, err := models.HandleSignUp({cleanedUsername, cleanedEmail, cleanedPassword})
+		newUser := models.NewUser{
+			Username: cleanedUsername,
+			Email:    cleanedEmail,
+			Password: cleanedPassword,
+		}
+		result, err := models.InsertNewUser(newUser)
 		if err != nil {
 			// somehow surface error with db
 			slog.Error("Error in posting sign up to database", "error", err)

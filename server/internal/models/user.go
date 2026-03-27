@@ -4,6 +4,12 @@ package models
 
 import "time"
 
+type NewUser struct {
+	Username string
+	Email    string
+	Password string
+}
+
 type User struct {
 	ID           string    `json:"id"`
 	GithubID     string    `json:"github_id,omitempty"`
@@ -21,4 +27,8 @@ type Session struct {
 	UserId    string    `json:"user_id"`
 	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+func InsertNewUser(user NewUser) (ResultType, error) {
+
 }
