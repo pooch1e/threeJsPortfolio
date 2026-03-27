@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
+	"os/user"
 	"threejsPortfolioServer/internal/utils"
 )
 
@@ -19,6 +21,12 @@ type SignupRequest struct {
 	Password string `json:"password"`
 }
 
+type SignUpDbParams struct {
+	cleanedUsername string
+	cleanedEmail string
+	cleanedPassword string
+}
+
 func SignupHandler(app *application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req SignupRequest
@@ -27,13 +35,31 @@ func SignupHandler(app *application) http.HandlerFunc {
 			return
 		}
 
-		cleanedUsername, isValid := utils.ValidateUsername(req.Username)
-		if isValid == false {
+		cleanedUsername, isUsernameValid := utils.ValidateUsername(req.Username)
+		if isUsernameValid == false {
 			http.Error(w, "Invalid Username", http.StatusBadRequest)
 		}
 
-		
+		cleanedEmail, isEmailValid := utils.ValidateEmail(req.Email)
+		if isEmailValid == false {
+			http.Error(w, "Invalid Email", http.StatusBadRequest)
+		}
+
+		cleanedPassword, isPasswordValid := utils.ValidatePassword(req.Password)
+		if isPasswordValid == false {
+			http.Error(w, "Invalid Password", http.StatusBadRequest)
+		}
+
+		// call db
+		handledSignUpRequest, err := models.HandleSignUp({cleanedUsername, cleanedEmail, cleanedPassword})
+		if err != nil {
+			// somehow surface error with db
+			slog.Error("Error in posting sign up to database", "error", err)
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
 	}
+
 }
 
 func GetUser(params *Params) bool {
