@@ -2,7 +2,11 @@ package models
 
 // handles user/session structs and models
 
-import "time"
+import (
+	"database/sql"
+	"log/slog"
+	"time"
+)
 
 type NewUser struct {
 	Username string
@@ -29,6 +33,10 @@ type Session struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func InsertNewUser(user NewUser) (ResultType, error) {
-
+func InsertNewUser(db *sql.DB, user NewUser) (sql.Result, error) {
+	insertedNewUser, err := db.Exec(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`, user.Username, user.Email, user.Password)
+	if err != nil {
+		slog.Error("Error inserting into database", "error", err)
+	}
+	return insertedNewUser, err
 }

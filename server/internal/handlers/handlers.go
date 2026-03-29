@@ -50,7 +50,8 @@ func SignupHandler(app *application) http.HandlerFunc {
 			Email:    cleanedEmail,
 			Password: cleanedPassword,
 		}
-		result, err := models.InsertNewUser(newUser)
+		result, err := models.InsertNewUser(app.db, newUser)
+		// inspect return
 		if err != nil {
 			// somehow surface error with db
 			slog.Error("Error in posting sign up to database", "error", err)

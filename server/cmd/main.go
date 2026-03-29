@@ -33,6 +33,7 @@ func main() {
 
 	api := application{
 		config: cfg,
+		db:     db,
 	}
 
 	// running api server
