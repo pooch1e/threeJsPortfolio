@@ -58,6 +58,7 @@ func SignupHandler(app *application) http.HandlerFunc {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
+		return
 	}
 
 }
