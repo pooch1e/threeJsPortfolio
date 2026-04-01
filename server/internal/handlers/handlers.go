@@ -1,9 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
+	"database/sql"
+	stdJSON "encoding/json"
 	"log/slog"
 	"net/http"
+	"threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/models"
 	"threejsPortfolioServer/internal/utils"
 )
@@ -21,10 +23,10 @@ type SignupRequest struct {
 	Password string `json:"password"`
 }
 
-func SignupHandler(app *application) http.HandlerFunc {
+func SignupHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req SignupRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if err := stdJSON.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
@@ -32,16 +34,19 @@ func SignupHandler(app *application) http.HandlerFunc {
 		cleanedUsername, isUsernameValid := utils.ValidateUsername(req.Username)
 		if isUsernameValid == false {
 			http.Error(w, "Invalid Username", http.StatusBadRequest)
+			return
 		}
 
 		cleanedEmail, isEmailValid := utils.ValidateEmail(req.Email)
 		if isEmailValid == false {
 			http.Error(w, "Invalid Email", http.StatusBadRequest)
+			return
 		}
 
 		cleanedPassword, isPasswordValid := utils.ValidatePassword(req.Password)
 		if isPasswordValid == false {
 			http.Error(w, "Invalid Password", http.StatusBadRequest)
+			return
 		}
 
 		// call db
@@ -50,19 +55,22 @@ func SignupHandler(app *application) http.HandlerFunc {
 			Email:    cleanedEmail,
 			Password: cleanedPassword,
 		}
-		result, err := models.InsertNewUser(app.db, newUser)
+		result, err := models.InsertNewUser(db, newUser)
 		// inspect return
 		if err != nil {
 			// somehow surface error with db
 			slog.Error("Error in posting sign up to database", "error", err)
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
+		} else {
+			json.WriteJson(w, 201, result)
+			return
 		}
-		return
+
 	}
 
 }
 
-func GetUser(params *Params) bool {
+// func GetUser(params *Params) bool {
 
-}
+// }

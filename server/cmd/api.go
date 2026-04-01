@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"threejsPortfolioServer/internal/handlers"
 	"time"
+
+	"threejsPortfolioServer/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -32,7 +33,7 @@ func (app *application) mount() http.Handler {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hi"))
 	})
-	r.Post("/signup", handlers.SignupHandler(app))
+	r.Post("/signup", handlers.SignupHandler(app.db))
 	return r
 }
 
