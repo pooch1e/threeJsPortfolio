@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import './App.css';
+
 
 import HomePage from './pages/HomePage';
 import AnimalRenderPage from './pages/AnimalRenderPage';
@@ -8,6 +10,8 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './ui/Header';
 import Footer from './ui/Footer';
 import SineWavePage from './pages/SineWavePage';
+import SignUpPage from './pages/SignUpPage';
+
 
 
 
@@ -16,6 +20,7 @@ function App() {
     <>
       <Header />
       <Routes>
+        <Route path='/signup' element={<SignUpPage />}></Route>
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/pointCloud" element={<PointCloudPage />}></Route>
         <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
