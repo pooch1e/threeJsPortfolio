@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import './App.css';
 
 
@@ -7,27 +6,26 @@ import AnimalRenderPage from './pages/AnimalRenderPage';
 import PointCloudPage from './pages/PointCloudPage';
 import ShaderPage from './pages/ShaderPage';
 import { Routes, Route } from 'react-router-dom';
-import Header from './ui/Header';
-import Footer from './ui/Footer';
+
 import SineWavePage from './pages/SineWavePage';
 import SignUpPage from './pages/SignUpPage';
-
+import MainLayout from './layout/MainLayout';
 
 
 
 function App() {
   return (
     <>
-      <Header />
       <Routes>
-        <Route path='/signup' element={<SignUpPage />}></Route>
+        <Route element={<MainLayout />}/>
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/pointCloud" element={<PointCloudPage />}></Route>
         <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
         <Route path="/shaders" element={<ShaderPage />}></Route>
         <Route path="/sineWave" element={<SineWavePage />}></Route>
+        {/* No header/ footer */}
+        <Route path='/signup' element={<SignUpPage/>}></Route>
       </Routes>
-      <Footer />
     </>
   );
 }
