@@ -13,7 +13,7 @@ export default function SignUpPage() {
     // page
     <div className="grid grid-rows-1 gap-8 h-dvh items-center justify-center bg-[var(--color-bg)] font-karrik">
       {/* form */}
-      <div className="flex flex-col w-96 px-8 py-10 justify-center items-center gap-8 border border-gray-600 border-t-slate-200 rounded-md text-cyan-300">
+      <div className="flex flex-col w-96 px-8 py-10 justify-center items-center gap-8 border border-gray-600 shadow-card rounded-md text-cyan-300">
         <h1 className="justify-center">Sign Up Here</h1>
         <form action="" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col justify-center p-2">
