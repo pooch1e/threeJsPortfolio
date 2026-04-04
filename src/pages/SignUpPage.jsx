@@ -7,6 +7,8 @@ export default function SignUpPage() {
     formState: { errors },
   } = useForm();
 
+  const onSubmit = (data) => console.log(data)
+
   return (
     // page
     <div className="grid grid-rows-1 gap-8 h-dvh items-center justify-center bg-[var(--color-bg)] font-karrik">
@@ -16,14 +18,14 @@ export default function SignUpPage() {
         <form action="" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col justify-center p-2">
             <label htmlFor="username">Username</label>
-            <input type="text" className="rounded-sm" {...register("username")} />
+            <input type="text" className="rounded-sm p-1 text-black" {...register("username", {required: "A username is required", minLength: {value: 3, message: "Min 3 characters"}})} />
             <label htmlFor="email">Email</label>
-            <input type="email" {...register("email")} className="rounded-sm" />
+            <input type="email" {...register("email")} className="rounded-sm text-black p-1" />
             <div className="flex flex-col mt-4">
               <label htmlFor="password">Password</label>
-              <input type="password" {...register("password")} className="rounded-sm" />
+              <input type="password" {...register("password")} className="rounded-sm p-1 text-black" />
               <label htmlFor="password">Repeat Password</label>
-              <input type="password" {...register("password")}className="rounded-sm" />
+              <input type="password" {...register("password")}className="rounded-sm text-black p-1" />
               <div className="flex flex-col mt-2">
                 <button className="border rounded-sm hover:bg-gray-100 hover:translate-5">
                   Sign Up
