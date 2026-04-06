@@ -33,7 +33,7 @@ func (app *application) mount() http.Handler {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hi"))
 	})
-	r.Post("/signup", handlers.SignupHandler(app.db))
+	r.Post("/api/signup", handlers.SignupHandler(app.db))
 	return r
 }
 
