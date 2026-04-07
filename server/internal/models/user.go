@@ -24,7 +24,6 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 	PasswordHash string    `json:"password_hash"`
 }
-
 type Session struct {
 	ID        string    `json:"id"`
 	Token     string    `json:"token"`
@@ -43,10 +42,12 @@ func CheckUserExists(db *sql.DB, email string) (bool, error) {
 	return exists, nil
 }
 
-func InsertNewUser(db *sql.DB, user NewUser) (sql.Result, error) {
-	insertedNewUser, err := db.Exec(`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3)`, user.Username, user.Email, user.Password_hash)
+func InsertNewUser(db *sql.DB, user NewUser) (*User, error) {
+	var createdUser User
+	err := db.QueryRow(`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at, updated_at`, user.Username, user.Email, user.Password_hash).Scan(&createdUser.ID, &createdUser.Name, &createdUser.Email, &createdUser.PasswordHash)
 	if err != nil {
 		slog.Error("Error inserting into database", "error", err)
+		return nil, err
 	}
-	return insertedNewUser, err
+	return &createdUser, nil
 }
