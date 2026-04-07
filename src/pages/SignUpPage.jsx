@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { postSignup } from "../utils/postSignup";
 export default function SignUpPage() {
@@ -7,7 +8,16 @@ export default function SignUpPage() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => postSignup(data)
+  const [serverError, setServerError] = useState(null);
+
+  const onSubmit = async (data) => {
+    setServerError(null);
+    try {
+      await postSignup(data);
+    } catch (err) {
+      setServerError(err.message);
+    }
+  };
 
   return (
     // page
@@ -23,7 +33,10 @@ export default function SignUpPage() {
   <span className="text-red-500 text-sm">{errors.username.message}</span>
 )}
             <label htmlFor="email">Email</label>
-            <input type="email" {...register("email")} className="rounded-sm text-black p-1" />
+            <input type="email" {...register("email", {required: 'An email address is required'})} className="rounded-sm text-black p-1" />
+            {errors.email && (
+                <span className="text-red-500 text-sm">{errors.email.message}</span>
+            )}
             <div className="flex flex-col mt-4">
               <label htmlFor="password">Password</label>
               <input type="password" {...register("password")} className="rounded-sm p-1 text-black" />
@@ -33,6 +46,9 @@ export default function SignUpPage() {
                 <button className="border rounded-sm hover:bg-gray-100 hover:translate-5">
                   Sign Up
                 </button>
+                {serverError && (
+                  <span className="text-red-500 text-sm mt-2">{serverError}</span>
+                )}
               </div>
             </div>
           </div>

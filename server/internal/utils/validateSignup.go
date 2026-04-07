@@ -1,13 +1,15 @@
 package utils
 
 import (
+	"log/slog"
 	"regexp"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var usernameRegex = regexp.MustCompile(`^[a-z0-9]+$`)
-var emailRegex = regexp.MustCompile(`/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`)
-
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
 func ValidateUsername(username string) (string, bool) {
 	// username must contain lowercase characters
@@ -25,9 +27,9 @@ func ValidateEmail(email string) (string, bool) {
 	return email, true
 }
 
-func ValidatePassword(password string) (string, bool) {
+func ValidatePassword(password string) ([]byte, bool) {
 	if len(password) < 8 {
-		return  "", false
+		return nil, false
 	}
 	lower := regexp.MustCompile(`[a-z]`)
 	upper := regexp.MustCompile(`[A-Z]`)
@@ -42,5 +44,14 @@ func ValidatePassword(password string) (string, bool) {
 		special.MatchString(password) {
 		pCheck = true
 	}
-	return password, pCheck
+	hPassword := hashPassword(password)
+	return hPassword, pCheck
+}
+
+func hashPassword(password string) []byte {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("Error in hashing password", "error", err)
+	}
+	return hashed
 }

@@ -49,23 +49,31 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// check for duplicate account
+		exists, err := models.CheckUserExists(db, cleanedEmail)
+		if err != nil {
+			slog.Error("Error checking for existing user", "error", err)
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+		if exists {
+			http.Error(w, "An account with this email already exists", http.StatusConflict)
+			return
+		}
+
 		// call db
 		newUser := models.NewUser{
-			Username: cleanedUsername,
-			Email:    cleanedEmail,
-			Password: cleanedPassword,
+			Username:      cleanedUsername,
+			Email:         cleanedEmail,
+			Password_hash: []byte(cleanedPassword),
 		}
 		result, err := models.InsertNewUser(db, newUser)
-		// inspect return
 		if err != nil {
-			// somehow surface error with db
 			slog.Error("Error in posting sign up to database", "error", err)
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
-		} else {
-			json.WriteJson(w, 201, result)
-			return
 		}
+		json.WriteJson(w, 201, result)
 
 	}
 

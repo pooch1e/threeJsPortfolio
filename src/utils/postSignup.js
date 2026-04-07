@@ -16,11 +16,14 @@ export const postSignup = async (data) => {
       })
     })
 
-    if (!res) {
-      throw new Error('Error posting signup')
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(text.trim())
     }
+
+    return res
   } catch (err) {
-    console.log(err)
+    throw err
   }
 
 }
