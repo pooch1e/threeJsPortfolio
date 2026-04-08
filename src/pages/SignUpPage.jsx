@@ -5,6 +5,7 @@ export default function SignUpPage() {
   const {
     handleSubmit,
     register,
+    watch,
     formState: { errors },
   } = useForm();
 
@@ -18,6 +19,8 @@ export default function SignUpPage() {
       setServerError(err.message);
     }
   };
+
+
 
   return (
     // page
@@ -39,9 +42,13 @@ export default function SignUpPage() {
             )}
             <div className="flex flex-col mt-4">
               <label htmlFor="password">Password</label>
-              <input type="password" {...register("password")} className="rounded-sm p-1 text-black" />
+              <input type="password" {...register("password", {required: "A new password is required"})} className="rounded-sm p-1 text-black" />
               <label htmlFor="password">Repeat Password</label>
-              <input type="password" {...register("confirmPassword")}className="rounded-sm text-black p-1" />
+              <input type="password" {...register("confirmPassword", {validate: (val => {
+                if (watch('password' != val)) {
+                  return 'Your passwords do not match'
+                }
+              })})}className="rounded-sm text-black p-1" />
               <div className="flex flex-col mt-2">
                 <button className="border rounded-sm hover:bg-gray-100 hover:translate-5">
                   Sign Up
