@@ -27,6 +27,11 @@ export const sources = [
     path: '/static/textures/spruitSunset/spruit_sunrise.hdr',
   },
   {
+    name: 'portalMap',
+    type: 'hdrTexture',
+    path: '/static/textures/portal/baked.hdr'
+  },
+  {
     name: 'fireworksTextures',
     type: 'textureArray',
     path: [
@@ -86,6 +91,11 @@ export const sources = [
     name: 'dracoModels',
     type: 'gltfModel',
     path: '/static/models/draco/models.glb',
+  },
+  {
+    name: 'portalModel',
+    type: 'gltfModel',
+    path: '/static/models/portal/portal.glb'
   },
   {
     name: 'cubeBaseTest',
