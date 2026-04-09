@@ -28,8 +28,8 @@ export const sources = [
   },
   {
     name: 'portalMap',
-    type: 'hdrTexture',
-    path: '/static/textures/portal/baked.hdr'
+    type: 'texture',
+    path: '/static/models/portal/bakedRender.jpg'
   },
   {
     name: 'fireworksTextures',

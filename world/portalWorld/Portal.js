@@ -4,19 +4,21 @@ export class Portal {
     this.world = world;
 
     this.scene = world.scene
-    this.debug = world.portalExperience.debug
+    this.debug = this.world.portalExperience.debug
     this.resources = world.resources;
+    this.environment = this.world.environment
 
 
 
     this.portalModel = this.resources.items.portalModel
-    console.log(this.portalModel)
     this.portalMap = this.resources.items.portalMap
 
 
-    this.addLights()
+    // this.addLights()
     this.setModel()
   }
+
+
 
   addLights() {
     this.pointLight = new THREE.PointLight('white', 100)
@@ -25,7 +27,19 @@ export class Portal {
   }
 
   setModel() {
-    this.scene.add(this.portalModel.scene)
+    this.portalModel.scene.traverse((child) => {
+      if (child.isMesh) {
+        child.material = new THREE.MeshBasicMaterial({
+          map: this.portalMap
+        });
+      }
+    });
+    this.scene.add(this.portalModel.scene);
+
+    if (this.portalMap) {
+      this.portalMap.flipY = false;
+      this.portalMap.needsUpdate = true;
+    }
   }
 
   update(time) {

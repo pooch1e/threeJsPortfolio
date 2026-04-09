@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { Portal } from './Portal'
 import { Resources } from '../utils/Resources'
 import { sources } from '../sources/sources'
+import { Environment } from '../shaderTestWorld/Environment'
 export class World {
   constructor(portalExperience) {
     this.portalExperience = portalExperience
@@ -15,7 +16,7 @@ export class World {
 
   update(time) {
     if (time) {
-      
+
     }
   }
 }
