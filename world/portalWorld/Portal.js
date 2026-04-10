@@ -21,8 +21,9 @@ export class Portal {
 
 
   addLights() {
-    this.pointLight = new THREE.PointLight('white', 100)
+    this.pointLight = new THREE.RectAreaLight('white', 5)
     this.pointLight.position.y = 10
+    this.pointLight.lookAt(0, 0, 0)
     this.scene.add(this.pointLight)
   }
 
@@ -35,6 +36,7 @@ export class Portal {
     //   }
     // });
     // texture looks SHIT - use built in for now
+    this.portalModel.scene.rotation.y = -90
     this.scene.add(this.portalModel.scene);
 
   }
