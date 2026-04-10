@@ -14,7 +14,7 @@ export class Portal {
     this.portalMap = this.resources.items.portalMap
 
 
-    // this.addLights()
+    this.addLights()
     this.setModel()
   }
 
@@ -27,19 +27,16 @@ export class Portal {
   }
 
   setModel() {
-    this.portalModel.scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material = new THREE.MeshBasicMaterial({
-          map: this.portalMap
-        });
-      }
-    });
+    // this.portalModel.scene.traverse((child) => {
+    //   if (child.isMesh) {
+    //     child.material = new THREE.MeshBasicMaterial({
+    //       map: this.portalMap
+    //     });
+    //   }
+    // });
+    // texture looks SHIT - use built in for now
     this.scene.add(this.portalModel.scene);
 
-    if (this.portalMap) {
-      this.portalMap.flipY = false;
-      this.portalMap.needsUpdate = true;
-    }
   }
 
   update(time) {
