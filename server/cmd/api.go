@@ -93,6 +93,7 @@ type config struct {
 	gitHubClientSecret string
 	frontendURL        string
 	sessionSecret      string
+	jwtSecret          string
 }
 
 type dbConfig struct {

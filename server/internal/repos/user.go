@@ -21,8 +21,8 @@ func CheckUserExists(db *sql.DB, email string) (bool, error) {
 func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
 	var createdUser models.User
 	err := db.QueryRow(
-		`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) 
-		 RETURNING id, name, email, created_at, updated_at`,
+		`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3)
+		RETURNING id, name, email, created_at, updated_at`,
 		user.Username, user.Email, user.Password_hash,
 	).Scan(&createdUser.ID, &createdUser.Name, &createdUser.Email, &createdUser.CreatedAt, &createdUser.UpdatedAt)
 
@@ -37,7 +37,7 @@ func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
 func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 	var user models.User
 	err := db.QueryRow(
-		`SELECT id, name, email, password_hash, created_at, updated_at 
+		`SELECT id, name, email, password_hash, created_at, updated_at
 		 FROM users WHERE name = $1`,
 		username,
 	).Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
