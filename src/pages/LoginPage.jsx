@@ -12,7 +12,9 @@ export default function Login() {
   };
   return (
     <div className="grid grid-rows-1 gap-8 h-dvh items-center justify-center bg-[var(--color-bg)] font-karrik">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="w-96 ">
+        <h1>Login</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
         <label htmlFor="username">Username</label>
         <input
           type="text"
@@ -33,8 +35,9 @@ export default function Login() {
           className="rounded-sm p-1 text-black"
         />
         <button>Login</button>
-        <button>Signup</button>
       </form>
+      <button>Signup</button>
+      </div>
     </div>
   );
 }

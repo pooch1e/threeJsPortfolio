@@ -10,6 +10,7 @@ import { Routes, Route } from "react-router-dom";
 import SineWavePage from "./pages/SineWavePage";
 import SignUpPage from "./pages/SignUpPage";
 import MainLayout from "./layout/MainLayout";
+import Login from "./pages/LoginPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         </Route>
         {/* No header/ footer */}
         <Route path="/signup" element={<SignUpPage />}></Route>
+        <Route path="/login" element={<Login/>}></Route>
       </Routes>
     </>
   );
