@@ -55,3 +55,9 @@ func hashPassword(password string) []byte {
 	}
 	return hashed
 }
+
+// CheckPasswordHash compares a plain text password with a hashed password
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}

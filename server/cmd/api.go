@@ -44,7 +44,10 @@ func (app *application) mount() http.Handler {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hi"))
 	})
+	// login signup
 	r.Post("/api/signup", handlers.SignupHandler(app.db))
+	r.Post("/api/login", handlers.LoginHandler(app.db))
+
 	return r
 }
 

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/models"
+	"threejsPortfolioServer/internal/repos"
 	"threejsPortfolioServer/internal/utils"
 )
 
@@ -50,7 +51,7 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		// check for duplicate account
-		exists, err := models.CheckUserExists(db, cleanedEmail)
+		exists, err := repos.CheckUserExists(db, cleanedEmail)
 		if err != nil {
 			slog.Error("Error checking for existing user", "error", err)
 			http.Error(w, "Database error", http.StatusInternalServerError)
@@ -67,7 +68,7 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 			Email:         cleanedEmail,
 			Password_hash: []byte(cleanedPassword),
 		}
-		result, err := models.InsertNewUser(db, newUser)
+		result, err := repos.InsertNewUser(db, newUser)
 		if err != nil {
 			slog.Error("Error in posting sign up to database", "error", err)
 			http.Error(w, "Database error", http.StatusInternalServerError)
