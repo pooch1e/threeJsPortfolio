@@ -54,23 +54,29 @@ export class Portal {
     // });
     // texture looks SHIT - use built in for now
     this.portalModel.scene.rotation.y = -90;
+    this.portalModel.scene.position.z = 2
     this.scene.add(this.portalModel.scene);
   }
 
   setFlies() {
     this.geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(this.debugObject.fireflyCount * 3)
+    const positions = new Float32Array(this.debugObject.fireflyCount * 3);
+    // Centered on X and Y, above model on Z
+    const width = 4;
+    const height = 4;
+    const zOffset = 1;
     for (let i = 0; i < this.debugObject.fireflyCount; i++) {
-      positions[i * 3] = Math.random() * 2
-      positions[i * 3 + 1] = Math.random() * 2
-      positions[i * 3 + 2] = Math.random() * 2
+      positions[i * 3] = (Math.random() - 0.5) * width; // centered X
+      positions[i * 3 + 1] = (Math.random() - 0.5) * height; // centered Y
+      positions[i * 3 + 2] = zOffset + Math.random() * 2; // above model on Z
     }
 
-    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    this.firefliesMaterial = new THREE.PointsMaterial({ size: 0.1, sizeAttenuation: true })
-    this.fireflyPoints = new THREE.Points(this.geometry, this.firefliesMaterial)
-    this.scene.add(this.fireflyPoints)
+    this.firefliesMaterial = new THREE.PointsMaterial({ size: 0.1, sizeAttenuation: true });
+    this.fireflyPoints = new THREE.Points(this.geometry, this.firefliesMaterial);
+    this.fireflyPoints.position.y = 2
+    this.scene.add(this.fireflyPoints);
   }
 
   update(time) {
