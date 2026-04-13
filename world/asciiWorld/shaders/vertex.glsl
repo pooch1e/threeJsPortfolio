@@ -1,6 +1,7 @@
 // vertex
 varying vec3 vNormal;
 varying vec3 vPosition;
+varying vec2 vUv;
 
 void main()
 {
@@ -14,4 +15,5 @@ void main()
     // Varyings
     vNormal = modelNormal;
     vPosition = modelPosition.xyz;
+    vUv = uv;
 }

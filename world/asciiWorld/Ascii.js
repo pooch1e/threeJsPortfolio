@@ -18,7 +18,7 @@ export class Ascii {
   }
 
   setPlaneGeometry() {
-    this.planeGeometry = new THREE.PlaneGeometry(10, 10, 50);
+    this.planeGeometry = new THREE.PlaneGeometry(10, 10,100);
     this.planeMaterial = new THREE.ShaderMaterial({
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
