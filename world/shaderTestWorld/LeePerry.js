@@ -51,7 +51,7 @@ export default class LeePerry {
             '#include <begin_vertex>',
             `
             #include <begin_vertex>
-            
+
             float angle = position.y + uTime;
             mat2 rotateMatrix = get2dRotateMatrix(angle);
             transformed.xz = rotateMatrix * transformed.xz;

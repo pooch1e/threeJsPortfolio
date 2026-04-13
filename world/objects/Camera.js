@@ -1,7 +1,14 @@
-import { PerspectiveCamera } from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PerspectiveCamera } from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 export class Camera {
-  constructor({ canvas, fov = 75, sizes, near = 0.1, far = 2000 }) {
+  constructor({
+    canvas,
+    fov = 75,
+    sizes,
+    near = 0.1,
+    far = 2000,
+    controls = true,
+  }) {
     this.canvas = canvas;
     this.sizes = sizes;
 
@@ -9,15 +16,16 @@ export class Camera {
       fov,
       sizes.aspect,
       near,
-      far
+      far,
     );
     // set camera position
     this.perspectiveCamera.position.set(0, 1, 5);
-
-    // Orbital Controls
-    this.controls = new OrbitControls(this.perspectiveCamera, this.canvas);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
+    if (controls) {
+      // Orbital Controls
+      this.controls = new OrbitControls(this.perspectiveCamera, this.canvas);
+      this.controls.enableDamping = true;
+      this.controls.dampingFactor = 0.05;
+    }
   }
 
   resize() {
@@ -26,6 +34,8 @@ export class Camera {
   }
 
   update() {
-    this.controls.update();
+    if (this.controls) {
+      this.controls.update();
+    }
   }
 }

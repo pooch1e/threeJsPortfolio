@@ -5,6 +5,7 @@ import AnimalRenderPage from "./pages/AnimalRenderPage";
 import PointCloudPage from "./pages/PointCloudPage";
 import ShaderPage from "./pages/ShaderPage";
 import PortalPage from "./pages/PortalPage";
+import AsciiPage from "./pages/AsciiPage";
 import { Routes, Route } from "react-router-dom";
 
 import SineWavePage from "./pages/SineWavePage";
@@ -23,10 +24,11 @@ function App() {
           <Route path="/shaders" element={<ShaderPage />}></Route>
           <Route path="/sineWave" element={<SineWavePage />}></Route>
           <Route path="/portalblend" element={<PortalPage />}></Route>
+          <Route path="/ascii" element={<AsciiPage />}></Route>
         </Route>
         {/* No header/ footer */}
         <Route path="/signup" element={<SignUpPage />}></Route>
-        <Route path="/login" element={<Login/>}></Route>
+        <Route path="/login" element={<Login />}></Route>
       </Routes>
     </>
   );
