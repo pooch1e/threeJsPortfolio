@@ -35,7 +35,7 @@ export default function Login() {
         setShowSuccess(true);
         setPending(false);
         setTimeout(() => {
-          navigate("/");
+          navigate("/homepage");
         }, 1200);
         return;
       } else {

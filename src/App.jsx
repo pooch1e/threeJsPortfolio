@@ -18,7 +18,7 @@ function App() {
     <>
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />}></Route>
+          <Route path="/homepage" element={<HomePage />}></Route>
           <Route path="/pointCloud" element={<PointCloudPage />}></Route>
           <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
           <Route path="/shaders" element={<ShaderPage />}></Route>
