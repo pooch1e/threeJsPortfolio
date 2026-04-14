@@ -1,9 +1,9 @@
-const ENDOINT = 'http://localhost:8081/api/signup'
+const ENDPOINT = `${import.meta.env.VITE_API_BASE_URL}/api/signup`
 
 
 export const postSignup = async (data) => {
   const {username, email, password} = data;
-  const res = await fetch(ENDOINT, {
+  const res = await fetch(ENDPOINT, {
     method: 'POST',
     headers: {
       "Content-Type": "application/json"
