@@ -11,41 +11,46 @@ import (
 var usernameRegex = regexp.MustCompile(`^[a-z0-9]+$`)
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-func ValidateUsername(username string) (string, bool) {
+func ValidateUsername(username string) (string, string) {
 	// username must contain lowercase characters
 	cleaned := strings.ToLower(username)
 	if !usernameRegex.MatchString(cleaned) {
-		return "", false
+		return "", "Username must only contain lowercase letters and numbers"
 	}
-	return cleaned, true
+	return cleaned, ""
 }
 
-func ValidateEmail(email string) (string, bool) {
+func ValidateEmail(email string) (string, string) {
 	if !emailRegex.MatchString(email) {
-		return "", false
+		return "", "Invalid email format"
 	}
-	return email, true
+	return email, ""
 }
 
-func ValidatePassword(password string) ([]byte, bool) {
+func ValidatePassword(password string) ([]byte, string) {
 	if len(password) < 8 {
-		return nil, false
+		return nil, "Password must be at least 8 characters"
 	}
+
 	lower := regexp.MustCompile(`[a-z]`)
 	upper := regexp.MustCompile(`[A-Z]`)
 	digit := regexp.MustCompile(`\d`)
 	special := regexp.MustCompile(`[@$!%*?&]`)
 
-	var pCheck bool = false
-
-	if lower.MatchString(password) &&
-		upper.MatchString(password) &&
-		digit.MatchString(password) &&
-		special.MatchString(password) {
-		pCheck = true
+	if !lower.MatchString(password) {
+		return nil, "Password must contain a lowercase letter"
 	}
-	hPassword := hashPassword(password)
-	return hPassword, pCheck
+	if !upper.MatchString(password) {
+		return nil, "Password must contain an uppercase letter"
+	}
+	if !digit.MatchString(password) {
+		return nil, "Password must contain a number"
+	}
+	if !special.MatchString(password) {
+		return nil, "Password must contain a special character (@$!%*?&)"
+	}
+
+	return hashPassword(password), ""
 }
 
 func hashPassword(password string) []byte {

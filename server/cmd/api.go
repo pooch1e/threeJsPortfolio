@@ -45,8 +45,11 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("hi"))
 	})
 	// login signup
+	r.Get("/api/signup", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("get Signup Endpoint"))
+	})
 	r.Post("/api/signup", handlers.SignupHandler(app.db))
-	r.Post("/api/login", handlers.LoginHandler(app.db))
+	r.Post("/api/login", handlers.LoginHandler(app.db, app.config.jwtSecret))
 
 	return r
 }
@@ -61,7 +64,7 @@ func (app *application) run(h http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("server has started at %s", app.config.adr)
+	log.Printf("starting server at %s", app.config.adr)
 	return server.ListenAndServe()
 }
 

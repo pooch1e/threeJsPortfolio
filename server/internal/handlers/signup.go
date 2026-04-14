@@ -11,6 +11,10 @@ import (
 	"threejsPortfolioServer/internal/utils"
 )
 
+func writeError(w http.ResponseWriter, status int, msg string) {
+	json.WriteJson(w, status, map[string]string{"error": msg})
+}
+
 // take request - do something with it/ sanatise whatever
 // then pass to repo (for db)
 
@@ -28,25 +32,25 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req SignupRequest
 		if err := stdJSON.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			writeError(w, http.StatusBadRequest, "Invalid request body")
 			return
 		}
 
-		cleanedUsername, isUsernameValid := utils.ValidateUsername(req.Username)
-		if isUsernameValid == false {
-			http.Error(w, "Invalid Username", http.StatusBadRequest)
+		cleanedUsername, usernameErr := utils.ValidateUsername(req.Username)
+		if usernameErr != "" {
+			writeError(w, http.StatusBadRequest, usernameErr)
 			return
 		}
 
-		cleanedEmail, isEmailValid := utils.ValidateEmail(req.Email)
-		if isEmailValid == false {
-			http.Error(w, "Invalid Email", http.StatusBadRequest)
+		cleanedEmail, emailErr := utils.ValidateEmail(req.Email)
+		if emailErr != "" {
+			writeError(w, http.StatusBadRequest, emailErr)
 			return
 		}
 
-		cleanedPassword, isPasswordValid := utils.ValidatePassword(req.Password)
-		if isPasswordValid == false {
-			http.Error(w, "Invalid Password", http.StatusBadRequest)
+		cleanedPassword, passwordErr := utils.ValidatePassword(req.Password)
+		if passwordErr != "" {
+			writeError(w, http.StatusBadRequest, passwordErr)
 			return
 		}
 
@@ -54,11 +58,11 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 		exists, err := repos.CheckUserExists(db, cleanedEmail)
 		if err != nil {
 			slog.Error("Error checking for existing user", "error", err)
-			http.Error(w, "Database error", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "Database error")
 			return
 		}
 		if exists {
-			http.Error(w, "An account with this email already exists", http.StatusConflict)
+			writeError(w, http.StatusConflict, "An account with this email already exists")
 			return
 		}
 
@@ -71,7 +75,7 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 		result, err := repos.InsertNewUser(db, newUser)
 		if err != nil {
 			slog.Error("Error in posting sign up to database", "error", err)
-			http.Error(w, "Database error", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "Database error")
 			return
 		}
 		json.WriteJson(w, 201, result)

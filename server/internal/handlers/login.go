@@ -3,7 +3,9 @@ package handlers
 import (
 	"database/sql"
 	stdJSON "encoding/json"
+	"log/slog"
 	"net/http"
+	"threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/repos"
 	"threejsPortfolioServer/internal/utils"
 )
@@ -13,7 +15,12 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-func LoginHandler(db *sql.DB) http.HandlerFunc {
+type LoginResponse struct {
+	Token    string `json:"token"`
+	Username string `json:"username"`
+}
+
+func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds LoginRequest
 		if err := stdJSON.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -21,9 +28,9 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		cleanedUsername, isUsernameValid := utils.ValidateUsername(creds.Username)
-		if isUsernameValid == false {
-			http.Error(w, "Invalid Username", http.StatusBadRequest)
+		cleanedUsername, usernameErr := utils.ValidateUsername(creds.Username)
+		if usernameErr != "" {
+			writeError(w, http.StatusBadRequest, usernameErr)
 			return
 		}
 
@@ -37,6 +44,22 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
+
+		// generate JWT
+		jToken, err := utils.GenerateJwtToken(jwtSecret, user.ID)
+		if err != nil {
+			slog.Error("Error in creating JWT", "error", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		authRes := LoginResponse{
+			Token:    jToken,
+			Username: user.Name,
+		}
+
+		json.WriteJson(w, 200, authRes)
+
 	}
 
 }

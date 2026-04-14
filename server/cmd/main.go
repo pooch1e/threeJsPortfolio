@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"log/slog"
 	"os"
+	"syscall"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -13,7 +15,8 @@ func main() {
 	godotenv.Load("../.env.local")
 
 	cfg := config{
-		adr: ":" + os.Getenv("PORT"),
+		adr:       ":" + os.Getenv("PORT"),
+		jwtSecret: os.Getenv("JWT_SECRET"),
 		db: dbConfig{
 			dsn: os.Getenv("DATABASE_URL"),
 		},
@@ -38,7 +41,12 @@ func main() {
 
 	// running api server
 	if err := api.run(api.mount()); err != nil {
-		slog.Error("Server faield to start", "error", err)
+		if errors.Is(err, syscall.EADDRINUSE) {
+			slog.Error("port already in use", "port", cfg.adr, "hint", "kill the process using this port or change PORT in .env.local")
+		} else {
+			slog.Error("server failed to start", "error", err)
+		}
+		os.Exit(1)
 	}
 
 }

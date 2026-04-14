@@ -40,7 +40,7 @@ func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 		`SELECT id, name, email, password_hash, created_at, updated_at
 		 FROM users WHERE name = $1`,
 		username,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password_hash, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		slog.Error("Error getting user by username", "error", err)
