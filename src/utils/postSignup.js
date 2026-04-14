@@ -1,4 +1,4 @@
-const ENDOINT = 'http://localhost:8080/api/signup'
+const ENDOINT = 'http://localhost:8081/api/signup'
 
 
 export const postSignup = async (data) => {

@@ -23,7 +23,8 @@
     "stats.js": "^0.17.0",
     "three": "^0.180.0",
     "three-custom-shader-material": "^6.4.0",
-    "vite-plugin-glsl": "^1.5.4"
+    "vite-plugin-glsl": "^1.5.4",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

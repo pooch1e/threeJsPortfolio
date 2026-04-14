@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { postSignup } from "../utils/postSignup";
+import { useNavigate } from "react-router-dom";
 export default function SignUpPage() {
   const {
     handleSubmit,
@@ -10,6 +11,7 @@ export default function SignUpPage() {
   } = useForm();
 
   const [serverError, setServerError] = useState(null);
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setServerError(null);
@@ -20,45 +22,109 @@ export default function SignUpPage() {
     }
   };
 
-
-
   return (
-    // page
-    <div className="grid grid-rows-1 gap-8 h-dvh items-center justify-center bg-[var(--color-bg)] font-karrik">
-      {/* form */}
-      <div className="flex flex-col w-96 px-8 py-10 justify-center items-center gap-8 border border-gray-600 shadow-card rounded-md text-cyan-300 ">
-        <h1 className="justify-center">Sign Up Here</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col justify-center p-2">
-            <label htmlFor="username">Username</label>
-            <input type="text" className="rounded-sm p-1 text-black" {...register("username", {required: "A username is required", minLength: {value: 3, message: "Min 3 characters"}})} />
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] font-karrik">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-card p-8 flex flex-col gap-6">
+        <h1 className="text-2xl font-semibold text-center mb-2 text-cyan-700">
+          Sign Up Here
+        </h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="username" className="font-medium">
+              Username
+            </label>
+            <input
+              type="text"
+              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
+              {...register("username", {
+                required: "A username is required",
+                minLength: { value: 3, message: "Min 3 characters" },
+              })}
+            />
             {errors.username && (
-  <span className="text-red-500 text-sm">{errors.username.message}</span>
-)}
-            <label htmlFor="email">Email</label>
-            <input type="email" {...register("email", {required: 'An email address is required'})} className="rounded-sm text-black p-1" />
-            {errors.email && (
-                <span className="text-red-500 text-sm">{errors.email.message}</span>
+              <span className="text-red-400 text-xs mt-1">
+                {errors.username.message}
+              </span>
             )}
-            <div className="flex flex-col mt-4">
-              <label htmlFor="password">Password</label>
-              <input type="password" {...register("password", {required: "A new password is required"})} className="rounded-sm p-1 text-black" />
-              <label htmlFor="password">Repeat Password</label>
-              <input type="password" {...register("confirmPassword", {validate: (val => {
-                if (watch('password' != val)) {
-                  return 'Your passwords do not match'
-                }
-              })})}className="rounded-sm text-black p-1" />
-              <div className="flex flex-col mt-2">
-                <button className="border rounded-sm hover:bg-gray-100 hover:translate-5">
-                  Sign Up
-                </button>
-                {serverError && (
-                  <span className="text-red-500 text-sm mt-2">{serverError}</span>
-                )}
-              </div>
-            </div>
           </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="font-medium">
+              Email
+            </label>
+            <input
+              type="email"
+              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
+              {...register("email", {
+                required: "An email address is required",
+              })}
+            />
+            {errors.email && (
+              <span className="text-red-400 text-xs mt-1">
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="password" className="font-medium">
+              Password
+            </label>
+            <input
+              type="password"
+              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
+              {...register("password", {
+                required: "A new password is required",
+              })}
+            />
+            {errors.password && (
+              <span className="text-red-400 text-xs mt-1">
+                {errors.password.message}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="confirmPassword" className="font-medium">
+              Repeat Password
+            </label>
+            <input
+              type="password"
+              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
+              {...register("confirmPassword", {
+                validate: (val) => {
+                  if (watch("password") !== val) {
+                    return "Your passwords do not match";
+                  }
+                },
+              })}
+            />
+            {errors.confirmPassword && (
+              <span className="text-red-400 text-xs mt-1">
+                {errors.confirmPassword.message}
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="mt-2 bg-cyan-600 text-white rounded-md py-2 font-semibold hover:bg-cyan-700 transition-colors"
+          >
+            Sign Up
+          </button>
+          <div className="flex flex-col gap-2 mt-2">
+          <span className="flex justify-center">
+            <h2>Already signed up? Login here...</h2>
+          </span>
+          <button
+            type="button"
+            className="w-full border border-cyan-600 text-cyan-700 rounded-md py-2 font-semibold hover:bg-cyan-50 transition-colors"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+          </div>
+          {serverError && (
+            <span className="text-red-500 text-sm mt-2 text-center">
+              {serverError}
+            </span>
+          )}
         </form>
       </div>
     </div>
