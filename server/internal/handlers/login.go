@@ -5,6 +5,9 @@ import (
 	stdJSON "encoding/json"
 	"log/slog"
 	"net/http"
+	"os"
+	"time"
+
 	"threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/repos"
 	"threejsPortfolioServer/internal/utils"
@@ -15,8 +18,9 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+// LoginResponse is what we send back to the client on successful login.
+// Only safe, non-sensitive fields are included.
 type LoginResponse struct {
-	Token    string `json:"token"`
 	Username string `json:"username"`
 }
 
@@ -36,6 +40,7 @@ func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 
 		user, err := repos.GetUserByUsername(db, cleanedUsername)
 		if err != nil {
+			// Don't reveal whether the username exists or not
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
@@ -45,21 +50,32 @@ func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 			return
 		}
 
-		// generate JWT
 		jToken, err := utils.GenerateJwtToken(jwtSecret, user.ID)
 		if err != nil {
-			slog.Error("Error in creating JWT", "error", err)
+			slog.Error("Error creating JWT", "error", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		authRes := LoginResponse{
-			Token:    jToken,
-			Username: user.Name,
+		// SameSite=Lax works for localhost dev (same host, different port).
+		// In production (different domains) you need SameSite=None + Secure=true.
+		sameSite := http.SameSiteLaxMode
+		secure := false
+		if os.Getenv("APP_ENV") == "production" {
+			sameSite = http.SameSiteNoneMode
+			secure = true
 		}
 
-		json.WriteJson(w, 200, authRes)
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session",
+			Value:    jToken,
+			Path:     "/",
+			Expires:  time.Now().Add(time.Hour),
+			HttpOnly: true, // JS cannot read this cookie - protects against XSS
+			Secure:   secure,
+			SameSite: sameSite,
+		})
 
+		json.WriteJson(w, http.StatusOK, LoginResponse{Username: user.Name})
 	}
-
 }

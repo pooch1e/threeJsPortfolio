@@ -33,6 +33,21 @@ func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
 	return &createdUser, nil
 }
 
+// GetUserByID retrieves a user by their UUID (used by /api/me after JWT validation)
+func GetUserByID(db *sql.DB, id string) (*models.User, error) {
+	var user models.User
+	err := db.QueryRow(
+		`SELECT id, name, email, created_at, updated_at
+		 FROM users WHERE id = $1`,
+		id,
+	).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		slog.Error("Error getting user by ID", "error", err)
+		return nil, err
+	}
+	return &user, nil
+}
+
 // GetUserByUsername retrieves a user by their username
 func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 	var user models.User

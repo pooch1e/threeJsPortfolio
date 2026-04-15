@@ -21,8 +21,7 @@ type User struct {
 	AvatarURL     string    `json:"avatar_url,omitempty"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
-	PasswordHash  string    `json:"password_hash,omitempty"`
-	Password_hash []byte    `json:"-"` // For database operations, not serialized to JSON
+	Password_hash []byte    `json:"-"` // For database operations, never serialized to JSON
 }
 
 // Session represents an authenticated user session
