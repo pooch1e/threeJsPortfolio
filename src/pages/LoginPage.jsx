@@ -21,16 +21,14 @@ export default function Login() {
   const onSubmit = async (e) => {
     setServerError(null);
     setPending(true);
-    setUserName("");
-    setSessionToken("");
     setShowSuccess(false);
     try {
       const res = await postLogin(e);
-      let data = await res.json();
-      const { token, username } = data;
+      const data = await res.json();
+      const { username } = data; // Backend only returns username, not token
+
       if (res.ok) {
-        setUserName(username || "");
-        setSessionToken(token || "");
+        setUserName(username || ""); // This also sets isAuthenticated: true
         setShowSuccess(true);
         setPending(false);
         setTimeout(() => {

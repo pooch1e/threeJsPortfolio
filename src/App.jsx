@@ -12,8 +12,29 @@ import SineWavePage from "./pages/SineWavePage";
 import SignUpPage from "./pages/SignUpPage";
 import MainLayout from "./layout/MainLayout";
 import Login from "./pages/LoginPage";
+import { useEffect } from "react";
+import { apiClient } from "./utils/api";
+import { userLoginStore } from "./store/user";
 
 function App() {
+  const setUsername = userLoginStore((s) => s.setUsername);
+  const fetchUsername = async () => {
+    try {
+      const res = await apiClient("/api/me");
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchUsername();
+
+  // useEffect(() => {
+  //   const validSession = apiClient("/api/me");
+  //   if (validSession) {
+  //     user.set(validSession);
+  //   }
+  // }, [user]);
   return (
     <>
       <Routes>
@@ -28,7 +49,7 @@ function App() {
         </Route>
         {/* No header/ footer */}
         <Route path="/signup" element={<SignUpPage />}></Route>
-        <Route path="/login" element={<Login />}></Route>
+        <Route path="/" element={<Login />}></Route>
       </Routes>
     </>
   );
