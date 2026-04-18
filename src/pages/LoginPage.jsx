@@ -17,7 +17,6 @@ export default function Login() {
   const navigate = useNavigate();
 
   const setUserName = userLoginStore((state) => state.setUsername);
-  const setSessionToken = userLoginStore((state) => state.setSessionToken);
 
   const onSubmit = async (e) => {
     setServerError(null);
