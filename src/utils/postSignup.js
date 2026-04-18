@@ -1,24 +1,20 @@
-const ENDPOINT = `${import.meta.env.VITE_API_BASE_URL}/api/signup`
-
+import { apiClient } from './api';
 
 export const postSignup = async (data) => {
-  const {username, email, password} = data;
-  const res = await fetch(ENDPOINT, {
+  const { username, email, password } = data;
+  const res = await apiClient('/api/signup', {
     method: 'POST',
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       username,
       email,
-      password
-    })
-  })
+      password,
+    }),
+  });
 
   if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text.trim())
+    const text = await res.text();
+    throw new Error(text.trim());
   }
 
-  return res
-}
+  return res;
+};
