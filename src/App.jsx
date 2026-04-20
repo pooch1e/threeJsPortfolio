@@ -17,24 +17,18 @@ import { apiClient } from "./utils/api";
 import { userLoginStore } from "./store/user";
 
 function App() {
+  const username = userLoginStore((s) => s.username);
   const setUsername = userLoginStore((s) => s.setUsername);
-  const fetchUsername = async () => {
-    try {
-      const res = await apiClient("/api/me");
-      console.log(res);
-    } catch (err) {
-      console.log(err);
+
+  useEffect(() => {
+    if (!username) {
+      apiClient("/api/me")
+        .then((res) => {
+          if (res && res.username) setUsername(res.username);
+        })
+        .catch((err) => console.log("Session fetch failed:", err));
     }
-  };
-
-  fetchUsername();
-
-  // useEffect(() => {
-  //   const validSession = apiClient("/api/me");
-  //   if (validSession) {
-  //     user.set(validSession);
-  //   }
-  // }, [user]);
+  }, [username, setUsername]);
   return (
     <>
       <Routes>
