@@ -17,7 +17,7 @@ export default function SignUpPage() {
     setServerError(null);
     try {
       await postSignup(data);
-      navigate("/login");
+      navigate("/");
     } catch (err) {
       setServerError(err.message);
     }

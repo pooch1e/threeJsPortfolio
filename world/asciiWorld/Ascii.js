@@ -17,6 +17,12 @@ export class Ascii {
     this.buildCellStates();
     this.setMouseListener();
     this.setResizeListener();
+    this.buildGlyphAtlas();
+    this.buildCellDataTexture();
+
+    // assign data texture to materials
+    this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
+    this.planeMaterial.uniforms.uGlyphAtlas.value = this.glyphAtlasTexture;
   }
 
   setDebug() {
@@ -31,8 +37,15 @@ export class Ascii {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       uniforms: {
-        uResolution: { value: new THREE.Vector2(this.sizes.width, this.sizes.height) },
+        uResolution: {
+          value: new THREE.Vector2(this.sizes.width, this.sizes.height),
+        },
         uMouseCell: { value: new THREE.Vector2(-1, -1) },
+        uCellData: { value: null },
+        uGlyphAtlas: { value: null },
+        uGridCount: { value: this.gridCount },
+        uNumChars: { value: 9 }, // chars.length
+        uAspect: { value: this.sizes.width / this.sizes.height },
       },
     });
     this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
@@ -53,8 +66,49 @@ export class Ascii {
         hovered: false,
         neighbour: false,
         // future: char, brightness, etc.
-      }))
+      })),
     );
+  }
+
+  buildGlyphAtlas() {
+    const chars = "@#%+=-:. ";
+    this.chars = chars;
+    const glyphSize = 32; // pixels
+
+    // build atlas map in canvas - surely a better way to do this
+    const canvas = document.createElement("canvas");
+    canvas.width = chars.length * glyphSize;
+    canvas.height = glyphSize;
+
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.font = `${glyphSize * 0.8}px monospace`;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+
+    for (let i = 0; i < chars.length; i++) {
+      ctx.fillText(chars[i], i * glyphSize + glyphSize / 2, glyphSize / 2);
+    }
+
+    this.glyphAtlasTexture = new THREE.CanvasTexture(canvas);
+    this.glyphAtlasTexture.minFilter = THREE.LinearFilter;
+    this.glyphAtlasTexture.magFilter = THREE.LinearFilter;
+  }
+
+  buildCellDataTexture() {
+    const total = this.cols * this.rows;
+    this.cellData = new Uint8Array(total * 4);
+    this.cellDataTexture = new THREE.DataTexture(
+      this.cellData,
+      this.cols,
+      this.rows,
+      THREE.RGBAFormat,
+      THREE.UnsignedByteType,
+    );
+    this.cellDataTexture.minFilter = THREE.NearestFilter;
+    this.cellDataTexture.magFilter = THREE.NearestFilter;
   }
 
   setMouseListener() {
@@ -77,6 +131,24 @@ export class Ascii {
       this.planeMaterial.uniforms.uMouseCell.value.set(cx, cy);
       this._updateHoverStates(cx, cy);
     });
+  }
+
+  updateCellDataTexture() {
+    for (let x = 0; x < this.cols; x++) {
+      for (let y = 0; y < this.rows; y++) {
+        const cell = this.cellStates[x][y];
+        const idx = (y * this.cols + x) * 4;
+
+        // Choose a char index based on hover state (or later: brightness)
+        let charIndex = 8;
+        if (cell.hovered) charIndex = 0; // '@'
+        if (cell.neighbour) charIndex = 3; // '+'
+
+        this.cellData[idx + 0] = charIndex; // R
+        this.cellData[idx + 1] = cell.hovered ? 255 : 128; // G = brightness
+      }
+    }
+    this.cellDataTexture.needsUpdate = true;
   }
 
   _clearHoverStates() {
@@ -121,7 +193,10 @@ export class Ascii {
 
   setResizeListener() {
     this.sizes.on("resize", () => {
-      this.planeMaterial.uniforms.uResolution.value.set(this.sizes.width, this.sizes.height);
+      this.planeMaterial.uniforms.uResolution.value.set(
+        this.sizes.width,
+        this.sizes.height,
+      );
       // Rebuild cell states since column count changes with aspect ratio
       this.buildCellStates();
     });
@@ -129,6 +204,7 @@ export class Ascii {
 
   update(time) {
     if (time) {
+      this.updateCellDataTexture();
     }
   }
 
