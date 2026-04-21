@@ -11,6 +11,7 @@ export class Ascii {
     this.mouse = world.asciiExperience.mouse;
 
     this.gridCount = 30; // rows — single source of truth shared with shader
+    this.rippleRadius = 10;
 
     this.setDebug();
     this.setPlaneGeometry();
@@ -73,6 +74,7 @@ export class Ascii {
   buildGlyphAtlas() {
     const chars = "@#%+=-:. ";
     this.chars = chars;
+    this.defaultCharIndex = chars.indexOf(".");
     const glyphSize = 32; // pixels
 
     // build atlas map in canvas - surely a better way to do this
@@ -109,6 +111,7 @@ export class Ascii {
     );
     this.cellDataTexture.minFilter = THREE.NearestFilter;
     this.cellDataTexture.magFilter = THREE.NearestFilter;
+    this.cellDataTexture.needsUpdate = true;
   }
 
   setMouseListener() {
@@ -134,18 +137,42 @@ export class Ascii {
   }
 
   updateCellDataTexture() {
+    const hoverCell = this.planeMaterial.uniforms.uMouseCell.value;
+    const hasHover = hoverCell.x >= 0 && hoverCell.y >= 0;
+
     for (let x = 0; x < this.cols; x++) {
       for (let y = 0; y < this.rows; y++) {
         const cell = this.cellStates[x][y];
         const idx = (y * this.cols + x) * 4;
 
-        // Choose a char index based on hover state (or later: brightness)
-        let charIndex = 8;
-        if (cell.hovered) charIndex = 0; // '@'
-        if (cell.neighbour) charIndex = 3; // '+'
+        let charIndex = this.defaultCharIndex;
+        let brightness = 0.45;
+
+        if (hasHover) {
+          const dx = hoverCell.x - x;
+          const dy = hoverCell.y - y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance <= this.rippleRadius) {
+            const normalizedDistance = distance / this.rippleRadius;
+            const maxRippleIndex = this.defaultCharIndex;
+            const rippleIndex = Math.floor(
+              normalizedDistance * maxRippleIndex,
+            );
+            charIndex = Math.min(maxRippleIndex, rippleIndex);
+            brightness = 1.0 - normalizedDistance * 0.55;
+          }
+        }
+
+        if (cell.hovered) {
+          charIndex = 0;
+          brightness = 1.0;
+        }
 
         this.cellData[idx + 0] = charIndex; // R
-        this.cellData[idx + 1] = cell.hovered ? 255 : 128; // G = brightness
+        this.cellData[idx + 1] = Math.round(brightness * 255); // G = brightness
+        this.cellData[idx + 2] = 0;
+        this.cellData[idx + 3] = 255;
       }
     }
     this.cellDataTexture.needsUpdate = true;
@@ -197,8 +224,13 @@ export class Ascii {
         this.sizes.width,
         this.sizes.height,
       );
+      this.planeMaterial.uniforms.uAspect.value =
+        this.sizes.width / this.sizes.height;
+
       // Rebuild cell states since column count changes with aspect ratio
       this.buildCellStates();
+      this.buildCellDataTexture();
+      this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     });
   }
 
