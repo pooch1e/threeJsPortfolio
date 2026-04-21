@@ -10,8 +10,10 @@ export class Ascii {
     this.sizes = world.asciiExperience.sizes;
     this.mouse = world.asciiExperience.mouse;
 
-    this.gridCount = 30; 
+    this.gridCount = 100;
     this.rippleRadius = 10;
+    this.mouseEventName = "move.ascii";
+    this.resizeEventName = "resize.ascii";
 
     this.setDebug();
     this.setPlaneGeometry();
@@ -101,6 +103,8 @@ export class Ascii {
   }
 
   buildCellDataTexture() {
+    this.cellDataTexture?.dispose();
+
     const total = this.cols * this.rows;
     this.cellData = new Uint8Array(total * 4);
     this.cellDataTexture = new THREE.DataTexture(
@@ -116,7 +120,7 @@ export class Ascii {
   }
 
   setMouseListener() {
-    this.mouse.on("move", () => {
+    this.mouse.on(this.mouseEventName, () => {
       const intersects = this.mouse.getIntersects([this.planeMesh]);
 
       if (intersects.length === 0) {
@@ -157,9 +161,7 @@ export class Ascii {
           if (distance <= this.rippleRadius) {
             const normalizedDistance = distance / this.rippleRadius;
             const maxRippleIndex = this.defaultCharIndex;
-            const rippleIndex = Math.floor(
-              normalizedDistance * maxRippleIndex,
-            );
+            const rippleIndex = Math.floor(normalizedDistance * maxRippleIndex);
             charIndex = Math.min(maxRippleIndex, rippleIndex);
             brightness = 1.0 - normalizedDistance * 0.55;
           }
@@ -220,7 +222,7 @@ export class Ascii {
   }
 
   setResizeListener() {
-    this.sizes.on("resize", () => {
+    this.sizes.on(this.resizeEventName, () => {
       this.planeMaterial.uniforms.uResolution.value.set(
         this.sizes.width,
         this.sizes.height,
@@ -231,13 +233,38 @@ export class Ascii {
       // Rebuild cell states since column count changes with aspect ratio
       this.buildCellStates();
       this.buildCellDataTexture();
-      this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     });
   }
 
   update(time) {
     this.updateCellDataTexture();
+    this.planeMaterial.uniforms.uNumChars.value = time.elapsedTime * 0.002;
+    if (this.planeMaterial.uniforms.uNumChars.vale > 2000) {
+      this.planeMaterial.uniforms.uNumChars.value = 9;
+    }
   }
 
-  destroy() {}
+  destroy() {
+    this.mouse.off(this.mouseEventName);
+    this.sizes.off(this.resizeEventName);
+
+    if (this.planeMesh) {
+      this.scene.remove(this.planeMesh);
+    }
+
+    this.planeGeometry?.dispose();
+    this.cellDataTexture?.dispose();
+    this.glyphAtlasTexture?.dispose();
+    this.planeMaterial?.dispose();
+    this.debugFolder?.destroy();
+
+    this.cellStates = null;
+    this.cellData = null;
+    this.planeMesh = null;
+    this.planeGeometry = null;
+    this.planeMaterial = null;
+    this.cellDataTexture = null;
+    this.glyphAtlasTexture = null;
+    this.debugFolder = null;
+  }
 }
