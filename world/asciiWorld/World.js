@@ -9,7 +9,7 @@ export class World {
 
   update(time) {
     if (time) {
-      this.ascii.update();
+      this.ascii.update(time);
     }
   }
 

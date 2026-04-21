@@ -10,7 +10,7 @@ export class Ascii {
     this.sizes = world.asciiExperience.sizes;
     this.mouse = world.asciiExperience.mouse;
 
-    this.gridCount = 30; // rows — single source of truth shared with shader
+    this.gridCount = 30; 
     this.rippleRadius = 10;
 
     this.setDebug();
@@ -24,6 +24,7 @@ export class Ascii {
     // assign data texture to materials
     this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     this.planeMaterial.uniforms.uGlyphAtlas.value = this.glyphAtlasTexture;
+    this.updateCellDataTexture();
   }
 
   setDebug() {
@@ -235,9 +236,7 @@ export class Ascii {
   }
 
   update(time) {
-    if (time) {
-      this.updateCellDataTexture();
-    }
+    this.updateCellDataTexture();
   }
 
   destroy() {}

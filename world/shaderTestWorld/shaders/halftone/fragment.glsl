@@ -15,7 +15,7 @@ uniform float uAlpha;
 
 #include ../includes/ambientLight.glsl
 #include ../includes/specularLight.glsl
-#include ../includes/halftone.glsl
+#include ../includes/Halftone.glsl
 
 
 void main()
