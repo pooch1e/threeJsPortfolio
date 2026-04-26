@@ -60,7 +60,7 @@ func (app *application) mount() http.Handler {
 	// and the handler is never called.
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.RequireAuth(app.config.jwtSecret))
-
+		r.Use(appMiddleware.RequireAdmin(app.db))
 		r.Get("/api/me", handlers.MeHandler(app.db))
 		r.Post("/api/logout", handlers.LogoutHandler())
 	})
