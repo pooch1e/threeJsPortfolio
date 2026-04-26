@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/examples/jsm/Addons.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import lightingVertex from './shaders/lightingBasics/vertex.glsl';
 import lightingFragment from './shaders/lightingBasics/fragment.glsl';

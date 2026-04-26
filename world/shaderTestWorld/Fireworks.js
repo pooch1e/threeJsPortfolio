@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import fireworkVertex from './shaders/fireworks/vertex.glsl';
 import fireworkFragment from './shaders/fireworks/fragment.glsl';
 import gsap from 'gsap';
-import { Sky } from 'three/examples/jsm/Addons.js';
+import { Sky } from 'three/addons/objects/Sky.js';
 
 export default class Fireworks {
   constructor(world) {

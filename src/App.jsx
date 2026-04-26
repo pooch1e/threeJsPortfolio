@@ -1,20 +1,24 @@
 import "./App.css";
-
-import HomePage from "./pages/HomePage";
-import AnimalRenderPage from "./pages/AnimalRenderPage";
-import PointCloudPage from "./pages/PointCloudPage";
-import ShaderPage from "./pages/ShaderPage";
-import PortalPage from "./pages/PortalPage";
-import AsciiPage from "./pages/AsciiPage";
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-
-import SineWavePage from "./pages/SineWavePage";
-import SignUpPage from "./pages/SignUpPage";
-import MainLayout from "./layout/MainLayout";
-import Login from "./pages/LoginPage";
 import { useEffect } from "react";
 import { apiClient } from "./utils/api";
 import { userLoginStore } from "./store/user";
+
+import MainLayout from "./layout/MainLayout";
+
+// Eagerly load auth pages (tiny, always needed)
+import Login from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
+
+// Lazily load all Three.js heavy pages — only downloaded when navigated to
+const HomePage = lazy(() => import("./pages/HomePage"));
+const AnimalRenderPage = lazy(() => import("./pages/AnimalRenderPage"));
+const PointCloudPage = lazy(() => import("./pages/PointCloudPage"));
+const ShaderPage = lazy(() => import("./pages/ShaderPage"));
+const PortalPage = lazy(() => import("./pages/PortalPage"));
+const AsciiPage = lazy(() => import("./pages/AsciiPage"));
+const SineWavePage = lazy(() => import("./pages/SineWavePage"));
 
 function App() {
   const username = userLoginStore((s) => s.username);
@@ -29,21 +33,71 @@ function App() {
         .catch((err) => console.log("Session fetch failed:", err));
     }
   }, [username, setUsername]);
+
   return (
     <>
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/homepage" element={<HomePage />}></Route>
-          <Route path="/pointCloud" element={<PointCloudPage />}></Route>
-          <Route path="/animalPage" element={<AnimalRenderPage />}></Route>
-          <Route path="/shaders" element={<ShaderPage />}></Route>
-          <Route path="/sineWave" element={<SineWavePage />}></Route>
-          <Route path="/portalblend" element={<PortalPage />}></Route>
-          <Route path="/ascii" element={<AsciiPage />}></Route>
+          <Route
+            path="/homepage"
+            element={
+              <Suspense fallback={null}>
+                <HomePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/pointCloud"
+            element={
+              <Suspense fallback={null}>
+                <PointCloudPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/animalPage"
+            element={
+              <Suspense fallback={null}>
+                <AnimalRenderPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/shaders"
+            element={
+              <Suspense fallback={null}>
+                <ShaderPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/sineWave"
+            element={
+              <Suspense fallback={null}>
+                <SineWavePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/portalblend"
+            element={
+              <Suspense fallback={null}>
+                <PortalPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/ascii"
+            element={
+              <Suspense fallback={null}>
+                <AsciiPage />
+              </Suspense>
+            }
+          />
         </Route>
-        {/* No header/ footer */}
-        <Route path="/signup" element={<SignUpPage />}></Route>
-        <Route path="/" element={<Login />}></Route>
+        {/* No header/footer */}
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </>
   );

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ImprovedNoise } from 'three/examples/jsm/Addons.js';
+import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 export class Point {
   constructor(world) {
     this.world = world;

@@ -1,8 +1,8 @@
 import EventEmitter from './EventEmitter.js';
-import * as THREE from 'three';
-import { DRACOLoader } from 'three/examples/jsm/Addons.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
+import { TextureLoader, CubeTextureLoader } from 'three';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 export class Resources extends EventEmitter {
   constructor(sources) {
     super();
@@ -24,9 +24,9 @@ export class Resources extends EventEmitter {
     this.loaders = {};
 
     this.loaders.gltfLoader = new GLTFLoader();
-    this.loaders.textureLoader = new THREE.TextureLoader();
-    this.loaders.hdrLoader = new HDRLoader();
-    this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader();
+    this.loaders.textureLoader = new TextureLoader();
+    this.loaders.hdrLoader = new RGBELoader();
+    this.loaders.cubeTextureLoader = new CubeTextureLoader();
     this.loaders.dracoLoader = new DRACOLoader();
     this.loaders.dracoLoader.setDecoderPath('/static/draco/');
     this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader);

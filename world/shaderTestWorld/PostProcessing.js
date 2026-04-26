@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { AsciiEffect, RenderPass } from 'three/examples/jsm/Addons.js';
-import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass';
+import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { DotScreenPass } from 'three/addons/postprocessing/DotScreenPass.js';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
@@ -16,7 +17,6 @@ export default class PostProcessing {
     this.debug = this.world.shaderExperience.debug;
 
     this.renderer = this.world.shaderExperience.renderer;
-    console.log(this.renderer);
 
     // Activate post-processing mode
     this.renderer.usePostProcessing = true;
