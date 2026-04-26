@@ -5,6 +5,7 @@ import {
   PointsMaterial,
   Points,
   ShaderMaterial,
+  AdditiveBlending,
 } from "three";
 
 import firefliesVertexShader from "./shaders/vertex.glsl";
@@ -19,7 +20,6 @@ export class Portal {
     this.environment = this.world.environment;
     this.debug = this.world.portalExperience.debug;
     this.renderer = this.world.portalExperience.renderer.renderer;
-    console.log(this.renderer);
 
     this.portalModel = this.resources.items.portalModel;
     this.portalMap = this.resources.items.portalMap;
@@ -61,14 +61,6 @@ export class Portal {
   }
 
   setModel() {
-    // this.portalModel.scene.traverse((child) => {
-    //   if (child.isMesh) {
-    //     child.material = new THREE.MeshBasicMaterial({
-    //       map: this.portalMap
-    //     });
-    //   }
-    // });
-    // texture looks SHIT - use built in for now
     this.portalModel.scene.rotation.y = -90;
     this.portalModel.scene.position.z = 2;
     this.scene.add(this.portalModel.scene);
@@ -87,16 +79,25 @@ export class Portal {
       positions[i * 3 + 2] = zOffset + Math.random() * 2; // above model on Z
     }
 
+    const scaleArray = new Float32Array(this.debugObject.fireflyCount);
+    for (let i = 0; i < this.debugObject.fireflyCount; i++) {
+      scaleArray[i] = Math.random();
+    }
+
+    this.geometry.setAttribute("aScale", new BufferAttribute(scaleArray, 1));
+
     this.geometry.setAttribute("position", new BufferAttribute(positions, 3));
     this.firefliesMaterial = new ShaderMaterial({
-      size: 0.1,
-      sizeAttenuation: true,
       vertexShader: firefliesVertexShader,
       fragmentShader: firefliesFragmentShader,
+      transparent: true,
       uniforms: {
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
         uSize: { value: 100 },
+        uTime: { value: 0 },
       },
+      blending: AdditiveBlending,
+      depthWrite: false,
     });
     this.fireflyPoints = new Points(this.geometry, this.firefliesMaterial);
     this.fireflyPoints.position.y = 2;
@@ -105,6 +106,7 @@ export class Portal {
 
   update(time) {
     if (time) {
+      this.firefliesMaterial.uniforms.uTime.value = time.elapsedTime * 0.002;
     }
   }
 }

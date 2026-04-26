@@ -1,20 +1,20 @@
-import { Portal } from './Portal'
-import { Resources } from '../utils/Resources'
-import { sources } from '../sources/sources'
+import { Portal } from "./Portal";
+import { Resources } from "../utils/Resources";
+import { sources } from "../sources/sources";
 export class World {
   constructor(portalExperience) {
-    this.portalExperience = portalExperience
-    this.scene = this.portalExperience.scene
-    this.resources = new Resources(sources)
+    this.portalExperience = portalExperience;
+    this.scene = this.portalExperience.scene;
+    this.resources = new Resources(sources);
 
-        this.resources.on('ready', () => {
+    this.resources.on("ready", () => {
       this.portal = new Portal(this);
     });
   }
 
   update(time) {
-    if (time) {
-
+    if (this.portal && time) {
+      this.portal.update(time);
     }
   }
 }
