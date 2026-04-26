@@ -1,4 +1,14 @@
-import { RectAreaLight, BufferGeometry, BufferAttribute, PointsMaterial, Points } from "three";
+import {
+  RectAreaLight,
+  BufferGeometry,
+  BufferAttribute,
+  PointsMaterial,
+  Points,
+  ShaderMaterial,
+} from "three";
+
+import firefliesVertexShader from "./shaders/vertex.glsl";
+import firefliesFragmentShader from "./shaders/fragment.glsl";
 export class Portal {
   constructor(world) {
     this.world = world;
@@ -34,6 +44,12 @@ export class Portal {
       this.debugFolder.addColor(this.debugObject, "clearColor").onChange(() => {
         this.renderer.setClearColor(this.debugObject.clearColor);
       });
+      this.debugFolder
+        .add(this.firefliesMaterial.uniforms.uSize, "value")
+        .min(0)
+        .max(500)
+        .step(1)
+        .name("firefliesSize");
     }
   }
 
@@ -54,7 +70,7 @@ export class Portal {
     // });
     // texture looks SHIT - use built in for now
     this.portalModel.scene.rotation.y = -90;
-    this.portalModel.scene.position.z = 2
+    this.portalModel.scene.position.z = 2;
     this.scene.add(this.portalModel.scene);
   }
 
@@ -71,10 +87,19 @@ export class Portal {
       positions[i * 3 + 2] = zOffset + Math.random() * 2; // above model on Z
     }
 
-    this.geometry.setAttribute('position', new BufferAttribute(positions, 3));
-    this.firefliesMaterial = new PointsMaterial({ size: 0.1, sizeAttenuation: true });
+    this.geometry.setAttribute("position", new BufferAttribute(positions, 3));
+    this.firefliesMaterial = new ShaderMaterial({
+      size: 0.1,
+      sizeAttenuation: true,
+      vertexShader: firefliesVertexShader,
+      fragmentShader: firefliesFragmentShader,
+      uniforms: {
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uSize: { value: 100 },
+      },
+    });
     this.fireflyPoints = new Points(this.geometry, this.firefliesMaterial);
-    this.fireflyPoints.position.y = 2
+    this.fireflyPoints.position.y = 2;
     this.scene.add(this.fireflyPoints);
   }
 
