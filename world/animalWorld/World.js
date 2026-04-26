@@ -1,6 +1,6 @@
 // View for meshes
 // Where actual objects instantiated
-import * as THREE from 'three';
+import { Mesh, BoxGeometry, MeshStandardMaterial } from 'three';
 import { Environment } from './Environment.js';
 import { Resources } from '../utils/Resources.js';
 import { sources } from '../sources/sources.js';
@@ -25,9 +25,9 @@ export class World {
 
   setMesh() {
     //test mesh
-    const testMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshStandardMaterial()
+    const testMesh = new Mesh(
+      new BoxGeometry(1, 1, 1),
+      new MeshStandardMaterial()
     );
 
     this.scene.add(testMesh);

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Scene, Mesh, Points, LineSegments } from 'three';
 import { Sizes } from '../utils/Sizes.js';
 import { Time } from '../utils/Time.js';
 import { Debug } from '../utils/Debug.js';
@@ -14,7 +14,7 @@ export class PortalExperience {
     this.debug = new Debug(options.debug);
     this.sizes = new Sizes();
     this.time = new Time();
-    this.scene = new THREE.Scene();
+    this.scene = new Scene();
     this.resources = new EventEmitter();
 
     this.camera = new Camera({
@@ -71,9 +71,9 @@ export class PortalExperience {
     this.scene.traverse((child) => {
       // Cleanup geometries for Mesh, Points, and LineSegments
       if (
-        child instanceof THREE.Mesh ||
-        child instanceof THREE.Points ||
-        child instanceof THREE.LineSegments
+        child instanceof Mesh ||
+        child instanceof Points ||
+        child instanceof LineSegments
       ) {
         // Dispose geometry
         if (child.geometry) {

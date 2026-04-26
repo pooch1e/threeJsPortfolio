@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Raycaster, CanvasTexture, Vector2, PlaneGeometry, ShaderMaterial, Uniform, BufferAttribute, Points, Mesh, MeshBasicMaterial, DoubleSide } from 'three';
 import particlesVertexShader from './shaders/particles/vertex.glsl';
 import particlesFragmentShader from './shaders/particles/fragment.glsl';
 
@@ -10,8 +10,8 @@ export default class ParticleAnimation {
     this.canvas2D = canvas2D;
     this.ctx2D = canvas2D ? canvas2D.getContext('2d') : null;
     this.mouse = this.world.shaderExperience.mouse;
-    this.raycaster = new THREE.Raycaster();
-    this.canvasTexture = new THREE.CanvasTexture(this.canvas2D);
+    this.raycaster = new Raycaster();
+    this.canvasTexture = new CanvasTexture(this.canvas2D);
 
     // Setup
 
@@ -19,8 +19,8 @@ export default class ParticleAnimation {
     this.imageTexture = this.resources.items.joelTypeTexture;
 
     this.displacementParams = {
-      screenCursor: new THREE.Vector2(9999, 9999),
-      prevScreenCursor: new THREE.Vector2(9999, 9999),
+      screenCursor: new Vector2(9999, 9999),
+      prevScreenCursor: new Vector2(9999, 9999),
       canvasWidth: 128,
       canvasHeight: 128,
     };
@@ -51,24 +51,24 @@ export default class ParticleAnimation {
   }
 
   setParticles() {
-    this.particlesGeometry = new THREE.PlaneGeometry(10, 10, 128, 128);
+    this.particlesGeometry = new PlaneGeometry(10, 10, 128, 128);
     this.particlesGeometry.setIndex(null); // improve performance by not rendering all vertices necessary
     this.particlesGeometry.deleteAttribute('normal');
 
-    this.particlesMaterial = new THREE.ShaderMaterial({
+    this.particlesMaterial = new ShaderMaterial({
       vertexShader: particlesVertexShader,
       fragmentShader: particlesFragmentShader,
       uniforms: {
-        uResolution: new THREE.Uniform(
-          new THREE.Vector2(
+        uResolution: new Uniform(
+          new Vector2(
             this.world.shaderExperience.sizes.width *
               this.world.shaderExperience.sizes.pixelRatio,
             this.world.shaderExperience.sizes.height *
               this.world.shaderExperience.sizes.pixelRatio
           )
         ),
-        uPictureTexture: new THREE.Uniform(this.imageTexture),
-        uDisplacementTexture: new THREE.Uniform(this.canvasTexture),
+        uPictureTexture: new Uniform(this.imageTexture),
+        uDisplacementTexture: new Uniform(this.canvasTexture),
       },
     });
 
@@ -88,15 +88,15 @@ export default class ParticleAnimation {
 
     this.particlesGeometry.setAttribute(
       'aIntensity',
-      new THREE.BufferAttribute(intensitiesArray, 1)
+      new BufferAttribute(intensitiesArray, 1)
     );
 
     this.particlesGeometry.setAttribute(
       'aAngles',
-      new THREE.BufferAttribute(anglesArray, 1)
+      new BufferAttribute(anglesArray, 1)
     );
 
-    this.particles = new THREE.Points(
+    this.particles = new Points(
       this.particlesGeometry,
       this.particlesMaterial
     );
@@ -104,12 +104,12 @@ export default class ParticleAnimation {
   }
 
   setInteractivePlane() {
-    this.interactivePlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, 10),
-      new THREE.MeshBasicMaterial({
+    this.interactivePlane = new Mesh(
+      new PlaneGeometry(10, 10),
+      new MeshBasicMaterial({
         color: 'red',
         visible: false,
-        side: THREE.DoubleSide,
+        side: DoubleSide,
       })
     );
     this.scene.add(this.interactivePlane);

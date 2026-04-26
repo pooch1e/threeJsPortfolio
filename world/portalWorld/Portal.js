@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { RectAreaLight, BufferGeometry, BufferAttribute, PointsMaterial, Points } from "three";
 export class Portal {
   constructor(world) {
     this.world = world;
@@ -38,7 +38,7 @@ export class Portal {
   }
 
   addLights() {
-    this.pointLight = new THREE.RectAreaLight("white", 5);
+    this.pointLight = new RectAreaLight("white", 5);
     this.pointLight.position.y = 10;
     this.pointLight.lookAt(0, 0, 0);
     this.scene.add(this.pointLight);
@@ -59,7 +59,7 @@ export class Portal {
   }
 
   setFlies() {
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
     const positions = new Float32Array(this.debugObject.fireflyCount * 3);
     // Centered on X and Y, above model on Z
     const width = 4;
@@ -71,10 +71,9 @@ export class Portal {
       positions[i * 3 + 2] = zOffset + Math.random() * 2; // above model on Z
     }
 
-    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    this.firefliesMaterial = new THREE.PointsMaterial({ size: 0.1, sizeAttenuation: true });
-    this.fireflyPoints = new THREE.Points(this.geometry, this.firefliesMaterial);
+    this.geometry.setAttribute('position', new BufferAttribute(positions, 3));
+    this.firefliesMaterial = new PointsMaterial({ size: 0.1, sizeAttenuation: true });
+    this.fireflyPoints = new Points(this.geometry, this.firefliesMaterial);
     this.fireflyPoints.position.y = 2
     this.scene.add(this.fireflyPoints);
   }

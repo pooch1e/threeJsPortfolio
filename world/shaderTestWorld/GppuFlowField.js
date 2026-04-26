@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Uniform, Mesh, PlaneGeometry, MeshBasicMaterial, BufferGeometry, BufferAttribute, ShaderMaterial, Vector2, Points } from 'three';
 
 import particlesVertexShader from './shaders/gppuFlowField/vertex.glsl';
 import particlesFragmentShader from './shaders/gppuFlowField/fragment.glsl';
@@ -76,22 +76,22 @@ export default class GppuFlowField {
     );
 
     // Uniforms on GPGPU
-    this.gpgpu.particleVariable.material.uniforms.uTime = new THREE.Uniform(0);
-    this.gpgpu.particleVariable.material.uniforms.uBase = new THREE.Uniform(
+    this.gpgpu.particleVariable.material.uniforms.uTime = new Uniform(0);
+    this.gpgpu.particleVariable.material.uniforms.uBase = new Uniform(
       this.baseParticleTexture
     );
     this.gpgpu.particleVariable.material.uniforms.uDeltaTime =
-      new THREE.Uniform(0);
+      new Uniform(0);
     this.gpgpu.particleVariable.material.uniforms.uFieldInfluence =
-      new THREE.Uniform(0.5);
+      new Uniform(0.5);
 
     // Init
     this.gpgpu.computation.init();
 
     // Debug
-    this.gpgpu.debug = new THREE.Mesh(
-      new THREE.PlaneGeometry(3, 3),
-      new THREE.MeshBasicMaterial({
+    this.gpgpu.debug = new Mesh(
+      new PlaneGeometry(3, 3),
+      new MeshBasicMaterial({
         visible: false,
         map: this.gpgpu.computation.getCurrentRenderTarget(
           this.gpgpu.particleVariable
@@ -111,7 +111,7 @@ export default class GppuFlowField {
     this.particles = {};
 
     // Create empty geometry
-    this.particles.geometry = new THREE.BufferGeometry();
+    this.particles.geometry = new BufferGeometry();
 
     // Create particle UV array for GPGPU texture lookup
     const particlesUvArray = new Float32Array(this.baseGeometry.count * 2);
@@ -136,11 +136,11 @@ export default class GppuFlowField {
     // Set attributes
     this.particles.geometry.setAttribute(
       'aParticlesUv',
-      new THREE.BufferAttribute(particlesUvArray, 2)
+      new BufferAttribute(particlesUvArray, 2)
     );
     this.particles.geometry.setAttribute(
       'aSize',
-      new THREE.BufferAttribute(sizesArray, 1)
+      new BufferAttribute(sizesArray, 1)
     );
     this.particles.geometry.setAttribute(
       'aColor',
@@ -148,14 +148,14 @@ export default class GppuFlowField {
     );
 
     // Material
-    this.particles.material = new THREE.ShaderMaterial({
+    this.particles.material = new ShaderMaterial({
       vertexShader: particlesVertexShader,
       fragmentShader: particlesFragmentShader,
       uniforms: {
-        uSize: new THREE.Uniform(0.01),
-        uParticlesTexture: new THREE.Uniform(),
-        uResolution: new THREE.Uniform(
-          new THREE.Vector2(
+        uSize: new Uniform(0.01),
+        uParticlesTexture: new Uniform(),
+        uResolution: new Uniform(
+          new Vector2(
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
@@ -164,7 +164,7 @@ export default class GppuFlowField {
     });
 
     // Create points with empty geometry
-    this.particles.points = new THREE.Points(
+    this.particles.points = new Points(
       this.particles.geometry,
       this.particles.material
     );

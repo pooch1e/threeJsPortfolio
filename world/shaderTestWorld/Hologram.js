@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { ShaderMaterial, Uniform, Color, DoubleSide, AdditiveBlending, SphereGeometry, Mesh, TorusKnotGeometry } from 'three';
 import holographicVertex from './shaders/holographic/vertex.glsl';
 import holographicFragment from './shaders/holographic/fragment.glsl';
 export default class Hologram {
@@ -13,17 +13,17 @@ export default class Hologram {
     };
 
     // Setup
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       vertexShader: holographicVertex,
       fragmentShader: holographicFragment,
       transparent: true,
       depthWrite: false,
       uniforms: {
-        uTime: new THREE.Uniform(0),
-        uColor: new THREE.Uniform(new THREE.Color(this.paramaters.color)),
+        uTime: new Uniform(0),
+        uColor: new Uniform(new Color(this.paramaters.color)),
       },
-      side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
+      side: DoubleSide,
+      blending: AdditiveBlending,
     });
     this.resource = this.resources.items.suzanneModel;
 
@@ -38,9 +38,9 @@ export default class Hologram {
   }
 
   setSphere() {
-    this.sphereGeometry = new THREE.SphereGeometry(1);
+    this.sphereGeometry = new SphereGeometry(1);
 
-    this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
+    this.sphereMesh = new Mesh(this.sphereGeometry, this.material);
     this.sphereMesh.position.x = 1;
     this.sphereMesh.position.y = 2;
     this.scene.add(this.sphereMesh);
@@ -60,8 +60,8 @@ export default class Hologram {
   }
 
   setTorus() {
-    this.torusGeometry = new THREE.TorusKnotGeometry(1);
-    this.torusMesh = new THREE.Mesh(this.torusGeometry, this.material);
+    this.torusGeometry = new TorusKnotGeometry(1);
+    this.torusMesh = new Mesh(this.torusGeometry, this.material);
     this.torusMesh.position.x = -2;
     this.torusMesh.position.y = 2;
 

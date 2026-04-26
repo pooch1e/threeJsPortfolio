@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { DirectionalLight, SRGBColorSpace, Mesh, MeshStandardMaterial } from 'three';
 export class Environment {
   constructor(world) {
     this.world = world;
@@ -17,7 +17,7 @@ export class Environment {
   }
 
   setSunLight() {
-    this.sunLight = new THREE.DirectionalLight('#ffffff', 4);
+    this.sunLight = new DirectionalLight('#ffffff', 4);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.camera.far = 15;
     this.sunLight.shadow.mapSize.set(1024, 1024);
@@ -59,7 +59,7 @@ export class Environment {
     this.environmentMap = {};
     this.environmentMap.intensity = 0.4;
     this.environmentMap.texture = this.resources.items.environmentMapTexture;
-    this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace;
+    this.environmentMap.texture.colorSpace = SRGBColorSpace;
 
     this.scene.environment = this.environmentMap.texture;
     this.scene.background = this.environmentMap.texture;
@@ -67,8 +67,8 @@ export class Environment {
     this.environmentMap.updateMaterials = () => {
       this.scene.traverse((child) => {
         if (
-          child instanceof THREE.Mesh &&
-          child.material instanceof THREE.MeshStandardMaterial
+          child instanceof Mesh &&
+          child.material instanceof MeshStandardMaterial
         ) {
           child.material.envMap = this.environmentMap.texture;
           child.material.envMapIntensity = this.environmentMap.intensity;

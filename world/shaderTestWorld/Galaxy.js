@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { BufferGeometry, Color, BufferAttribute, ShaderMaterial, AdditiveBlending, Uniform, Points } from 'three';
 import galaxyVertex from './shaders/galaxy/vertex.glsl';
 import galaxyFragment from './shaders/galaxy/fragment.glsl';
 export default class Galaxy {
@@ -34,7 +34,7 @@ export default class Galaxy {
       this.scene.remove(this.points);
     }
 
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
     this.colors = new Float32Array(this.params.count * 3);
     this.randomness = new Float32Array(this.params.count * 3);
@@ -42,8 +42,8 @@ export default class Galaxy {
     // scale * count by 1 as need float value - not vec3
     this.scales = new Float32Array(this.params.count * 1);
 
-    this.insideColor = new THREE.Color(this.params.insideColor);
-    this.outsideColor = new THREE.Color(this.params.outsideColor);
+    this.insideColor = new Color(this.params.insideColor);
+    this.outsideColor = new Color(this.params.outsideColor);
 
     for (let i = 0; i < this.params.count; i++) {
       const i3 = i * 3;
@@ -92,40 +92,37 @@ export default class Galaxy {
 
     this.geometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(this.positions, 3)
+      new BufferAttribute(this.positions, 3)
     );
     this.geometry.setAttribute(
       'color',
-      new THREE.BufferAttribute(this.colors, 3)
+      new BufferAttribute(this.colors, 3)
     );
     this.geometry.setAttribute(
       'aScales',
-      new THREE.BufferAttribute(this.scales, 1)
+      new BufferAttribute(this.scales, 1)
     );
     this.geometry.setAttribute(
       'aRandomness',
-      new THREE.BufferAttribute(this.randomness, 3)
+      new BufferAttribute(this.randomness, 3)
     );
 
     /**
      * Material
      */
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       vertexShader: galaxyVertex,
       fragmentShader: galaxyFragment,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        uSize: new THREE.Uniform(30 * this.renderer.renderer.getPixelRatio()),
-        uTime: new THREE.Uniform(0),
+        uSize: new Uniform(30 * this.renderer.renderer.getPixelRatio()),
+        uTime: new Uniform(0),
       },
     });
 
-    /**
-     * Points
-     */
-    this.points = new THREE.Points(this.geometry, this.material);
+    this.points = new Points(this.geometry, this.material);
     this.scene.add(this.points);
   }
 

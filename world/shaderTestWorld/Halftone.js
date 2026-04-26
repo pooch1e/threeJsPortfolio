@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { ShaderMaterial, Uniform, Color, Vector2 } from 'three';
 import halftoneVertexShader from './shaders/halftone/vertex.glsl';
 import halftoneFragmentShader from './shaders/halftone/fragment.glsl';
 export default class Halftone {
@@ -21,28 +21,28 @@ export default class Halftone {
   }
 
   setModels() {
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       vertexShader: halftoneVertexShader,
       fragmentShader: halftoneFragmentShader,
       uniforms: {
-        uColor: new THREE.Uniform(
-          new THREE.Color(this.materialParameters.color)
+        uColor: new Uniform(
+          new Color(this.materialParameters.color)
         ),
-        uResolution: new THREE.Uniform(
-          new THREE.Vector2(
+        uResolution: new Uniform(
+          new Vector2(
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
         ),
-        uShadowRepetitions: new THREE.Uniform(100),
-        uShadowColor: new THREE.Uniform(
-          new THREE.Color(this.materialParameters.shadowColor)
+        uShadowRepetitions: new Uniform(100),
+        uShadowColor: new Uniform(
+          new Color(this.materialParameters.shadowColor)
         ),
-        uLightRepetitions: new THREE.Uniform(130),
-        uLightColor: new THREE.Uniform(
-          new THREE.Color(this.materialParameters.lightColor)
+        uLightRepetitions: new Uniform(130),
+        uLightColor: new Uniform(
+          new Color(this.materialParameters.lightColor)
         ),
-        uAlpha: new THREE.Uniform(1.0),
+        uAlpha: new Uniform(1.0),
       },
     });
 

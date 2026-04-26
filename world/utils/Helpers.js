@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { AxesHelper } from 'three';
 export class Helpers {
   constructor(world) {
     this.world = world;
@@ -7,7 +7,7 @@ export class Helpers {
   }
 
   setAxisHelper() {
-    this.axisHelper = new THREE.AxesHelper();
+    this.axisHelper = new AxesHelper();
     this.scene.add(this.axisHelper);
   }
 }

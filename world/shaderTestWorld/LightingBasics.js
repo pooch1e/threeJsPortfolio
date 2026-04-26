@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { ShaderMaterial, Uniform, Color, Mesh, MeshBasicMaterial, SphereGeometry, TorusKnotGeometry, PlaneGeometry, IcosahedronGeometry, DoubleSide } from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import lightingVertex from './shaders/lightingBasics/vertex.glsl';
@@ -15,11 +15,11 @@ export default class LightingBasics {
     };
 
     // Set same material for all - before setting models
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       vertexShader: lightingVertex,
       fragmentShader: lightingFragment,
       uniforms: {
-        uColor: new THREE.Uniform(new THREE.Color(this.materialConfig.color)),
+        uColor: new Uniform(new Color(this.materialConfig.color)),
       },
     });
 
@@ -62,15 +62,15 @@ export default class LightingBasics {
 
     geometry.center();
 
-    this.textMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
+    this.textMesh = new Mesh(geometry, new MeshBasicMaterial());
     this.textMesh.position.y = 1.5;
     this.scene.add(this.textMesh);
   }
 
   setSphere() {
-    this.sphereGeometry = new THREE.SphereGeometry(1);
+    this.sphereGeometry = new SphereGeometry(1);
 
-    this.sphereMesh = new THREE.Mesh(this.sphereGeometry, this.material);
+    this.sphereMesh = new Mesh(this.sphereGeometry, this.material);
     this.sphereMesh.position.x = 4;
 
     this.scene.add(this.sphereMesh);
@@ -88,25 +88,25 @@ export default class LightingBasics {
   }
 
   setTorus() {
-    this.torusGeometry = new THREE.TorusKnotGeometry(1);
-    this.torusMesh = new THREE.Mesh(this.torusGeometry, this.material);
+    this.torusGeometry = new TorusKnotGeometry(1);
+    this.torusMesh = new Mesh(this.torusGeometry, this.material);
     this.torusMesh.position.x = -4;
 
     this.scene.add(this.torusMesh);
   }
 
   setLightHelper() {
-    this.directionalLightHelper = new THREE.Mesh(
-      new THREE.PlaneGeometry(),
-      new THREE.MeshBasicMaterial()
+    this.directionalLightHelper = new Mesh(
+      new PlaneGeometry(),
+      new MeshBasicMaterial()
     );
     this.directionalLightHelper.material.color.setRGB(0.1, 0.1, 1);
-    this.directionalLightHelper.material.side = THREE.DoubleSide;
+    this.directionalLightHelper.material.side = DoubleSide;
     this.directionalLightHelper.position.set(0, 0, 3);
 
-    this.pointLightHelper = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.1, 2),
-      new THREE.MeshBasicMaterial()
+    this.pointLightHelper = new Mesh(
+      new IcosahedronGeometry(0.1, 2),
+      new MeshBasicMaterial()
     );
     this.pointLightHelper.material.color.setRGB(1, 0.1, 0.1);
     this.pointLightHelper.position.set(0, 2.5, 0);

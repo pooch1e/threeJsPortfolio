@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { EquirectangularReflectionMapping, PlaneGeometry, Uniform, Color, MeshStandardMaterial, MeshDepthMaterial, RGBADepthPacking, Mesh, IcosahedronGeometry, MeshPhysicalMaterial, DirectionalLight } from 'three';
 import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
 import terrainVertexShader from './shaders/terrain/vertex.glsl';
 import terrainFragmentShader from './shaders/terrain/fragment.glsl';
@@ -24,7 +24,7 @@ export default class ProceduralTerrain {
 
   setBackground() {
     if (this.environmentMap) {
-      this.environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+      this.environmentMap.mapping = EquirectangularReflectionMapping;
 
       this.scene.background = this.environmentMap;
       this.scene.backgroundBlurriness = 0.5;
@@ -40,7 +40,7 @@ export default class ProceduralTerrain {
   }
 
   setTerrain() {
-    this.planeGeometry = new THREE.PlaneGeometry(11.5, 11.5, 500, 500);
+    this.planeGeometry = new PlaneGeometry(11.5, 11.5, 500, 500);
     this.planeGeometry.deleteAttribute('normal');
     this.planeGeometry.deleteAttribute('uv');
     this.planeGeometry.rotateX(-Math.PI * 0.5);
@@ -56,26 +56,26 @@ export default class ProceduralTerrain {
     };
 
     this.uniforms = {
-      uPositionFrequency: new THREE.Uniform(0.2),
-      uStrength: new THREE.Uniform(2.0),
-      uWarpFrequency: new THREE.Uniform(5),
-      uWarpStrength: new THREE.Uniform(0.5),
-      uTime: new THREE.Uniform(0),
-      uColorWaterDeep: new THREE.Uniform(
-        new THREE.Color(this.colors.waterDeep),
+      uPositionFrequency: new Uniform(0.2),
+      uStrength: new Uniform(2.0),
+      uWarpFrequency: new Uniform(5),
+      uWarpStrength: new Uniform(0.5),
+      uTime: new Uniform(0),
+      uColorWaterDeep: new Uniform(
+        new Color(this.colors.waterDeep),
       ),
-      uColorWaterSurface: new THREE.Uniform(
-        new THREE.Color(this.colors.waterSurface),
+      uColorWaterSurface: new Uniform(
+        new Color(this.colors.waterSurface),
       ),
-      uColorSand: new THREE.Uniform(new THREE.Color(this.colors.sand)),
-      uColorGrass: new THREE.Uniform(new THREE.Color(this.colors.grass)),
-      uColorSnow: new THREE.Uniform(new THREE.Color(this.colors.snow)),
-      uColorRock: new THREE.Uniform(new THREE.Color(this.colors.rock)),
+      uColorSand: new Uniform(new Color(this.colors.sand)),
+      uColorGrass: new Uniform(new Color(this.colors.grass)),
+      uColorSnow: new Uniform(new Color(this.colors.snow)),
+      uColorRock: new Uniform(new Color(this.colors.rock)),
     };
 
     this.planeMaterial = new CustomShaderMaterial({
       // CSM
-      baseMaterial: THREE.MeshStandardMaterial,
+      baseMaterial: MeshStandardMaterial,
       vertexShader: terrainVertexShader,
       fragmentShader: terrainFragmentShader,
 
@@ -88,15 +88,15 @@ export default class ProceduralTerrain {
 
     this.planeDepthMaterial = new CustomShaderMaterial({
       // CSM
-      baseMaterial: THREE.MeshDepthMaterial,
+      baseMaterial: MeshDepthMaterial,
 
       vertexShader: terrainVertexShader,
       uniforms: this.uniforms,
 
       // MeshDepthMaterial
-      depthPacking: THREE.RGBADepthPacking,
+      depthPacking: RGBADepthPacking,
     });
-    this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
+    this.planeMesh = new Mesh(this.planeGeometry, this.planeMaterial);
     this.planeMesh.position.y = 0.5;
     this.planeMesh.receiveShadow = true;
     this.planeMesh.castShadow = true;
@@ -105,15 +105,15 @@ export default class ProceduralTerrain {
   }
 
   addPlaceholder() {
-    this.placeholder = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(2, 5),
-      new THREE.MeshPhysicalMaterial(),
+    this.placeholder = new Mesh(
+      new IcosahedronGeometry(2, 5),
+      new MeshPhysicalMaterial(),
     );
     this.scene.add(this.placeholder);
   }
 
   addLights() {
-    this.directionalLight = new THREE.DirectionalLight('#ffffff', 2);
+    this.directionalLight = new DirectionalLight('#ffffff', 2);
     this.directionalLight.position.set(6.25, 3, 4);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.mapSize.set(1024, 1024);

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { PlaneGeometry, ShaderMaterial, Uniform, Vector2, Color, Mesh } from 'three';
 import waterVertexShader from './shaders/water/vertex.glsl';
 import waterFragmentShader from './shaders/water/fragment.glsl';
 
@@ -24,38 +24,38 @@ export default class Waves {
   }
 
   setShader() {
-    this.geometry = new THREE.PlaneGeometry(2, 2, 512, 512);
-    this.shaderMaterial = new THREE.ShaderMaterial({
+    this.geometry = new PlaneGeometry(2, 2, 512, 512);
+    this.shaderMaterial = new ShaderMaterial({
       vertexShader: waterVertexShader,
       fragmentShader: waterFragmentShader,
       uniforms: {
-        uBigWavesElevation: new THREE.Uniform(0.2),
-        uBigWavesFrequency: new THREE.Uniform(new THREE.Vector2(4, 1.5)),
-        uTime: new THREE.Uniform(0),
-        uWaveSpeed: new THREE.Uniform(0.75),
-        uBigWavesSpeed: new THREE.Uniform(0.75), // Alias for wave speed in waveElevation
+        uBigWavesElevation: new Uniform(0.2),
+        uBigWavesFrequency: new Uniform(new Vector2(4, 1.5)),
+        uTime: new Uniform(0),
+        uWaveSpeed: new Uniform(0.75),
+        uBigWavesSpeed: new Uniform(0.75),
 
         // Small waves uniforms
-        uSmallIterations: new THREE.Uniform(4.0),
-        uSmallWavesElevation: new THREE.Uniform(0.15),
-        uSmallWavesFrequency: new THREE.Uniform(3.0),
-        uSmallWavesSpeed: new THREE.Uniform(0.2),
+        uSmallIterations: new Uniform(4.0),
+        uSmallWavesElevation: new Uniform(0.15),
+        uSmallWavesFrequency: new Uniform(3.0),
+        uSmallWavesSpeed: new Uniform(0.2),
 
-        uDepthColour: new THREE.Uniform(
-          new THREE.Color(this.debugObject.depthColor)
+        uDepthColour: new Uniform(
+          new Color(this.debugObject.depthColor)
         ),
-        uSurfaceColour: new THREE.Uniform(
-          new THREE.Color(this.debugObject.surfaceColor)
+        uSurfaceColour: new Uniform(
+          new Color(this.debugObject.surfaceColor)
         ),
 
-        uColorOffset: new THREE.Uniform(0.925),
-        uColorMultiplier: new THREE.Uniform(1),
+        uColorOffset: new Uniform(0.925),
+        uColorMultiplier: new Uniform(1),
       },
     });
 
     this.geometry.deleteAttribute('normal')
 
-    this.mesh = new THREE.Mesh(this.geometry, this.shaderMaterial);
+    this.mesh = new Mesh(this.geometry, this.shaderMaterial);
 
     this.mesh.rotation.x = -Math.PI * 0.5;
     console.log(this.mesh.rotation.z);

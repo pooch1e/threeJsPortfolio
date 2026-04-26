@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Vector3, Vector2, Color, Spherical, BufferGeometry, Float32BufferAttribute, ShaderMaterial, AdditiveBlending, Uniform, Points, MathUtils } from 'three';
 import fireworkVertex from './shaders/fireworks/vertex.glsl';
 import fireworkFragment from './shaders/fireworks/fragment.glsl';
 import gsap from 'gsap';
@@ -21,12 +21,12 @@ export default class Fireworks {
     // Config
     this.parameters = {
       count: 100,
-      positionVector: new THREE.Vector3(),
+      positionVector: new Vector3(),
       size: 0.5,
-      resolution: new THREE.Vector2(this.sizes.width, this.sizes.height),
+      resolution: new Vector2(this.sizes.width, this.sizes.height),
       texture: this.resource[Math.floor(Math.random(0, this.resource.length))],
       radius: 1,
-      color: new THREE.Color('#8affff'),
+      color: new Color('#8affff'),
     };
 
     this.skyParams = {
@@ -68,13 +68,13 @@ export default class Fireworks {
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
 
-      const spherical = new THREE.Spherical(
+      const spherical = new Spherical(
         radius * (0.75 + Math.random() * 0.25),
         Math.random() * Math.PI,
         Math.random() * Math.PI * 2
       );
 
-      const position = new THREE.Vector3();
+      const position = new Vector3();
       position.setFromSpherical(spherical);
 
       positions[i3] = position.x;
@@ -82,39 +82,39 @@ export default class Fireworks {
       positions[i3 + 2] = position.z;
     }
 
-    const bufferGeometry = new THREE.BufferGeometry();
+    const bufferGeometry = new BufferGeometry();
     bufferGeometry.setAttribute(
       'position',
-      new THREE.Float32BufferAttribute(positions, 3)
+      new Float32BufferAttribute(positions, 3)
     );
     bufferGeometry.setAttribute(
       'aSize',
-      new THREE.Float32BufferAttribute(sizesArray, 1)
+      new Float32BufferAttribute(sizesArray, 1)
     );
     bufferGeometry.setAttribute(
       'aPointTiming',
-      new THREE.Float32BufferAttribute(pointTimings, 1)
+      new Float32BufferAttribute(pointTimings, 1)
     );
 
     // Material
     texture.flipY = false;
 
-    const material = new THREE.ShaderMaterial({
+    const material = new ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       vertexShader: fireworkVertex,
       fragmentShader: fireworkFragment,
       uniforms: {
-        uSize: new THREE.Uniform(size),
-        uResolution: new THREE.Uniform(this.parameters.resolution),
-        uTexture: new THREE.Uniform(texture),
-        uColor: new THREE.Uniform(color),
-        uProgress: new THREE.Uniform(0),
+        uSize: new Uniform(size),
+        uResolution: new Uniform(this.parameters.resolution),
+        uTexture: new Uniform(texture),
+        uColor: new Uniform(color),
+        uProgress: new Uniform(0),
       },
     });
 
-    const pointMesh = new THREE.Points(bufferGeometry, material);
+    const pointMesh = new Points(bufferGeometry, material);
     pointMesh.position.copy(positionVector);
     this.scene.add(pointMesh);
 
@@ -156,7 +156,7 @@ export default class Fireworks {
     this.sky.scale.setScalar(450000);
     this.scene.add(this.sky);
 
-    this.sun = new THREE.Vector3();
+    this.sun = new Vector3();
 
     const uniforms = this.sky.material.uniforms;
     uniforms['turbidity'].value = this.skyParams.turbidity;
@@ -164,8 +164,8 @@ export default class Fireworks {
     uniforms['mieCoefficient'].value = this.skyParams.mieCoefficient;
     uniforms['mieDirectionalG'].value = this.skyParams.mieDirectionalG;
 
-    const phi = THREE.MathUtils.degToRad(90 - this.skyParams.elevation);
-    const theta = THREE.MathUtils.degToRad(this.skyParams.azimuth);
+    const phi = MathUtils.degToRad(90 - this.skyParams.elevation);
+    const theta = MathUtils.degToRad(this.skyParams.azimuth);
 
     this.sun.setFromSphericalCoords(1, phi, theta);
 
@@ -199,7 +199,7 @@ export default class Fireworks {
       }
 
       this.scene.traverse((child) => {
-        if (child instanceof THREE.Points) {
+        if (child instanceof Points) {
           this.scene.remove(child);
           if (child.geometry) child.geometry.dispose();
           if (child.material) child.material.dispose();

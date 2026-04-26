@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { PlaneGeometry, ShaderMaterial, Vector2, Mesh, CanvasTexture, LinearFilter, DataTexture, RGBAFormat, UnsignedByteType, NearestFilter } from "three";
 import vertexShader from "./shaders/vertex.glsl";
 import fragmentShader from "./shaders/fragment.glsl";
 
@@ -36,15 +36,15 @@ export class Ascii {
   }
 
   setPlaneGeometry() {
-    this.planeGeometry = new THREE.PlaneGeometry(10, 10, 100);
-    this.planeMaterial = new THREE.ShaderMaterial({
+    this.planeGeometry = new PlaneGeometry(10, 10, 100);
+    this.planeMaterial = new ShaderMaterial({
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       uniforms: {
         uResolution: {
-          value: new THREE.Vector2(this.sizes.width, this.sizes.height),
+          value: new Vector2(this.sizes.width, this.sizes.height),
         },
-        uMouseCell: { value: new THREE.Vector2(-1, -1) },
+        uMouseCell: { value: new Vector2(-1, -1) },
         uCellData: { value: null },
         uGlyphAtlas: { value: null },
         uGridCount: { value: this.gridCount },
@@ -52,7 +52,7 @@ export class Ascii {
         uAspect: { value: this.sizes.width / this.sizes.height },
       },
     });
-    this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
+    this.planeMesh = new Mesh(this.planeGeometry, this.planeMaterial);
     this.scene.add(this.planeMesh);
   }
 
@@ -97,9 +97,9 @@ export class Ascii {
       ctx.fillText(chars[i], i * glyphSize + glyphSize / 2, glyphSize / 2);
     }
 
-    this.glyphAtlasTexture = new THREE.CanvasTexture(canvas);
-    this.glyphAtlasTexture.minFilter = THREE.LinearFilter;
-    this.glyphAtlasTexture.magFilter = THREE.LinearFilter;
+    this.glyphAtlasTexture = new CanvasTexture(canvas);
+    this.glyphAtlasTexture.minFilter = LinearFilter;
+    this.glyphAtlasTexture.magFilter = LinearFilter;
   }
 
   buildCellDataTexture() {
@@ -107,15 +107,15 @@ export class Ascii {
 
     const total = this.cols * this.rows;
     this.cellData = new Uint8Array(total * 4);
-    this.cellDataTexture = new THREE.DataTexture(
+    this.cellDataTexture = new DataTexture(
       this.cellData,
       this.cols,
       this.rows,
-      THREE.RGBAFormat,
-      THREE.UnsignedByteType,
+      RGBAFormat,
+      UnsignedByteType,
     );
-    this.cellDataTexture.minFilter = THREE.NearestFilter;
-    this.cellDataTexture.magFilter = THREE.NearestFilter;
+    this.cellDataTexture.minFilter = NearestFilter;
+    this.cellDataTexture.magFilter = NearestFilter;
     this.cellDataTexture.needsUpdate = true;
   }
 

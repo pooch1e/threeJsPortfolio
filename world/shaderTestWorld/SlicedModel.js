@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { EquirectangularReflectionMapping, DirectionalLight, Mesh, PlaneGeometry, MeshStandardMaterial, Vector3, Uniform, MeshDepthMaterial, DoubleSide, RGBADepthPacking } from 'three';
 import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
 
 import slicedVertexShader from './shaders/slicedGear/vertex.glsl';
@@ -23,7 +23,7 @@ export default class SlicedModel {
 
   setBackground() {
     if (this.environmentMap) {
-      this.environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+      this.environmentMap.mapping = EquirectangularReflectionMapping;
 
       this.scene.background = this.environmentMap;
       this.scene.backgroundBlurriness = 0.5;
@@ -31,7 +31,7 @@ export default class SlicedModel {
     }
   }
   addLights() {
-    this.directionalLight = new THREE.DirectionalLight('#ffffff', 4);
+    this.directionalLight = new DirectionalLight('#ffffff', 4);
     this.directionalLight.position.set(6.25, 3, 4);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.mapSize.set(1024, 1024);
@@ -46,26 +46,26 @@ export default class SlicedModel {
   }
 
   addPlane() {
-    this.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, 10, 10),
-      new THREE.MeshStandardMaterial({ color: '#aaaaaa' }),
+    this.plane = new Mesh(
+      new PlaneGeometry(10, 10, 10),
+      new MeshStandardMaterial({ color: '#aaaaaa' }),
     );
     this.plane.receiveShadow = true;
     this.plane.position.x = -4;
     this.plane.position.y = -3;
     this.plane.position.z = -4;
-    this.plane.lookAt(new THREE.Vector3(0, 0, 0));
+      this.plane.lookAt(new Vector3(0, 0, 0));
     this.scene.add(this.plane);
   }
 
   addGearModel() {
     this.uniforms = {
-      uSliceStart: new THREE.Uniform(1.75),
-      uSliceArc: new THREE.Uniform(1.25),
+      uSliceStart: new Uniform(1.75),
+      uSliceArc: new Uniform(1.25),
     };
 
     // Material
-    this.material = new THREE.MeshStandardMaterial({
+    this.material = new MeshStandardMaterial({
       metalness: 0.5,
       roughness: 0.25,
       envMapIntensity: 0.5,
@@ -73,7 +73,7 @@ export default class SlicedModel {
     });
     this.slicedMaterial = new CustomShaderMaterial({
       //CSM
-      baseMaterial: THREE.MeshStandardMaterial,
+      baseMaterial: MeshStandardMaterial,
       vertexShader: slicedVertexShader,
       fragmentShader: slicedFragmentShader,
 
@@ -83,15 +83,15 @@ export default class SlicedModel {
       envMapIntensity: 0.5,
       color: '#858080',
       uniforms: this.uniforms,
-      side: THREE.DoubleSide,
+      side: DoubleSide,
     });
     this.slicedDepthMaterial = new CustomShaderMaterial({
       //CSM
-      baseMaterial: THREE.MeshDepthMaterial,
+      baseMaterial: MeshDepthMaterial,
       vertexShader: slicedVertexShader,
       fragmentShader: slicedFragmentShader,
 
-      depthPacking: THREE.RGBADepthPacking,
+      depthPacking: RGBADepthPacking,
     });
 
     this.model.scene.traverse((child) => {

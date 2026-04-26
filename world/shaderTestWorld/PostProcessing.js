@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { DirectionalLight, Mesh, MeshStandardMaterial } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -55,7 +55,7 @@ export default class PostProcessing {
   }
 
   setLights() {
-    this.directionalLight = new THREE.DirectionalLight('#ffffff', 3);
+    this.directionalLight = new DirectionalLight('#ffffff', 3);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.mapSize.set(1024, 1024);
     this.directionalLight.shadow.camera.far = 15;
@@ -72,8 +72,8 @@ export default class PostProcessing {
       // update materials
       this.model.scene.traverse((child) => {
         if (
-          child instanceof THREE.Mesh &&
-          child.material instanceof THREE.MeshStandardMaterial
+          child instanceof Mesh &&
+          child.material instanceof MeshStandardMaterial
         ) {
           child.material.envMapIntensity = 2.5;
           child.material.needsUpdate = true;

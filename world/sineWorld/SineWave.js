@@ -1,5 +1,5 @@
 // will be a sine wave of points
-import * as THREE from 'three';
+import { BufferGeometry, BufferAttribute, PointsMaterial, Points } from 'three';
 export default class SinePoints {
   constructor(world) {
     this.world = world;
@@ -31,7 +31,7 @@ export default class SinePoints {
     }
 
     // Create new geometry
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
 
     // Initialize positions along a sine wave
@@ -48,15 +48,15 @@ export default class SinePoints {
 
     this.geometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(this.positions, 3),
+      new BufferAttribute(this.positions, 3),
     );
 
-    this.material = new THREE.PointsMaterial({
+    this.material = new PointsMaterial({
       size: this.params.size,
       sizeAttenuation: false,
     });
 
-    this.points = new THREE.Points(this.geometry, this.material);
+    this.points = new Points(this.geometry, this.material);
     this.scene.add(this.points);
   }
 

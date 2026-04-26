@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { SphereGeometry, ShaderMaterial, AdditiveBlending, Uniform, Vector2, Points, BufferAttribute, BufferGeometry, Color } from 'three';
 import morphingVertex from './shaders/morphingParticles/vertex.glsl';
 import morphingFragment from './shaders/morphingParticles/fragment.glsl';
 
@@ -36,22 +36,22 @@ export default class ParticleMorph {
 
   setParticles() {
     // Geometry
-    this.particles.geometry = new THREE.SphereGeometry(3);
+    this.particles.geometry = new SphereGeometry(3);
     this.particles.geometry.setIndex(null);
 
     // Attributes
     // Will control morphing with poitions attribute - new pos attribute and a float transtition which I will animate
 
     // Material
-    this.particles.material = new THREE.ShaderMaterial({
+    this.particles.material = new ShaderMaterial({
       vertexShader: morphingVertex,
       fragmentShader: morphingFragment,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       depthWrite: false,
       uniforms: {
-        uSize: new THREE.Uniform(0.1),
-        uResolution: new THREE.Uniform(
-          new THREE.Vector2(
+        uSize: new Uniform(0.1),
+        uResolution: new Uniform(
+          new Vector2(
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
@@ -59,7 +59,7 @@ export default class ParticleMorph {
       },
     });
     // Points
-    this.particles.points = new THREE.Points(
+    this.particles.points = new Points(
       this.particles.geometry,
       this.particles.material
     );
@@ -107,7 +107,7 @@ export default class ParticleMorph {
       }
       // Pad remaining with 0's
 
-      this.modelPositions.push(new THREE.BufferAttribute(paddedArray, 3));
+      this.modelPositions.push(new BufferAttribute(paddedArray, 3));
     }
 
     // Randomise size of points
@@ -117,7 +117,7 @@ export default class ParticleMorph {
       sizesArray[i] = Math.random();
     }
 
-    this.suzanneModelGeometry = new THREE.BufferGeometry();
+    this.suzanneModelGeometry = new BufferGeometry();
     this.suzanneModelGeometry.setAttribute(
       'position',
       this.modelPositions[this.particles.index]
@@ -128,29 +128,29 @@ export default class ParticleMorph {
     );
     this.suzanneModelGeometry.setAttribute(
       'aSize',
-      new THREE.BufferAttribute(sizesArray, 1)
+      new BufferAttribute(sizesArray, 1)
     );
 
-    this.suzanneModelMaterial = new THREE.ShaderMaterial({
+    this.suzanneModelMaterial = new ShaderMaterial({
       vertexShader: morphingVertex,
       fragmentShader: morphingFragment,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       depthWrite: false,
       uniforms: {
-        uSize: new THREE.Uniform(0.1),
-        uProgress: new THREE.Uniform(0),
-        uResolution: new THREE.Uniform(
-          new THREE.Vector2(
+        uSize: new Uniform(0.1),
+        uProgress: new Uniform(0),
+        uResolution: new Uniform(
+          new Vector2(
             this.sizes.width * this.sizes.pixelRatio,
             this.sizes.height * this.sizes.pixelRatio
           )
         ),
-        uColorA: new THREE.Uniform(new THREE.Color(this.particles.colorA)),
-        uColorB: new THREE.Uniform(new THREE.Color(this.particles.colorB)),
+        uColorA: new Uniform(new Color(this.particles.colorA)),
+        uColorB: new Uniform(new Color(this.particles.colorB)),
       },
     });
 
-    this.suzanneMesh = new THREE.Points(
+    this.suzanneMesh = new Points(
       this.suzanneModelGeometry,
       this.suzanneModelMaterial
     );

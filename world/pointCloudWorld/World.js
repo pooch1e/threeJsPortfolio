@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 import { Point } from './Point';
 
 
@@ -15,9 +15,9 @@ export class World {
 
   setMesh() {
     //test mesh
-    this.testMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshBasicMaterial()
+    this.testMesh = new Mesh(
+      new BoxGeometry(1, 1, 1),
+      new MeshBasicMaterial()
     );
 
     this.scene.add(this.testMesh);

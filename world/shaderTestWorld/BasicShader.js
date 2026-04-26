@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { PlaneGeometry, ShaderMaterial, Vector2, BufferAttribute, Mesh } from 'three';
 import vertex from './shaders/basic/vertex.glsl';
 import fragment from './shaders/basic/fragment.glsl';
 export default class BasicShader {
@@ -13,13 +13,13 @@ export default class BasicShader {
   }
 
   setShader() {
-    this.geometry = new THREE.PlaneGeometry(1, 1, 50, 50);
-    this.shaderMaterial = new THREE.ShaderMaterial({
+    this.geometry = new PlaneGeometry(1, 1, 50, 50);
+    this.shaderMaterial = new ShaderMaterial({
       vertexShader: vertex,
       fragmentShader: fragment,
       transparent: true,
       uniforms: {
-        uFrequency: { value: new THREE.Vector2(10, 5) },
+        uFrequency: { value: new Vector2(10, 5) },
         uTime: { value: 0 },
         uAlpha: { value: 1.0 },
         uMix: { value: 1.0 },
@@ -35,10 +35,10 @@ export default class BasicShader {
 
     this.geometry.setAttribute(
       'aRandom',
-      new THREE.BufferAttribute(randoms, 1),
+      new BufferAttribute(randoms, 1),
     );
 
-    this.mesh = new THREE.Mesh(this.geometry, this.shaderMaterial);
+    this.mesh = new Mesh(this.geometry, this.shaderMaterial);
 
     this.scene.add(this.mesh);
   }

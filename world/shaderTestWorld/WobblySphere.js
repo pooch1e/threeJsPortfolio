@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { DirectionalLight, EquirectangularReflectionMapping, Uniform, Vector2, MeshPhysicalMaterial, MeshDepthMaterial, RGBADepthPacking, IcosahedronGeometry, Mesh, PlaneGeometry, MeshStandardMaterial } from 'three';
 import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -24,7 +24,7 @@ export default class WobblySphere {
   }
 
   setLights() {
-    this.directionalLight = new THREE.DirectionalLight('#ffffff', 3);
+    this.directionalLight = new DirectionalLight('#ffffff', 3);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.mapSize.set(1024, 1024);
     this.directionalLight.shadow.camera.far = 15;
@@ -35,7 +35,7 @@ export default class WobblySphere {
 
   setBackground() {
     if (this.environmentMap && this.environmentMap) {
-      this.environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+      this.environmentMap.mapping = EquirectangularReflectionMapping;
 
       this.scene.background = this.environmentMap;
       this.scene.environment = this.environmentMap;
@@ -44,20 +44,20 @@ export default class WobblySphere {
 
   setModels() {
     this.uniforms = {
-      uTime: new THREE.Uniform(0),
-      uPositionFrequency: new THREE.Uniform(0.5),
-      uTimeFrequency: new THREE.Uniform(0.4),
-      uStrength: new THREE.Uniform(0.3),
-      uWarpPositionFrequency: new THREE.Uniform(0.38),
-      uWarpTimeFrequency: new THREE.Uniform(0.12),
-      uWarpStrength: new THREE.Uniform(1.7),
-      uResolution: new THREE.Uniform(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
+      uTime: new Uniform(0),
+      uPositionFrequency: new Uniform(0.5),
+      uTimeFrequency: new Uniform(0.4),
+      uStrength: new Uniform(0.3),
+      uWarpPositionFrequency: new Uniform(0.38),
+      uWarpTimeFrequency: new Uniform(0.12),
+      uWarpStrength: new Uniform(1.7),
+      uResolution: new Uniform(
+        new Vector2(window.innerWidth, window.innerHeight),
       ),
     };
     this.material = new CustomShaderMaterial({
       // CSM
-      baseMaterial: THREE.MeshPhysicalMaterial,
+      baseMaterial: MeshPhysicalMaterial,
       vertexShader: wobbleVertexShader,
       fragmentShader: wobbleFragmentShader,
       // Base Material
@@ -74,20 +74,20 @@ export default class WobblySphere {
 
     this.depthMaterial = new CustomShaderMaterial({
       // CSM
-      baseMaterial: THREE.MeshDepthMaterial,
+      baseMaterial: MeshDepthMaterial,
       vertexShader: wobbleVertexShader,
       // Depth Material
-      depthPacking: THREE.RGBADepthPacking,
+      depthPacking: RGBADepthPacking,
       uniforms: this.uniforms,
     });
 
-    this.geometry = new THREE.IcosahedronGeometry(2.5, 50);
+    this.geometry = new IcosahedronGeometry(2.5, 50);
 
     this.geometry = mergeVertices(this.geometry);
 
     this.geometry.computeTangents();
 
-    this.wobbleMesh = new THREE.Mesh(this.geometry, this.material);
+    this.wobbleMesh = new Mesh(this.geometry, this.material);
     this.wobbleMesh.receiveShadow = true;
     this.wobbleMesh.castShadow = true;
     this.wobbleMesh.customDepthMaterial = this.depthMaterial;
@@ -95,9 +95,9 @@ export default class WobblySphere {
   }
 
   setDebugPlane() {
-    this.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(15, 15, 15),
-      new THREE.MeshStandardMaterial(),
+    this.plane = new Mesh(
+      new PlaneGeometry(15, 15, 15),
+      new MeshStandardMaterial(),
     );
     this.plane.receiveShadow = true;
     this.plane.rotation.y = Math.PI;

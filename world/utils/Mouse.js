@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Vector2, Raycaster } from 'three';
 import EventEmitter from './EventEmitter';
 
 export class Mouse extends EventEmitter {
@@ -8,10 +8,10 @@ export class Mouse extends EventEmitter {
     this.camera = camera;
 
     // Normalised device coordinates (-1 to +1)
-    this.position = new THREE.Vector2();
+    this.position = new Vector2();
 
     // Raycaster for 3D object intersection
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = new Raycaster();
 
     this.setupEventListeners();
   }

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { BufferGeometry, BufferAttribute, PointsMaterial, Points, LineBasicMaterial, LineSegments } from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 export class Point {
   constructor(world) {
@@ -27,7 +27,7 @@ export class Point {
   }
 
   setGeometry() {
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
 
     const positions = new Float32Array(this.params.count * 3);
 
@@ -65,16 +65,16 @@ export class Point {
 
     this.geometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(positions, 3)
+      new BufferAttribute(positions, 3)
     );
 
     // Create material
-    this.material = new THREE.PointsMaterial({
+    this.material = new PointsMaterial({
       size: this.params.size,
       color: this.params.color,
     });
 
-    this.points = new THREE.Points(this.geometry, this.material);
+    this.points = new Points(this.geometry, this.material);
     this.scene.add(this.points);
 
     this.setLines(positions);
@@ -82,7 +82,7 @@ export class Point {
 
   setLines(positions) {
     // Create geometry to hold all the line segments
-    const lineGeometry = new THREE.BufferGeometry();
+    const lineGeometry = new BufferGeometry();
 
     // Array to store all line positions (each line needs 2 points = 6 values)
     const linePositions = [];
@@ -114,11 +114,11 @@ export class Point {
     // Set it as the position attribute for the line geometry
     lineGeometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(new Float32Array(linePositions), 3)
+      new BufferAttribute(new Float32Array(linePositions), 3)
     );
 
     // Create material for the lines
-    const lineMaterial = new THREE.LineBasicMaterial({
+    const lineMaterial = new LineBasicMaterial({
       color: this.params.lineColor,
       transparent: true,
       opacity: this.params.lineOpacity,
@@ -126,7 +126,7 @@ export class Point {
 
     // LineSegments draws individual disconnected line segments
 
-    this.lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    this.lines = new LineSegments(lineGeometry, lineMaterial);
 
     this.scene.add(this.lines);
   }
@@ -136,7 +136,7 @@ export class Point {
     this.points.geometry.dispose();
 
     // Create new geometry with updated count
-    const geometry = new THREE.BufferGeometry();
+    const geometry = new BufferGeometry();
     const positions = new Float32Array(this.params.count * 3);
 
     const perlin = new ImprovedNoise();
@@ -173,7 +173,7 @@ export class Point {
     }
 
     // Update points geometry
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('position', new BufferAttribute(positions, 3));
     this.points.geometry = geometry;
 
     // Remove old lines from scene and dispose

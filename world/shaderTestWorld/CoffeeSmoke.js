@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { PlaneGeometry, RepeatWrapping, ShaderMaterial, DoubleSide, Uniform, Mesh } from 'three';
 
 import coffeeVertex from './shaders/coffeeSmoke/vertex.glsl';
 import coffeeFragment from './shaders/coffeeSmoke/fragment.glsl';
@@ -35,29 +35,29 @@ export default class CoffeeSmoke {
   }
 
   setSmoke() {
-    this.smokeGeometry = new THREE.PlaneGeometry(1, 1, 16, 64);
+    this.smokeGeometry = new PlaneGeometry(1, 1, 16, 64);
     this.smokeGeometry.translate(0, 0.5, 0);
     this.smokeGeometry.scale(1.5, 6, 1.5);
 
     // ensures perlin noise texture rotates
-    this.smokeTexture.wrapS = THREE.RepeatWrapping;
-    this.smokeTexture.wrapT = THREE.RepeatWrapping;
+    this.smokeTexture.wrapS = RepeatWrapping;
+    this.smokeTexture.wrapT = RepeatWrapping;
 
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       wireframe: false,
       vertexShader: coffeeVertex,
       fragmentShader: coffeeFragment,
-      side: THREE.DoubleSide,
+      side: DoubleSide,
       transparent: true,
       depthWrite: false,
       uniforms: {
-        uPerlinTexture: new THREE.Uniform(this.smokeTexture),
-        uTime: new THREE.Uniform(0),
-        uMousePos: new THREE.Uniform(this.mousePos),
+        uPerlinTexture: new Uniform(this.smokeTexture),
+        uTime: new Uniform(0),
+        uMousePos: new Uniform(this.mousePos),
       },
     });
 
-    this.smoke = new THREE.Mesh(this.smokeGeometry, this.material);
+    this.smoke = new Mesh(this.smokeGeometry, this.material);
 
     this.smoke.position.y = 1.83;
     this.scene.add(this.smoke);

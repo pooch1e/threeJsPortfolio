@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Scene, Mesh } from 'three';
 import { Sizes } from '../utils/Sizes.js';
 import { Time } from '../utils/Time.js';
 import { Camera } from '../objects/Camera.js';
@@ -14,7 +14,7 @@ export class ModelExperience {
     this.debug = new Debug(options.debug);
     this.sizes = new Sizes();
     this.time = new Time();
-    this.scene = new THREE.Scene();
+    this.scene = new Scene();
 
     this.camera = new Camera({
       canvas: this.canvas,
@@ -68,7 +68,7 @@ export class ModelExperience {
     // Traverse the whole scene
     this.scene.traverse((child) => {
       // Test if it's a mesh
-      if (child instanceof THREE.Mesh) {
+      if (child instanceof Mesh) {
         child.geometry.dispose();
 
         // Loop through the material properties

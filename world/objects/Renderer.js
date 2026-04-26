@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { WebGLRenderer, CineonToneMapping, PCFSoftShadowMap } from 'three';
 export class Renderer {
   constructor({ canvas, sizes, scene, camera }) {
     this.canvas = canvas;
@@ -6,14 +6,14 @@ export class Renderer {
     (this.scene = scene), (this.camera = camera);
     this.usePostProcessing = false;
 
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
     });
-    this.renderer.toneMapping = THREE.CineonToneMapping;
+    this.renderer.toneMapping = CineonToneMapping;
     this.renderer.toneMappingExposure = 1.75;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = PCFSoftShadowMap;
     this.renderer.setSize(this.sizes.width, this.sizes.height);
     this.renderer.setPixelRatio(this.sizes.pixelRatio);
   }

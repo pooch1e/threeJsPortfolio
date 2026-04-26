@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { MeshStandardMaterial, Mesh, PlaneGeometry } from 'three';
 
 export default class LeePerry {
   constructor(world) {
@@ -27,7 +27,7 @@ export default class LeePerry {
 
     this.model.traverse((child) => {
       if (child.isMesh) {
-        child.material = new THREE.MeshStandardMaterial({
+        child.material = new MeshStandardMaterial({
           map: leeColor,
           normalMap: leeNormal,
         });
@@ -68,9 +68,9 @@ export default class LeePerry {
   }
 
   setPlane() {
-    this.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(15, 15, 15),
-      new THREE.MeshStandardMaterial()
+    this.plane = new Mesh(
+      new PlaneGeometry(15, 15, 15),
+      new MeshStandardMaterial()
     );
 
     this.plane.rotation.y = Math.PI;

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { SRGBColorSpace } from 'three';
 export class Rat {
   constructor(world) {
     this.world = world;
@@ -19,7 +19,7 @@ export class Rat {
     const ratNormal = this.resources.items.ratNormalTexture;
     const ratARM = this.resources.items.ratARMTexture;
 
-    ratDiff.colorSpace = THREE.SRGBColorSpace;
+    ratDiff.colorSpace = SRGBColorSpace;
 
     ratDiff.flipY = false;
     ratNormal.flipY = false;

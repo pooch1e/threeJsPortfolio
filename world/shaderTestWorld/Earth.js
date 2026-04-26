@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { SRGBColorSpace, SphereGeometry, ShaderMaterial, Uniform, Vector3, Color, Mesh, BackSide, Spherical, IcosahedronGeometry, MeshBasicMaterial } from 'three';
 import earthVertex from './shaders/earth/vertex.glsl';
 import earthFragment from './shaders/earth/fragment.glsl';
 
@@ -14,11 +14,11 @@ export default class Earth {
 
     // Textures
     this.earthDayTexture = this.resources.items.earthTextures[0];
-    this.earthDayTexture.colorSpace = THREE.SRGBColorSpace;
+    this.earthDayTexture.colorSpace = SRGBColorSpace;
     this.earthDayTexture.anisotropy = 6;
 
     this.earthNightTexture = this.resources.items.earthTextures[1];
-    this.earthNightTexture.colorSpace = THREE.SRGBColorSpace;
+    this.earthNightTexture.colorSpace = SRGBColorSpace;
     this.earthNightTexture.anisotropy = 6;
 
     this.earthSpecularCloudTexture = this.resources.items.earthTextures[2];
@@ -39,48 +39,48 @@ export default class Earth {
   }
 
   setModel() {
-    this.sphereGeometry = new THREE.SphereGeometry(2, 64, 64);
-    this.sphereMaterial = new THREE.ShaderMaterial({
+    this.sphereGeometry = new SphereGeometry(2, 64, 64);
+    this.sphereMaterial = new ShaderMaterial({
       vertexShader: earthVertex,
       fragmentShader: earthFragment,
       uniforms: {
-        uDayTexture: new THREE.Uniform(this.earthDayTexture),
-        uNightTexture: new THREE.Uniform(this.earthNightTexture),
-        uSpecularCloudsTexture: new THREE.Uniform(
+        uDayTexture: new Uniform(this.earthDayTexture),
+        uNightTexture: new Uniform(this.earthNightTexture),
+        uSpecularCloudsTexture: new Uniform(
           this.earthSpecularCloudTexture
         ),
-        uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
-        uAtmosphereDayColor: new THREE.Uniform(
-          new THREE.Color(this.earthParams.atmosphereDayColor)
+        uSunDirection: new Uniform(new Vector3(0, 0, 1)),
+        uAtmosphereDayColor: new Uniform(
+          new Color(this.earthParams.atmosphereDayColor)
         ),
-        uAtmosphereTwilightColor: new THREE.Uniform(
-          new THREE.Color(this.earthParams.atmosphereTwilightColor)
+        uAtmosphereTwilightColor: new Uniform(
+          new Color(this.earthParams.atmosphereTwilightColor)
         ),
       },
     });
 
-    this.earthMesh = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
+    this.earthMesh = new Mesh(this.sphereGeometry, this.sphereMaterial);
     this.scene.add(this.earthMesh);
   }
 
   setAtmosphere() {
-    this.atmosGeometry = new THREE.SphereGeometry(2, 64, 64);
-    this.atmosMaterial = new THREE.ShaderMaterial({
-      side: THREE.BackSide,
+    this.atmosGeometry = new SphereGeometry(2, 64, 64);
+    this.atmosMaterial = new ShaderMaterial({
+      side: BackSide,
       transparent: true,
       vertexShader: atmosphereVertexShader,
       fragmentShader: atmosphereFragmentShader,
       uniforms: {
-        uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
-        uAtmosphereDayColor: new THREE.Uniform(
-          new THREE.Color(this.earthParams.atmosphereDayColor)
+        uSunDirection: new Uniform(new Vector3(0, 0, 1)),
+        uAtmosphereDayColor: new Uniform(
+          new Color(this.earthParams.atmosphereDayColor)
         ),
-        uAtmosphereTwilightColor: new THREE.Uniform(
-          new THREE.Color(this.earthParams.atmosphereTwilightColor)
+        uAtmosphereTwilightColor: new Uniform(
+          new Color(this.earthParams.atmosphereTwilightColor)
         ),
       },
     });
-    this.atmosMesh = new THREE.Mesh(this.atmosGeometry, this.atmosMaterial);
+    this.atmosMesh = new Mesh(this.atmosGeometry, this.atmosMaterial);
 
     this.atmosMesh.scale.set(1.04, 1.04, 1.04);
 
@@ -89,13 +89,13 @@ export default class Earth {
 
   setSun() {
     // Debug Sun
-    this.debugSun = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.1, 2),
-      new THREE.MeshBasicMaterial()
+    this.debugSun = new Mesh(
+      new IcosahedronGeometry(0.1, 2),
+      new MeshBasicMaterial()
     );
 
-    this.sunSpherical = new THREE.Spherical(1, Math.PI * 0.5, 0.5);
-    this.sunDirection = new THREE.Vector3();
+    this.sunSpherical = new Spherical(1, Math.PI * 0.5, 0.5);
+    this.sunDirection = new Vector3();
 
     this.scene.add(this.debugSun);
   }
