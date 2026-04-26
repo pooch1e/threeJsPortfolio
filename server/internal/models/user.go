@@ -19,6 +19,7 @@ type User struct {
 	Name          string    `json:"name"`
 	Email         string    `json:"email,omitempty"`
 	AvatarURL     string    `json:"avatar_url,omitempty"`
+	IsAdmin       bool      `json:"is_admin"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	Password_hash []byte    `json:"-"` // For database operations, never serialized to JSON

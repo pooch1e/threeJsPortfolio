@@ -22,9 +22,9 @@ func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
 	var createdUser models.User
 	err := db.QueryRow(
 		`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3)
-		RETURNING id, name, email, created_at, updated_at`,
+		RETURNING id, name, email, is_admin, created_at, updated_at`,
 		user.Username, user.Email, user.Password_hash,
-	).Scan(&createdUser.ID, &createdUser.Name, &createdUser.Email, &createdUser.CreatedAt, &createdUser.UpdatedAt)
+	).Scan(&createdUser.ID, &createdUser.Name, &createdUser.Email, &createdUser.IsAdmin, &createdUser.CreatedAt, &createdUser.UpdatedAt)
 
 	if err != nil {
 		slog.Error("Error inserting into database", "error", err)
@@ -37,10 +37,10 @@ func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
 func GetUserByID(db *sql.DB, id string) (*models.User, error) {
 	var user models.User
 	err := db.QueryRow(
-		`SELECT id, name, email, created_at, updated_at
+		`SELECT id, name, email, is_admin, created_at, updated_at
 		 FROM users WHERE id = $1`,
 		id,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.Name, &user.Email, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		slog.Error("Error getting user by ID", "error", err)
 		return nil, err
@@ -52,10 +52,10 @@ func GetUserByID(db *sql.DB, id string) (*models.User, error) {
 func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 	var user models.User
 	err := db.QueryRow(
-		`SELECT id, name, email, password_hash, created_at, updated_at
+		`SELECT id, name, email, password_hash, is_admin, created_at, updated_at
 		 FROM users WHERE name = $1`,
 		username,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password_hash, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password_hash, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		slog.Error("Error getting user by username", "error", err)

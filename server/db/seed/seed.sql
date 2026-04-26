@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
     avatar_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    password_hash TEXT
+    password_hash TEXT,
+    is_admin BOOLEAN NOT NULL DEFAULT false
 );
 
 -- Create sessions table if not exists
