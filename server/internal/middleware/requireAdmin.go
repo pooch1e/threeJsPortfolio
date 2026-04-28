@@ -5,17 +5,34 @@
 
 package middleware
 
-import "net/http"
+import (
+	"database/sql"
+	"net/http"
 
-func RequireAdmin(queries *db.Queries) func(http.Handler) http.Handler {
+	"threejsPortfolioServer/internal/repos"
+)
+
+func RequireAdmin(db *sql.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-userID := GetUserID(r)
+			userID := GetUserID(r)
 			if userID == "" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 
+			user, err := repos.GetUserByID(db, userID)
+			if err != nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			if !user.IsAdmin {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }
