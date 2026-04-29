@@ -6,12 +6,16 @@ export const userLoginStore = create(
     (set) => ({
       username: "",
       isAuthenticated: false,
-      
+      isLoading: true,
+
       // Set user data after successful login/session validation
       setUsername: (username) => set({ 
         username, 
         isAuthenticated: !!username 
       }),
+
+      // Called after session check resolves (success or failure)
+      setLoaded: () => set({ isLoading: false }),
       
       // Clear user data on logout
       logout: () => set({ 
