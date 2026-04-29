@@ -39,3 +39,11 @@ func (m *MockUserRepo) GetUserByUsername(username string) (*models.User, error) 
 	}
 	return nil, nil
 }
+
+func (m *MockUserRepo) GetAllUsers(limit, offset int) ([]models.User, error) {
+	return nil, nil
+}
+
+func (m *MockUserRepo) GetUserCount() (int, error) {
+	return 0, nil
+}

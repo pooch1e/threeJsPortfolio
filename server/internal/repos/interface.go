@@ -10,4 +10,6 @@ type UserRepository interface {
 	InsertNewUser(user models.NewUser) (*models.User, error)
 	GetUserByID(id string) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
+	GetAllUsers(limit, offset int) ([]models.User, error)
+	GetUserCount() (int, error)
 }

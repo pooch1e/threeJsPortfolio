@@ -74,6 +74,14 @@ func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *PostgresUserRepo) GetAllUsers(limit, offset int) ([]models.User, error) {
+	return nil, nil
+}
+
+func (r *PostgresUserRepo) GetUserCount() (int, error) {
+	return 0, nil
+}
+
 func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.QueryRow(
