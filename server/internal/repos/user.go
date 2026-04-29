@@ -48,6 +48,44 @@ func GetUserByID(db *sql.DB, id string) (*models.User, error) {
 	return &user, nil
 }
 
+// GetAllUsers retrieves a paginated list of users ordered by creation date
+func GetAllUsers(db *sql.DB, limit, offset int) ([]models.User, error) {
+	rows, err := db.Query(
+		`SELECT id, name, email, avatar_url, is_admin, created_at, updated_at
+		 FROM users
+		 ORDER BY created_at DESC
+		 LIMIT $1 OFFSET $2`,
+		limit, offset,
+	)
+	if err != nil {
+		slog.Error("Error getting all users", "error", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.AvatarURL, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			slog.Error("Error scanning user row", "error", err)
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, rows.Err()
+}
+
+// GetUserCount returns the total number of users in the database
+func GetUserCount(db *sql.DB) (int, error) {
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)
+	if err != nil {
+		slog.Error("Error counting users", "error", err)
+		return 0, err
+	}
+	return count, nil
+}
+
 // GetUserByUsername retrieves a user by their username
 func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 	var user models.User
