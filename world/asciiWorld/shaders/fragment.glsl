@@ -9,6 +9,8 @@ uniform sampler2D uGlyphAtlas;
 uniform float uGridCount;
 uniform float uNumChars;
 uniform float uAspect;
+uniform float uBaseBrightness;
+uniform float uRippleRadius;
 
 void main() {
     vec2 grid = vec2(uAspect * uGridCount, uGridCount);
@@ -22,7 +24,10 @@ void main() {
 
     float charIndex = floor(cellSample.r * 255.0 + 0.5);
     float brightness = cellSample.g;
-    vec2 atlasUv = vec2((charIndex + localUv.x) / uNumChars, 1.0 - localUv.y);
+
+    // Guard against near-zero divide during ramp-up animation
+    float safeNumChars = max(uNumChars, 1.0);
+    vec2 atlasUv = vec2((charIndex + localUv.x) / safeNumChars, 1.0 - localUv.y);
     float glyph = texture2D(uGlyphAtlas, atlasUv).r;
 
     vec3 color = vec3(glyph * brightness);

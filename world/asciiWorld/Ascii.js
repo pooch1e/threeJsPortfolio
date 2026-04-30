@@ -12,6 +12,8 @@ export class Ascii {
 
     this.gridCount = 100;
     this.rippleRadius = 10;
+    this.baseBrightness = 0.45;
+    this.glyphFontScale = 0.8;
     this.mouseEventName = "move.ascii";
     this.resizeEventName = "resize.ascii";
 
@@ -32,11 +34,41 @@ export class Ascii {
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder("Ascii Experience");
+      this.debugFolder
+        .add(this, "baseBrightness", 0.0, 1.0, 0.01)
+        .name("Base Brightness")
+        .onChange((v) => {
+          this.planeMaterial.uniforms.uBaseBrightness.value = v;
+        });
+      this.debugFolder
+        .add(this, "rippleRadius", 1, 30, 1)
+        .name("Ripple Radius")
+        .onChange((v) => {
+          this.rippleRadius = v;
+          this.planeMaterial.uniforms.uRippleRadius.value = v;
+        });
+      this.debugFolder
+        .add(this, "glyphFontScale", 0.3, 1.2, 0.01)
+        .name("Glyph Font Scale")
+        .onChange(() => {
+          this.buildGlyphAtlas();
+          this.planeMaterial.uniforms.uGlyphAtlas.value = this.glyphAtlasTexture;
+        });
+      this.debugFolder
+        .add(this, "gridCount", 10, 300, 1)
+        .name("Grid Count")
+        .onChange((v) => {
+          this.gridCount = v;
+          this.planeMaterial.uniforms.uGridCount.value = v;
+          this.buildCellStates();
+          this.buildCellDataTexture();
+          this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
+        });
     }
   }
 
   setPlaneGeometry() {
-    this.planeGeometry = new PlaneGeometry(10, 10, 100);
+    this.planeGeometry = new PlaneGeometry(10, 10);
     this.planeMaterial = new ShaderMaterial({
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
@@ -48,8 +80,10 @@ export class Ascii {
         uCellData: { value: null },
         uGlyphAtlas: { value: null },
         uGridCount: { value: this.gridCount },
-        uNumChars: { value: 9 }, // chars.length
+        uNumChars: { value: 0 }, // starts at 0, ramps to chars.length
         uAspect: { value: this.sizes.width / this.sizes.height },
+        uBaseBrightness: { value: this.baseBrightness },
+        uRippleRadius: { value: this.rippleRadius },
       },
     });
     this.planeMesh = new Mesh(this.planeGeometry, this.planeMaterial);
@@ -89,7 +123,7 @@ export class Ascii {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
-    ctx.font = `${glyphSize * 0.8}px monospace`;
+    ctx.font = `${glyphSize * this.glyphFontScale}px monospace`;
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
 
@@ -144,6 +178,8 @@ export class Ascii {
   updateCellDataTexture() {
     const hoverCell = this.planeMaterial.uniforms.uMouseCell.value;
     const hasHover = hoverCell.x >= 0 && hoverCell.y >= 0;
+    const rippleRadius = this.planeMaterial.uniforms.uRippleRadius.value;
+    const baseBrightness = this.planeMaterial.uniforms.uBaseBrightness.value;
 
     for (let x = 0; x < this.cols; x++) {
       for (let y = 0; y < this.rows; y++) {
@@ -151,20 +187,26 @@ export class Ascii {
         const idx = (y * this.cols + x) * 4;
 
         let charIndex = this.defaultCharIndex;
-        let brightness = 0.45;
+        let brightness = baseBrightness;
 
         if (hasHover) {
           const dx = hoverCell.x - x;
           const dy = hoverCell.y - y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance <= this.rippleRadius) {
-            const normalizedDistance = distance / this.rippleRadius;
+          if (distance <= rippleRadius) {
+            const normalizedDistance = distance / rippleRadius;
             const maxRippleIndex = this.defaultCharIndex;
             const rippleIndex = Math.floor(normalizedDistance * maxRippleIndex);
             charIndex = Math.min(maxRippleIndex, rippleIndex);
             brightness = 1.0 - normalizedDistance * 0.55;
           }
+        }
+
+        // Neighbour cells get a mid-density char and elevated brightness
+        if (cell.neighbour && !cell.hovered) {
+          charIndex = 2;
+          brightness = 0.75;
         }
 
         if (cell.hovered) {
@@ -233,14 +275,20 @@ export class Ascii {
       // Rebuild cell states since column count changes with aspect ratio
       this.buildCellStates();
       this.buildCellDataTexture();
+      // Re-assign the new DataTexture instance to the material uniform
+      this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     });
   }
 
   update(time) {
     this.updateCellDataTexture();
-    this.planeMaterial.uniforms.uNumChars.value = time.elapsedTime * 0.002;
-    if (this.planeMaterial.uniforms.uNumChars.vale > 2000) {
-      this.planeMaterial.uniforms.uNumChars.value = 9;
+
+    // Ramp uNumChars from 0 → 9 over ~4.5s, then lock at 9
+    if (this.planeMaterial.uniforms.uNumChars.value < 9) {
+      this.planeMaterial.uniforms.uNumChars.value = Math.min(
+        9,
+        time.elapsedTime * 2,
+      );
     }
   }
 
