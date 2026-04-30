@@ -101,3 +101,11 @@ func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+// PUT updates a user's name and email
+func UpdateUser(db *sql.DB, email string, isAdmin bool, username string) (*models.User, error) {
+	var updatedUser models.User
+	err:= db.QueryRow(
+		`UPDATE users SET email = $1, is_admin = $2 WHERE username = $3 RETURNING *`, email, isAdmin, username,
+	).Scan(&updatedUser.Email, &updatedUser.IsAdmin, &updatedUser.Name)
+}

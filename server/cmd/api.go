@@ -51,13 +51,11 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("hi"))
 	})
 
-	// Public routes - no auth required
+	// Public routes 
 	r.Post("/api/signup", handlers.SignupHandler(app.db))
 	r.Post("/api/login", handlers.LoginHandler(app.db, app.config.jwtSecret))
 
 	// Protected routes - RequireAuth middleware runs first.
-	// If the session cookie is missing or invalid, the middleware returns 401
-	// and the handler is never called.
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.RequireAuth(app.config.jwtSecret))
 		r.Use(appMiddleware.RequireAdmin(app.db))
