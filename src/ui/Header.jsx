@@ -3,17 +3,24 @@ import UserDropdown from "../components/UserDropdown";
 
 export default function Header() {
   return (
-    <section className="text-center font-karrik bg-[var(--color-bg)] overflow-x-hidden w-full relative">
+    <section className="font-karrik bg-[var(--color-bg)] w-full">
       <header className="p-4">
-        <div className="absolute right-4 top-4">
-          <UserDropdown />
+        <div className="flex items-center justify-between mb-2">
+          {/* Spacer to keep title centered */}
+          <div className="w-10"></div> 
+          
+          <Link to={"/homepage"}>
+            <h1 className="text-4xl hover:text-cyan-300 transition-colors ease-linear text-center">
+              Experiments
+            </h1>
+          </Link>
+
+          <div className="w-10 flex justify-end">
+            <UserDropdown />
+          </div>
         </div>
-        <Link to={"/homepage"}>
-          <h1 className="text-4xl hover:text-cyan-300 transition-colors ease-linear">
-            Experiments
-          </h1>
-        </Link>
-        <h2 className="text-[var(--font-size-300)] p-2">
+
+        <h2 className="text-[var(--font-size-300)] p-2 text-center">
           A selection of experiments
         </h2>
 
