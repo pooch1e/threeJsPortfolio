@@ -116,7 +116,7 @@ export default function SignUpPage() {
           <button
             type="button"
             className="w-full border border-cyan-600 text-cyan-700 rounded-md py-2 font-semibold hover:bg-cyan-50 transition-colors"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
           >
             Login
           </button>

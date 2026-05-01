@@ -7,10 +7,7 @@ docker-down:
 	docker compose down
 
 db-create:
-	set -a; \
-	. .env; \
-	set +a; \
-	psql "$${DATABASE_URL}" -f db/seed/seed.sql
+	docker compose exec -T db psql -U threejs_user -d threejs_database -f /docker-entrypoint-initdb.d/seed.sql
 
 dev:
 	go run cmd/*.go

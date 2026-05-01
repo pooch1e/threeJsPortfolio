@@ -8,6 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "full-stack": "./scripts/start-all.sh",
+    "full-stack-down": "./scripts/stop-all.sh",
     "test": "vitest"
   },
   "dependencies": {

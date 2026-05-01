@@ -51,6 +51,12 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("hi"))
 	})
 
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	// Public routes - no auth required
 	r.Post("/api/signup", handlers.SignupHandler(app.db))
 	r.Post("/api/login", handlers.LoginHandler(app.db, app.config.jwtSecret))
