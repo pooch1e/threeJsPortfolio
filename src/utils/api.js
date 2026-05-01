@@ -20,5 +20,11 @@ export const apiClient = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const response = await fetch(url, config);
 
-  return response;
+  if (response.status === 204) return null;
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(errorBody.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
 };

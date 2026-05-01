@@ -23,21 +23,16 @@ export default function Login() {
     setPending(true);
     setShowSuccess(false);
     try {
-      const res = await postLogin(e);
-      const data = await res.json();
-      const { username } = data; // Backend only returns username, not token
+      const data = await postLogin(e);
+      // The backend returns user info with 'name' (from your repo code)
+      const username = data.name || data.username;
 
-      if (res.ok) {
-        setUserName(username || ""); // This also sets isAuthenticated: true
-        setShowSuccess(true);
-        setPending(false);
-        setTimeout(() => {
-          navigate("/homepage");
-        }, 1200);
-        return;
-      } else {
-        throw new Error(data?.error || "Error logging in");
-      }
+      setUserName(username || ""); // This also sets isAuthenticated: true
+      setShowSuccess(true);
+      setPending(false);
+      setTimeout(() => {
+        navigate("/homepage");
+      }, 1200);
     } catch (err) {
       setServerError(err.message);
     } finally {

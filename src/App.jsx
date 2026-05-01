@@ -26,18 +26,26 @@ function App() {
   const username = userLoginStore((s) => s.username);
   const setUsername = userLoginStore((s) => s.setUsername);
   const setLoaded = userLoginStore((s) => s.setLoaded);
+  const logout = userLoginStore((s) => s.logout);
 
   useEffect(() => {
-    if (!username) {
-      apiClient("/api/me")
-        .then((res) => {
-          if (res && res.username) setUsername(res.username);
-        })
-        .catch((err) => console.log("Session fetch failed:", err))
-        .finally(() => setLoaded());
-    } else {
-      setLoaded();
-    }
+    // Always check the session on mount to ensure cookie is still valid
+    // even if Zustand has a username persisted
+    apiClient("/api/me")
+      .then((res) => {
+        // Backend returns user object { name, email, ... }
+        // The repo uses 'name' for username
+        if (res && (res.name || res.username)) {
+          setUsername(res.name || res.username);
+        } else {
+          logout();
+        }
+      })
+      .catch((err) => {
+        console.log("Session verification failed:", err);
+        logout();
+      })
+      .finally(() => setLoaded());
   }, []);
 
   return (
