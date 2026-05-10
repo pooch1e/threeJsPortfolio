@@ -55,22 +55,41 @@ export default class FlowerField {
 
     // Measure actual vertex bounds to auto-scale regardless of GLB export scale
     const posArr = this.baseGeometry.instance.attributes.position.array;
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
+    let minX = Infinity,
+      maxX = -Infinity;
+    let minY = Infinity,
+      maxY = -Infinity;
+    let minZ = Infinity,
+      maxZ = -Infinity;
     for (let i = 0; i < this.baseGeometry.count; i++) {
       const x = posArr[i * 3 + 0];
       const y = posArr[i * 3 + 1];
       const z = posArr[i * 3 + 2];
-      if (x < minX) minX = x; if (x > maxX) maxX = x;
-      if (y < minY) minY = y; if (y > maxY) maxY = y;
-      if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
     }
     const longestSpan = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
     const targetSize = 3; // world units — longest axis fills this
     this.modelScale = longestSpan > 0 ? targetSize / longestSpan : 1;
-    console.log('[FlowerField] vertex bounds:', { minX, maxX, minY, maxY, minZ, maxZ });
-    console.log('[FlowerField] longestSpan:', longestSpan, '→ modelScale:', this.modelScale);
+    this.bounds = { minX, maxX, minY, maxY, minZ, maxZ };
+    console.log("[FlowerField] vertex bounds:", {
+      minX,
+      maxX,
+      minY,
+      maxY,
+      minZ,
+      maxZ,
+    });
+    console.log(
+      "[FlowerField] longestSpan:",
+      longestSpan,
+      "→ modelScale:",
+      this.modelScale,
+    );
 
     // Particle world offset — matches the hidden polygon model's position
     const offsetY = -1;
@@ -83,8 +102,10 @@ export default class FlowerField {
       const i4 = i * 4;
 
       this.gpgpu.baseParticleTexture.image.data[i4 + 0] = posArr[i3 + 0] * s;
-      this.gpgpu.baseParticleTexture.image.data[i4 + 1] = posArr[i3 + 1] * s + offsetY;
-      this.gpgpu.baseParticleTexture.image.data[i4 + 2] = posArr[i3 + 2] * s + offsetZ;
+      this.gpgpu.baseParticleTexture.image.data[i4 + 1] =
+        posArr[i3 + 1] * s + offsetY;
+      this.gpgpu.baseParticleTexture.image.data[i4 + 2] =
+        posArr[i3 + 2] * s + offsetZ;
       // Alpha: randomised initial life so particles don't all reset simultaneously
       this.gpgpu.baseParticleTexture.image.data[i4 + 3] = Math.random();
     }
