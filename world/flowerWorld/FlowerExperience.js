@@ -5,10 +5,11 @@ import { Debug } from "../utils/Debug.js";
 import { Camera } from "../objects/Camera.js";
 import { Renderer } from "../objects/Renderer.js";
 import { World } from "./World.js";
-import EventEmitter from "../utils/EventEmitter.js";
+import { Resources } from "../utils/Resources.js";
+import { sources } from "../sources/sources.js";
 
 // Controller
-export class PointExperience {
+export class FlowerExperience {
   constructor(canvas, options = {}) {
     // SETUP PROPERTIES
     this.canvas = canvas;
@@ -16,7 +17,9 @@ export class PointExperience {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new Scene();
-    this.resources = new EventEmitter();
+    this.resources = new Resources(
+      sources.filter((s) => s.name === "flowerModel")
+    );
 
     this.camera = new Camera({
       canvas: this.canvas,
@@ -29,8 +32,11 @@ export class PointExperience {
       scene: this.scene,
       camera: this.camera,
     });
-    // this references --  this context -- will extend this to be any worldview 'controller' I need
-    this.world = new World(this);
+
+    // Wait for resources to finish loading before building the world
+    this.resources.on("ready", () => {
+      this.world = new World(this);
+    });
 
     // Resize event
     this.sizes.on("resize", () => {
@@ -50,8 +56,10 @@ export class PointExperience {
   update() {
     this.camera.update();
     this.renderer.update();
-    // Pass time to world for animations
-    this.world.update(this.time);
+    // Pass time to world for animations (world may not exist yet while resources load)
+    if (this.world) {
+      this.world.update(this.time);
+    }
   }
 
   destroy() {

@@ -9,11 +9,9 @@ import MainLayout from "./layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 
-// Eagerly load auth pages (tiny, always needed)
 import Login from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 
-// Lazily load all Three.js heavy pages — only downloaded when navigated to
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AnimalRenderPage = lazy(() => import("./pages/AnimalRenderPage"));
 const PointCloudPage = lazy(() => import("./pages/PointCloudPage"));
@@ -21,7 +19,7 @@ const ShaderPage = lazy(() => import("./pages/ShaderPage"));
 const PortalPage = lazy(() => import("./pages/PortalPage"));
 const AsciiPage = lazy(() => import("./pages/AsciiPage"));
 const SineWavePage = lazy(() => import("./pages/SineWavePage"));
-
+const FlowerPage = lazy(() => import("./pages/FlowerPage"));
 function App() {
   const username = userLoginStore((s) => s.username);
   const setUsername = userLoginStore((s) => s.setUsername);
@@ -29,8 +27,6 @@ function App() {
   const logout = userLoginStore((s) => s.logout);
 
   useEffect(() => {
-    // Always check the session on mount to ensure cookie is still valid
-    // even if Zustand has a username persisted
     apiClient("/api/me")
       .then((res) => {
         // Backend returns user object { name, email, ... }
@@ -106,6 +102,14 @@ function App() {
               element={
                 <Suspense fallback={null}>
                   <AsciiPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/flower"
+              element={
+                <Suspense fallback={null}>
+                  <FlowerPage />
                 </Suspense>
               }
             />

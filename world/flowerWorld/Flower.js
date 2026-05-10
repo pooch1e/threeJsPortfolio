@@ -29,7 +29,14 @@ export default class FlowerField {
 
   setModel() {
     if (this.model) {
-      this.scene.add(this.model);
+      this.scene.add(this.model.scene ?? this.model);
+      this.model.scene.position.z = 1
+      this.model.scene.position.y = -1
+    }
+  }
+
+  update(time) {
+    if (time) {
     }
   }
 }
