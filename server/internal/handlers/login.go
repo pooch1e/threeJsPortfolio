@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"database/sql"
 	stdJSON "encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"os"
@@ -18,13 +18,13 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-// LoginResponse is what we send back to the client on successful login.
+// LoginResponse is what we send back on successful login.
 // Only safe, non-sensitive fields are included.
 type LoginResponse struct {
 	Username string `json:"username"`
 }
 
-func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
+func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds LoginRequest
 		if err := stdJSON.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -38,9 +38,13 @@ func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 			return
 		}
 
-		user, err := repos.GetUserByUsername(db, cleanedUsername)
+		user, err := repo.GetUserByUsername(cleanedUsername)
 		if err != nil {
-			// Don't reveal whether the username exists or not
+			if !errors.Is(err, repos.ErrNotFound) {
+				slog.Error("Error fetching user for login", "error", err)
+			}
+			// Return the same message regardless of whether the user exists or
+			// whether the DB is down — never leak which condition triggered this.
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
@@ -57,8 +61,6 @@ func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 			return
 		}
 
-		// SameSite=Lax works for localhost dev (same host, different port).
-		// In production (different domains) you need SameSite=None + Secure=true.
 		sameSite := http.SameSiteLaxMode
 		secure := false
 		if os.Getenv("APP_ENV") == "production" {
@@ -71,7 +73,7 @@ func LoginHandler(db *sql.DB, jwtSecret string) http.HandlerFunc {
 			Value:    jToken,
 			Path:     "/",
 			Expires:  time.Now().Add(time.Hour),
-			HttpOnly: true, // JS cannot read this cookie - protects against XSS
+			HttpOnly: true,
 			Secure:   secure,
 			SameSite: sameSite,
 		})
