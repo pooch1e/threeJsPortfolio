@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"database/sql"
 	stdJSON "encoding/json"
 	"log/slog"
 	"net/http"
+
 	"threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/models"
 	"threejsPortfolioServer/internal/repos"
@@ -15,20 +15,13 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 	json.WriteJson(w, status, map[string]string{"error": msg})
 }
 
-// take request - do something with it/ sanatise whatever
-// then pass to repo (for db)
-
-type Params struct {
-	username string
-}
-
 type SignupRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func SignupHandler(db *sql.DB) http.HandlerFunc {
+func SignupHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req SignupRequest
 		if err := stdJSON.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -54,8 +47,7 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// check for duplicate account
-		exists, err := repos.CheckUserExists(db, cleanedEmail)
+		exists, err := repo.CheckUserExists(cleanedEmail)
 		if err != nil {
 			slog.Error("Error checking for existing user", "error", err)
 			writeError(w, http.StatusInternalServerError, "Database error")
@@ -66,24 +58,17 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// call db
 		newUser := models.NewUser{
 			Username:      cleanedUsername,
 			Email:         cleanedEmail,
-			Password_hash: []byte(cleanedPassword),
+			Password_hash: cleanedPassword,
 		}
-		result, err := repos.InsertNewUser(db, newUser)
+		result, err := repo.InsertNewUser(newUser)
 		if err != nil {
-			slog.Error("Error in posting sign up to database", "error", err)
+			slog.Error("Error inserting new user", "error", err)
 			writeError(w, http.StatusInternalServerError, "Database error")
 			return
 		}
-		json.WriteJson(w, 201, result)
-
+		json.WriteJson(w, http.StatusCreated, result)
 	}
-
 }
-
-// func GetUser(params *Params) bool {
-
-// }
