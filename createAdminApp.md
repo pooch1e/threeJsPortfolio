@@ -8,7 +8,7 @@
 
 ## User
 
-plan - setting up an admin frontend for go backend. Can be a simple static react app - or react admin app. 
+plan - setting up an admin frontend for go backend. Can be a simple static react app - or react admin app.
 
 ---
 

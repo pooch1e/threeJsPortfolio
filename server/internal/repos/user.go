@@ -2,14 +2,34 @@ package repos
 
 import (
 	"database/sql"
+	"errors"
 	"log/slog"
+
 	"threejsPortfolioServer/internal/models"
 )
 
-// CheckUserExists checks if a user with the given email exists in the database
-func CheckUserExists(db *sql.DB, email string) (bool, error) {
+// ErrNotFound is returned when a requested record does not exist.
+// Callers use errors.Is(err, repos.ErrNotFound) to distinguish "not found"
+// from genuine database failures so they can return the correct HTTP status.
+var ErrNotFound = errors.New("not found")
+
+// PostgresUserRepo is the production implementation of UserRepository backed
+// by a PostgreSQL database.
+type PostgresUserRepo struct {
+	db *sql.DB
+}
+
+// NewPostgresUserRepo creates a PostgresUserRepo. The caller retains ownership
+// of db and is responsible for closing it.
+func NewPostgresUserRepo(db *sql.DB) *PostgresUserRepo {
+	return &PostgresUserRepo{db: db}
+}
+
+func (r *PostgresUserRepo) CheckUserExists(email string) (bool, error) {
 	var exists bool
-	err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`, email).Scan(&exists)
+	err := r.db.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`, email,
+	).Scan(&exists)
 	if err != nil {
 		slog.Error("Error checking if user exists", "error", err)
 		return false, err
@@ -17,47 +37,57 @@ func CheckUserExists(db *sql.DB, email string) (bool, error) {
 	return exists, nil
 }
 
-// InsertNewUser creates a new user in the database
-func InsertNewUser(db *sql.DB, user models.NewUser) (*models.User, error) {
-	var createdUser models.User
-	err := db.QueryRow(
+func (r *PostgresUserRepo) InsertNewUser(user models.NewUser) (*models.User, error) {
+	var created models.User
+	err := r.db.QueryRow(
 		`INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3)
-		RETURNING id, name, email, is_admin, created_at, updated_at`,
+		 RETURNING id, name, email, is_admin, created_at, updated_at`,
 		user.Username, user.Email, user.Password_hash,
-	).Scan(&createdUser.ID, &createdUser.Name, &createdUser.Email, &createdUser.IsAdmin, &createdUser.CreatedAt, &createdUser.UpdatedAt)
-
+	).Scan(
+		&created.ID, &created.Name, &created.Email,
+		&created.IsAdmin, &created.CreatedAt, &created.UpdatedAt,
+	)
 	if err != nil {
-		slog.Error("Error inserting into database", "error", err)
+		slog.Error("Error inserting user", "error", err)
 		return nil, err
 	}
-	return &createdUser, nil
+	return &created, nil
 }
 
-// GetUserByID retrieves a user by their UUID (used by /api/me after JWT validation)
-func GetUserByID(db *sql.DB, id string) (*models.User, error) {
+func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 	var user models.User
-	err := db.QueryRow(
+	err := r.db.QueryRow(
 		`SELECT id, name, email, is_admin, created_at, updated_at
 		 FROM users WHERE id = $1`,
 		id,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(
+		&user.ID, &user.Name, &user.Email,
+		&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		slog.Error("Error getting user by ID", "error", err)
 		return nil, err
 	}
 	return &user, nil
 }
 
-// GetUserByUsername retrieves a user by their username
-func GetUserByUsername(db *sql.DB, username string) (*models.User, error) {
+func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
-	err := db.QueryRow(
+	err := r.db.QueryRow(
 		`SELECT id, name, email, password_hash, is_admin, created_at, updated_at
 		 FROM users WHERE name = $1`,
 		username,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password_hash, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
-
+	).Scan(
+		&user.ID, &user.Name, &user.Email, &user.Password_hash,
+		&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		slog.Error("Error getting user by username", "error", err)
 		return nil, err
 	}

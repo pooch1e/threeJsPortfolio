@@ -1,18 +1,13 @@
-// reads user id from context
-// fetches user
-// checks isadmin
-// returns 403 if false
-
 package middleware
 
 import (
-	"database/sql"
+	"errors"
 	"net/http"
 
 	"threejsPortfolioServer/internal/repos"
 )
 
-func RequireAdmin(db *sql.DB) func(http.Handler) http.Handler {
+func RequireAdmin(repo repos.UserRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			userID := GetUserID(r)
@@ -21,9 +16,13 @@ func RequireAdmin(db *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			user, err := repos.GetUserByID(db, userID)
+			user, err := repo.GetUserByID(userID)
 			if err != nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				if errors.Is(err, repos.ErrNotFound) {
+					http.Error(w, "Unauthorized", http.StatusUnauthorized)
+					return
+				}
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
 				return
 			}
 
