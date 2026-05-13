@@ -98,7 +98,7 @@ export default class FlowerDataScroll {
     const fontSize = 13;
     const padding = 16;
     const canvasW = 512;
-    const canvasH = this.lines.length * lineHeight + padding * 2;
+    const canvasH = this.lines.length * lineHeight + padding * 4;
 
     const canvas = document.createElement("canvas");
     canvas.width = canvasW;
@@ -156,7 +156,6 @@ export default class FlowerDataScroll {
 
     this.mesh = new Mesh(this.geometry, this.material);
     // Left side of the view, centred vertically, just in front of the particles
-    this.mesh.position.set(-1.8, 0, 2);
 
     this.scene.add(this.mesh);
   }
