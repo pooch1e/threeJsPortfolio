@@ -16,17 +16,17 @@ func MeHandler(repo repos.UserRepository) http.HandlerFunc {
 		userID := appMiddleware.GetUserID(r)
 		if userID == "" {
 			// Should never reach here if RequireAuth is applied, but be defensive.
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			json.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 
 		user, err := repo.GetUserByID(userID)
 		if err != nil {
 			if errors.Is(err, repos.ErrNotFound) {
-				http.Error(w, "User not found", http.StatusNotFound)
+				json.WriteError(w, http.StatusNotFound, "User not found")
 				return
 			}
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			json.WriteError(w, http.StatusInternalServerError, "Internal server error")
 			return
 		}
 

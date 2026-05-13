@@ -28,7 +28,7 @@ func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds LoginRequest
 		if err := stdJSON.NewDecoder(r.Body).Decode(&creds); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			writeError(w, http.StatusBadRequest, "Invalid request body")
 			return
 		}
 
@@ -45,19 +45,19 @@ func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc 
 			}
 			// Return the same message regardless of whether the user exists or
 			// whether the DB is down — never leak which condition triggered this.
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			writeError(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
 
 		if !utils.CheckPasswordHash(creds.Password, string(user.Password_hash)) {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			writeError(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
 
 		jToken, err := utils.GenerateJwtToken(jwtSecret, user.ID)
 		if err != nil {
 			slog.Error("Error creating JWT", "error", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "Internal server error")
 			return
 		}
 

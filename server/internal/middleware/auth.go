@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	appJSON "threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/utils"
 )
 
@@ -33,14 +34,14 @@ func RequireAuth(jwtSecret string) func(http.Handler) http.Handler {
 			cookie, err := r.Cookie("session")
 			if err != nil {
 				// err is http.ErrNoCookie if the cookie doesn't exist
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				appJSON.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 				return
 			}
 
 			userID, err := utils.ParseJwtToken(cookie.Value, jwtSecret)
 			if err != nil {
 				// Token is expired, tampered, or otherwise invalid
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				appJSON.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 				return
 			}
 

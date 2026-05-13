@@ -12,7 +12,7 @@ import (
 )
 
 func writeError(w http.ResponseWriter, status int, msg string) {
-	json.WriteJson(w, status, map[string]string{"error": msg})
+	json.WriteError(w, status, msg)
 }
 
 type SignupRequest struct {
