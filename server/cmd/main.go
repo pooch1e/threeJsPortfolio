@@ -9,6 +9,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+
+	"threejsPortfolioServer/internal/repos"
 )
 
 func main() {
@@ -24,22 +26,21 @@ func main() {
 	log.Printf("dsn is: %s", cfg.db.dsn)
 	log.Printf("port is %s", cfg.adr)
 
-	// logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
 	db, err := openDb(cfg.db.dsn)
 	if err != nil {
 		slog.Error("could not connect to db", "error", err)
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	api := application{
-		config: cfg,
-		db:     db,
+		config:   cfg,
+		userRepo: repos.NewPostgresUserRepo(db),
 	}
 
-	// running api server
 	if err := api.run(api.mount()); err != nil {
 		if errors.Is(err, syscall.EADDRINUSE) {
 			slog.Error("port already in use", "port", cfg.adr, "hint", "kill the process using this port or change PORT in .env.local")
@@ -48,5 +49,4 @@ func main() {
 		}
 		os.Exit(1)
 	}
-
 }
