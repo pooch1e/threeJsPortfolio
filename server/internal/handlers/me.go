@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"database/sql"
+	"errors"
 	"net/http"
 
 	"threejsPortfolioServer/internal/json"
@@ -10,25 +10,26 @@ import (
 )
 
 // MeHandler returns the currently authenticated user's profile.
-// It relies on RequireAuth middleware having already run and placed
-// the userID into the request context.
-func MeHandler(db *sql.DB) http.HandlerFunc {
+// It relies on RequireAuth middleware having already stored the userID in context.
+func MeHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Read the userID that RequireAuth stored in context
 		userID := appMiddleware.GetUserID(r)
 		if userID == "" {
-			// Should never happen if RequireAuth is applied, but be defensive
+			// Should never reach here if RequireAuth is applied, but be defensive.
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		user, err := repos.GetUserByID(db, userID)
+		user, err := repo.GetUserByID(userID)
 		if err != nil {
-			http.Error(w, "User not found", http.StatusNotFound)
+			if errors.Is(err, repos.ErrNotFound) {
+				http.Error(w, "User not found", http.StatusNotFound)
+				return
+			}
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		// LoginResponse re-used here: only username is sent to the client
 		json.WriteJson(w, http.StatusOK, LoginResponse{Username: user.Name})
 	}
 }
