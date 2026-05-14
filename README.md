@@ -101,19 +101,20 @@ threejsPortfolio/
 
 ## Go Server
 
-The `server/` directory contains a Go backend that handles authentication via GitHub OAuth and manages user sessions with PostgreSQL.
+The `server/` directory contains a Go backend REST API utilizing PostgreSQL and Docker. The architecture follows a modular approach for scalability and clear separation of concerns.
 
 ### Tech Stack
 
-- **Framework**: Gin
-- **Database**: PostgreSQL (via Docker)
-- **Auth**: GitHub OAuth2
+- **Framework**: Go 1.22+
+- **Router**: [Chi v5](https://github.com/go-chi/chi)
+- **Database**: PostgreSQL 16 (via Docker)
 - **Driver**: `lib/pq`
+- **Auth**: JWT (JSON Web Tokens)
 - **Env loading**: `godotenv`
 
 ### Prerequisites
 
-- Go 1.21+
+- Go 1.22+
 - Docker + Docker Compose
 
 ### Environment variables
@@ -123,22 +124,13 @@ Add the following to `.env.local` in the repo root (create it if it doesn't exis
 ```
 PORT=8080
 DATABASE_URL=postgres://threejs_user:threejs_password@localhost:5433/threejs_database?sslmode=disable
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
+JWT_SECRET=replace_this_with_a_long_random_string
 FRONTEND_URL=http://localhost:5173
-SESSION_SECRET=replace_this_with_a_long_random_string
 ```
-
-`GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` come from a GitHub OAuth App:
-
-1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
-2. Set **Homepage URL** to `http://localhost:5173`
-3. Set **Authorization callback URL** to `http://localhost:8080/auth/github/callback`
-4. Copy the client ID and generated secret into `.env.local`
 
 ### Database (Docker)
 
-Postgres runs in a Docker container. The `db/seed/seed.sql` schema is applied automatically on the first start.
+Postgres runs in a Docker container.
 
 ```bash
 # Start Postgres in the background
@@ -151,6 +143,9 @@ make docker-down
 # Wipe all data and start fresh
 docker compose down -v
 make docker-up
+
+# Run seeding scripts
+make db-create
 ```
 
 The container exposes Postgres on port `5433` (to avoid conflicts with any system Postgres on `5432`).
@@ -170,17 +165,19 @@ The server will be available at `http://localhost:8080`.
 ```
 server/
 ├── cmd/
-│   └── main.go              # Entry point — loads env, wires config, defines routes
+│   ├── main.go              # Application initialization (config, DB connection)
+│   └── api.go               # Router setup (Chi) and server configuration
 ├── db/
 │   └── seed/
-│       ├── create-db.sql    # DROP/CREATE DATABASE (manual use only)
-│       └── seed.sql         # Creates users + sessions tables (auto-run by Docker)
+│       ├── create-db.sql    # DROP/CREATE DATABASE
+│       └── seed.sql         # Creates users + sessions tables
 ├── internal/
-│   ├── config/              # Opens DB connection pool, reads env vars into Config struct
-│   ├── handlers/            # Gin handler functions — one file per domain (auth.go etc.)
-│   ├── middleware/          # Gin middleware (e.g. RequireAuth session validation)
-│   ├── models/              # Plain Go structs matching DB tables (User, Session)
-│   └── repos/               # All SQL queries — handlers call repos, repos call the DB
+│   ├── config/              # Opens DB connection pool, reads env vars
+│   ├── handlers/            # HTTP request handlers (Signup, Login, Me)
+│   ├── middleware/          # HTTP middlewares (Auth, Admin, Logging)
+│   ├── models/              # Go structs representing database entities
+│   ├── repos/               # Data access layer (SQL queries)
+│   └── utils/               # Reusable helpers (JWT, validation, JSON)
 ├── go.mod
 ├── go.sum
 └── Makefile
@@ -188,31 +185,20 @@ server/
 
 ### Auth flow
 
-```
-Browser                     Go Server                  GitHub
-  |                             |                          |
-  |-- GET /auth/github -------->|                          |
-  |                             |-- redirect ------------->|
-  |                             |    (OAuth consent page)  |
-  |<----------------------------+<-- redirect + code ------|
-  |-- GET /auth/github/callback?code=... -->               |
-  |                             |-- POST /access_token --->|
-  |                             |<-- access token ---------|
-  |                             |-- GET /user ------------>|
-  |                             |<-- user profile ---------|
-  |                             | upsert user in DB        |
-  |                             | create session in DB     |
-  |<-- set session_token cookie + redirect to frontend     |
-```
+1. **Login**: User submits credentials to `/api/login`.
+2. **JWT**: On success, the server generates a JWT and sets it as an **HttpOnly cookie** named `session`.
+3. **Session Verification**: The frontend calls `/api/me` on mount. The `RequireAuth` middleware validates the cookie and attaches the `userID` to the request context.
+4. **CORS**: Configured to allow specific frontend origins with credentials (cookies) enabled.
 
 ### API routes
 
 | Method | Path | Auth required | Description |
 |--------|------|---------------|-------------|
-| `GET` | `/auth/github` | No | Redirect to GitHub OAuth consent page |
-| `GET` | `/auth/github/callback` | No | Handle GitHub callback, create session |
-| `POST` | `/auth/logout` | Yes | Delete session, clear cookie |
-| `GET` | `/api/me` | Yes | Return current user profile |
+| `GET` | `/health` | No | System health check |
+| `POST` | `/api/signup` | No | Create new user |
+| `POST` | `/api/login` | No | Authenticate and set cookie |
+| `GET` | `/api/me` | Yes | Get current user profile |
+| `POST` | `/api/logout` | Yes | Clear session cookie |
 
 ## License
 
