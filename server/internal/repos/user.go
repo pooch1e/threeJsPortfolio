@@ -101,3 +101,8 @@ func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, err
 	}
 	return &user, nil
 }
+
+func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
+	// stub
+	return nil, nil
+}
