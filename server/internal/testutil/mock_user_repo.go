@@ -10,7 +10,8 @@ type MockUserRepo struct {
 	InsertNewUserFn     func(user models.NewUser) (*models.User, error)
 	GetUserByIDFn       func(id string) (*models.User, error)
 	GetUserByUsernameFn func(username string) (*models.User, error)
-	UpdateUserFn func(id string, input models.UpdateUserInput) ( *models.User, error)
+	UpdateUserFn 				func(id string, input models.UpdateUserInput) ( *models.User, error)
+	DeleteUserFn 				func(id string) error
 }
 
 func (m *MockUserRepo) CheckUserExists(email string) (bool, error) {
@@ -49,10 +50,17 @@ func (m *MockUserRepo) GetUserCount() (int, error) {
 	return 0, nil
 }
 
-func (m *MockUserRepo) UpdateUserInput(id string, input models.UpdateUserInput) (*models.User, error) {
+func (m *MockUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
 	// stub
 	if m.UpdateUserFn != nil {
 		return m.UpdateUserFn(id, input)
 	}
 	return nil, nil
+}
+
+func (m *MockUserRepo) DeleteUser(id string) (error) {
+	if m.DeleteUserFn != nil {
+		return m.DeleteUserFn(id)
+	}
+	return nil
 }
