@@ -106,3 +106,7 @@ func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (
 	// stub
 	return nil, nil
 }
+
+func (r *PostgresUserRepo) DeleteUser(id string) error {
+	return nil
+}

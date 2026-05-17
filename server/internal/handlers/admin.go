@@ -25,5 +25,12 @@ func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 func UpdateUserInput(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// strub
+}
+}
+
+// DELETE user
+func DeleteUser(repo repos.UserRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//stub
 	}
 }
