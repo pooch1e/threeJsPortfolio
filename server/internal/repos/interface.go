@@ -12,4 +12,5 @@ type UserRepository interface {
 	GetUserByUsername(username string) (*models.User, error)
 	GetAllUsers(limit, offset int) ([]models.User, error)
 	GetUserCount() (int, error)
+	UpdateUser(id string, input models.UpdateUserInput) (*models.User, error)
 }
