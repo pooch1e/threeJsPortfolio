@@ -21,7 +21,6 @@ const AsciiPage = lazy(() => import("./pages/AsciiPage"));
 const SineWavePage = lazy(() => import("./pages/SineWavePage"));
 const FlowerPage = lazy(() => import("./pages/FlowerPage"));
 function App() {
-  const username = userLoginStore((s) => s.username);
   const setUsername = userLoginStore((s) => s.setUsername);
   const setLoaded = userLoginStore((s) => s.setLoaded);
   const logout = userLoginStore((s) => s.logout);
