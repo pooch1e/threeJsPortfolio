@@ -8,19 +8,14 @@ import (
 	"threejsPortfolioServer/internal/models"
 )
 
-// ErrNotFound is returned when a requested record does not exist.
-// Callers use errors.Is(err, repos.ErrNotFound) to distinguish "not found"
-// from genuine database failures so they can return the correct HTTP status.
+
 var ErrNotFound = errors.New("not found")
 
-// PostgresUserRepo is the production implementation of UserRepository backed
-// by a PostgreSQL database.
 type PostgresUserRepo struct {
 	db *sql.DB
 }
 
-// NewPostgresUserRepo creates a PostgresUserRepo. The caller retains ownership
-// of db and is responsible for closing it.
+
 func NewPostgresUserRepo(db *sql.DB) *PostgresUserRepo {
 	return &PostgresUserRepo{db: db}
 }
@@ -75,7 +70,28 @@ func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 }
 
 func (r *PostgresUserRepo) GetAllUsers(limit, offset int) ([]models.User, error) {
-	return nil, nil
+	var users []models.User
+	rows, err := r.db.Query(
+		`SELECT * FROM users WHERE is_admin = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`, limit, offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+			if err := rows.Err(); err != nil {
+			return nil, err
+		}
+
+	return users, nil
 }
 
 func (r *PostgresUserRepo) GetUserCount() (int, error) {
