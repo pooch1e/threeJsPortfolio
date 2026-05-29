@@ -67,7 +67,7 @@ func (app *application) mount() http.Handler {
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.RequireAdmin(app.userRepo))
 			r.Get("/api/admin/users", handlers.ListUsersHandler(app.userRepo))
-			r.Get("api/admin/users/{id}", handlers.GetUserHandler(app.userRepo))
+			r.Get("/api/admin/users/{id}", handlers.GetUserHandler(app.userRepo))
 			r.Put("/api/admin/users/{id}", handlers.UpdateUserInput(app.userRepo))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(app.userRepo))
 		})
