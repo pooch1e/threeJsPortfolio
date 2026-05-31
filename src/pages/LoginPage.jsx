@@ -18,6 +18,26 @@ export default function Login() {
 
   const setUserName = userLoginStore((state) => state.setUsername);
 
+  const handleGuestLogin = async () => {
+    setServerError(null);
+    setPending(true);
+    setShowSuccess(false);
+    try {
+      const data = await postLogin({ username: "guest", password: "Guest1234!" });
+      const username = data.name || data.username;
+      setUserName(username || "");
+      setShowSuccess(true);
+      setPending(false);
+      setTimeout(() => {
+        navigate("/homepage");
+      }, 1200);
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setPending(false);
+    }
+  };
+
   const onSubmit = async (e) => {
     setServerError(null);
     setPending(true);
@@ -115,13 +135,26 @@ export default function Login() {
             </span>
           )}
         </form>
-        <div className="flex flex-col items-center mt-2">
+        <div className="flex flex-col items-center mt-2 gap-3">
           <button
             type="button"
             className="w-full border border-cyan-600 text-cyan-700 rounded-md py-2 font-semibold hover:bg-cyan-50 transition-colors"
             onClick={() => navigate("/signup")}
           >
             Signup
+          </button>
+          <div className="w-full flex items-center gap-2 text-gray-400 text-xs">
+            <span className="flex-1 border-t border-gray-200" />
+            <span>or</span>
+            <span className="flex-1 border-t border-gray-200" />
+          </div>
+          <button
+            type="button"
+            className="w-full border border-gray-300 text-gray-500 rounded-md py-2 font-semibold hover:bg-gray-50 transition-colors"
+            onClick={handleGuestLogin}
+            disabled={pending}
+          >
+            Continue as Guest
           </button>
         </div>
       </div>
