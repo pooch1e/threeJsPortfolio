@@ -3,6 +3,7 @@ import { postLogin } from "../utils/postLogin";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userLoginStore } from "../store/user";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function Login() {
   const {
@@ -76,11 +77,7 @@ export default function Login() {
                 minLength: { value: 3, message: "Min 3 characters" },
               })}
             />
-            {errors.username && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.username.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.username?.message} type="validation" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="font-medium">
@@ -91,11 +88,7 @@ export default function Login() {
               {...register("password", { required: "A password is required" })}
               className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
             />
-            {errors.password && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.password.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.password?.message} type="validation" />
           </div>
           <button
             type="submit"
@@ -129,11 +122,7 @@ export default function Login() {
               </svg>
             </span>
           )}
-          {serverError && (
-            <span className="text-red-500 text-sm mt-2 text-center">
-              {serverError}
-            </span>
-          )}
+          <ErrorMessage error={serverError} type="api" />
         </form>
         <div className="flex flex-col items-center mt-2 gap-3">
           <button

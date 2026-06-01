@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { postSignup } from "../utils/postSignup";
 import { useNavigate } from "react-router-dom";
+import ErrorMessage from "../components/ErrorMessage";
 export default function SignUpPage() {
   const {
     handleSubmit,
@@ -42,11 +43,7 @@ export default function SignUpPage() {
                 minLength: { value: 3, message: "Min 3 characters" },
               })}
             />
-            {errors.username && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.username.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.username?.message} type="validation" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="font-medium">
@@ -59,11 +56,7 @@ export default function SignUpPage() {
                 required: "An email address is required",
               })}
             />
-            {errors.email && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.email.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.email?.message} type="validation" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="font-medium">
@@ -76,11 +69,7 @@ export default function SignUpPage() {
                 required: "A new password is required",
               })}
             />
-            {errors.password && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.password.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.password?.message} type="validation" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="confirmPassword" className="font-medium">
@@ -97,11 +86,7 @@ export default function SignUpPage() {
                 },
               })}
             />
-            {errors.confirmPassword && (
-              <span className="text-red-400 text-xs mt-1">
-                {errors.confirmPassword.message}
-              </span>
-            )}
+            <ErrorMessage error={errors.confirmPassword?.message} type="user" />
           </div>
           <button
             type="submit"
@@ -121,11 +106,7 @@ export default function SignUpPage() {
             Login
           </button>
           </div>
-          {serverError && (
-            <span className="text-red-500 text-sm mt-2 text-center">
-              {serverError}
-            </span>
-          )}
+          <ErrorMessage error={serverError} type="api" />
         </form>
       </div>
     </div>
