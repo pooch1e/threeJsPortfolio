@@ -8,6 +8,7 @@ import { userLoginStore } from "./store/user";
 import MainLayout from "./layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import LoadingOverlay from "./components/LoadingOverlay";
 
 import Login from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -51,7 +52,7 @@ function App() {
             <Route
               path="/homepage"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <HomePage />
                 </Suspense>
               }
@@ -59,7 +60,7 @@ function App() {
             <Route
               path="/pointCloud"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <PointCloudPage />
                 </Suspense>
               }
@@ -67,7 +68,7 @@ function App() {
             <Route
               path="/animalPage"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <AnimalRenderPage />
                 </Suspense>
               }
@@ -75,7 +76,7 @@ function App() {
             <Route
               path="/shaders"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <ShaderPage />
                 </Suspense>
               }
@@ -83,7 +84,7 @@ function App() {
             <Route
               path="/sineWave"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <SineWavePage />
                 </Suspense>
               }
@@ -91,7 +92,7 @@ function App() {
             <Route
               path="/portalblend"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <PortalPage />
                 </Suspense>
               }
@@ -99,7 +100,7 @@ function App() {
             <Route
               path="/ascii"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <AsciiPage />
                 </Suspense>
               }
@@ -107,7 +108,7 @@ function App() {
             <Route
               path="/flower"
               element={
-                <Suspense fallback={null}>
+                <Suspense fallback={<LoadingOverlay />}>
                   <FlowerPage />
                 </Suspense>
               }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userLoginStore } from "../store/user";
 import ErrorMessage from "../components/ErrorMessage";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 export default function Login() {
   const {
@@ -96,7 +97,7 @@ export default function Login() {
           >
             Login
           </button>
-          {pending && <span>Loading...</span>}
+          {pending && <LoadingOverlay message="Signing in..." />}
           {showSuccess && (
             <span className="flex justify-center mt-2 animate-bounce">
               <svg
