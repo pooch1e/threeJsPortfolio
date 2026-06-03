@@ -18,13 +18,12 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Demo guest account (password: Guest1234!)
-INSERT INTO users (name, email, password_hash, is_admin)
+INSERT INTO users (name, email, password_hash)
 VALUES (
   'guest',
   'guest@demo.com',
-  '$2a$10$7q0e62kEZwHHKe1wzgpQfuk5vvEVANi.0tHHgswV8Ht3AMex4NvwO',
-  false
-) ON CONFLICT (email) DO NOTHING;
+  'tesTdem$123'
+);
 
 -- Create sessions table if not exists
 CREATE TABLE IF NOT EXISTS sessions (
