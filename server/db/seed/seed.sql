@@ -22,7 +22,7 @@ INSERT INTO users (name, email, password_hash)
 VALUES (
   'guest',
   'guest@demo.com',
-  'tesTdem$123'
+  '$2a$10$V4wBTpQnohBjFTLaEUsklu64zaHAU0vLdtOPZvTH4.cI0rkqYx2BO'
 );
 
 -- Create sessions table if not exists
