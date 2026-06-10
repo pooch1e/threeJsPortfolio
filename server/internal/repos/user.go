@@ -95,7 +95,13 @@ func (r *PostgresUserRepo) GetAllUsers(limit, offset int) ([]models.User, error)
 }
 
 func (r *PostgresUserRepo) GetUserCount() (int, error) {
-	return 0, nil
+	var count int
+	err := r.db.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)
+	if err != nil {
+		slog.Error("Error checking count of users", "error", err)
+		return 0, err
+	}
+	return count, nil
 }
 
 func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, error) {
