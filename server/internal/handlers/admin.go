@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log/slog"
 	"math"
 	"net/http"
 	"strconv"
@@ -27,20 +26,14 @@ type listUsersResponse struct {
 func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pageString := r.URL.Query().Get("page")
-		pageInt, err := strconv.Atoi(pageString)
-		if err != nil {
-			slog.Error("Error converting page number", err)
-		}
+		pageInt, _ := strconv.Atoi(pageString)
 
 		if pageInt <= 1 {
 			pageInt = 1
 		}
 
 		limit := r.URL.Query().Get("limit")
-		limitInt, err := strconv.Atoi(limit)
-				if err != nil {
-			slog.Error("Error converting offset number", err)
-		}
+		limitInt, _ := strconv.Atoi(limit)
 
 		if limitInt <= 1 {
 			limitInt = 20
@@ -64,7 +57,7 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 		}
 
 		totalPages := int(math.Ceil(float64(userCount)/float64(limitInt)))
-
+		// build meta payload
 		meta := paginationMeta{
 			Page: pageInt,
 			Limit: limitInt,
