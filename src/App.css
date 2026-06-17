@@ -32,6 +32,12 @@
     --text-color-dark: #0077b6;
     --text-color-verydark: #03045e;
 
+    /* Semantic tokens */
+    --color-accent: #67e8f9;
+    --color-ink: #03045e;
+    --color-index: rgba(3, 4, 94, 0.38);
+    --color-divider: rgba(3, 4, 94, 0.12);
+
     --text-xsmall: 12px;
     --text-small: 16px;
     --text-mid: 24px;

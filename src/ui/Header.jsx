@@ -8,7 +8,7 @@ export default function Header() {
         <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
           <div />
           <Link to="/homepage" className="justify-self-center">
-            <h1 className="text-4xl uppercase tracking-widest text-[var(--text-color-verydark)] hover:text-[var(--text-color-standard)] transition-colors ease-linear text-center">
+            <h1 className="text-4xl uppercase tracking-widest text-ink hover:text-accent transition-colors ease-linear text-center">
               Experiments
             </h1>
           </Link>
@@ -17,7 +17,7 @@ export default function Header() {
           </div>
         </div>
       </header>
-      <div className="h-0.5 w-full bg-[var(--text-color-standard)]" />
+      <div className="h-0.5 w-full bg-accent" />
     </section>
   );
 }

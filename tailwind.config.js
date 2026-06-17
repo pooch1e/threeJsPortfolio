@@ -44,6 +44,8 @@ export default {
         lightbackground: 'var(--color-bg-mid)',
         maintext: 'var(--text-color-verydark)',
         hovertext: 'var(--text-color-standard)',
+        accent: 'var(--color-accent)',
+        ink: 'var(--color-ink)',
       },
 
       // Spacing (margin/padding)
