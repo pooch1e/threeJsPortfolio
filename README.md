@@ -204,6 +204,8 @@ server/
 
 Private project
 
+**See task-CLI tool for admin epic**
+
 ---
 
 Built with Three.js and React
