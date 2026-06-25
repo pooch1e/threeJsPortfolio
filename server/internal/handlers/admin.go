@@ -49,11 +49,13 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 		usersList, err := repo.GetAllUsers(limitInt, offset)
 		if err != nil {
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user list")
+			return
 		}
 
 		userCount, err := repo.GetUserCount()
 		if err != nil {
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user count")
+			return
 		}
 
 		totalPages := int(math.Ceil(float64(userCount)/float64(limitInt)))
