@@ -36,6 +36,50 @@ func newTestServer(t *testing.T) (*httptest.Server, func()) {
 	return srv, cleanup
 }
 
+func makeAdminServer(t *testing.T) (*httptest.Server, *http.Cookie, func()) {
+	t.Helper()
+
+	db, dbCleanup := testutil.NewTestDB(t)
+	app := application{
+		config: config{
+			jwtSecret: "integration-test-jwt-secret",
+		},
+		userRepo: repos.NewPostgresUserRepo(db),
+	}
+	srv := httptest.NewServer(app.mount())
+
+	const (
+		adminUsername = "adminuser"
+		adminEmail    = "adminuser@example.com"
+		adminPassword = "Admin1ng@123"
+	)
+
+	post(t, srv.URL+"/api/signup", map[string]string{
+		"username": adminUsername,
+		"email":    adminEmail,
+		"password": adminPassword,
+	}, nil)
+
+	if _, err := db.Exec("UPDATE users SET is_admin = true WHERE name = $1", adminUsername); err != nil {
+		t.Fatalf("makeAdminServer: set is_admin: %v", err)
+	}
+
+	loginResp := post(t, srv.URL+"/api/login", map[string]string{
+		"username": adminUsername,
+		"password": adminPassword,
+	}, nil)
+	sessionCookie := cookie(loginResp, "session")
+	if sessionCookie == nil {
+		t.Fatal("makeAdminServer: no session cookie after login")
+	}
+
+	cleanup := func() {
+		srv.Close()
+		dbCleanup()
+	}
+	return srv, sessionCookie, cleanup
+}
+
 func post(t *testing.T, url string, body interface{}, cookies []*http.Cookie) *http.Response {
 	t.Helper()
 	b, err := json.Marshal(body)
@@ -287,4 +331,134 @@ func TestIntegration_FullFlow(t *testing.T) {
 	}
 
 	fmt.Println("full flow: signup → login → /api/me → logout → /api/me=401 ✓")
+}
+
+func TestIntegration_ListUsers_Unauthenticated(t *testing.T) {
+	srv, cleanup := newTestServer(t)
+	defer cleanup()
+
+	resp := get(t, srv.URL+"/api/users", nil)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Errorf("GET /api/users: got %d, want %d", resp.StatusCode, http.StatusUnauthorized)
+	}
+}
+
+func TestIntegration_ListUsers_NonAdmin(t *testing.T) {
+	srv, cleanup := newTestServer(t)
+	defer cleanup()
+
+	post(t, srv.URL+"/api/signup", map[string]string{
+		"username": "regularuser",
+		"email":    "regularuser@example.com",
+		"password": "Test1ng@123",
+	}, nil)
+	loginResp := post(t, srv.URL+"/api/login", map[string]string{
+		"username": "regularuser",
+		"password": "Test1ng@123",
+	}, nil)
+	sessionCookie := cookie(loginResp, "session")
+	if sessionCookie == nil {
+		t.Fatal("no session cookie after login")
+	}
+
+	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("GET /api/users non-admin: got %d, want %d", resp.StatusCode, http.StatusForbidden)
+	}
+}
+
+func TestIntegration_ListUsers_Admin(t *testing.T) {
+	srv, sessionCookie, cleanup := makeAdminServer(t)
+	defer cleanup()
+
+	for i := range 3 {
+		post(t, srv.URL+"/api/signup", map[string]string{
+			"username": fmt.Sprintf("seeduser%d", i),
+			"email":    fmt.Sprintf("seeduser%d@example.com", i),
+			"password": "Test1ng@123",
+		}, nil)
+	}
+
+	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /api/users admin: got %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+
+	var body struct {
+		Users      []map[string]interface{} `json:"users"`
+		Pagination struct {
+			Total int `json:"total"`
+		} `json:"pagination"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if body.Pagination.Total < 3 {
+		t.Errorf("pagination.total: got %d, want >= 3", body.Pagination.Total)
+	}
+	if len(body.Users) == 0 {
+		t.Error("users: got empty slice, want non-empty")
+	}
+}
+
+func TestIntegration_ListUsers_Pagination(t *testing.T) {
+	srv, sessionCookie, cleanup := makeAdminServer(t)
+	defer cleanup()
+
+	for i := range 5 {
+		post(t, srv.URL+"/api/signup", map[string]string{
+			"username": fmt.Sprintf("pageuser%d", i),
+			"email":    fmt.Sprintf("pageuser%d@example.com", i),
+			"password": "Test1ng@123",
+		}, nil)
+	}
+
+	resp := get(t, srv.URL+"/api/users?page=1&limit=2", []*http.Cookie{sessionCookie})
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /api/users pagination: got %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+
+	var body struct {
+		Users      []map[string]interface{} `json:"users"`
+		Pagination struct {
+			Total      int `json:"total"`
+			TotalPages int `json:"total_pages"`
+		} `json:"pagination"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if len(body.Users) != 2 {
+		t.Errorf("users: got %d, want 2", len(body.Users))
+	}
+	wantPages := (body.Pagination.Total + 1) / 2
+	if body.Pagination.TotalPages != wantPages {
+		t.Errorf("total_pages: got %d, want %d", body.Pagination.TotalPages, wantPages)
+	}
+}
+
+func TestIntegration_ListUsers_EmptyDB(t *testing.T) {
+	srv, sessionCookie, cleanup := makeAdminServer(t)
+	defer cleanup()
+
+	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /api/users empty: got %d, want %d", resp.StatusCode, http.StatusOK)
+	}
+
+	var body struct {
+		Users      []map[string]interface{} `json:"users"`
+		Pagination struct {
+			Total int `json:"total"`
+		} `json:"pagination"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if body.Users == nil {
+		t.Error("users: got null, want empty array")
+	}
+	if body.Pagination.Total < 1 {
+		t.Errorf("pagination.total: got %d, want >= 1 (admin user)", body.Pagination.Total)
+	}
 }
