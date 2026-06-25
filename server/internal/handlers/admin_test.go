@@ -70,11 +70,11 @@ func TestListUsersHandler_HappyPath(t *testing.T) {
 
 	// pagination to be 1
 	if body.Pagination.Page != 1 {
-			t.Errorf("got %d pages, want 1", body.Pagination)
+			t.Errorf("got %d pages, want 1", body.Pagination.Page)
 	}
 
 	if body.Pagination.Limit != 20 {
-			t.Errorf("got %d pagination limit, want 20", body.Pagination.Total)
+			t.Errorf("got %d pagination limit, want 20", body.Pagination.Limit)
 	}
 }
 func TestListUsersHandler_EmptyDb(t *testing.T) {

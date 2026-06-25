@@ -72,24 +72,26 @@ func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 func (r *PostgresUserRepo) GetAllUsers(limit, offset int) ([]models.User, error) {
 	var users []models.User
 	rows, err := r.db.Query(
-		`SELECT * FROM users WHERE is_admin = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`, limit, offset,
+		`SELECT id, name, email, is_admin, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`, limit, offset,
 	)
 	if err != nil {
+		slog.Error("GetAllUsers: query failed", "error", err)
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt)
-		if err != nil {
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			slog.Error("GetAllUsers: scan failed", "error", err)
 			return nil, err
 		}
 		users = append(users, u)
 	}
-			if err := rows.Err(); err != nil {
-			return nil, err
-		}
+	if err := rows.Err(); err != nil {
+		slog.Error("GetAllUsers: rows iteration error", "error", err)
+		return nil, err
+	}
 
 	return users, nil
 }
@@ -125,10 +127,11 @@ func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, err
 }
 
 func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
-	// stub
-	return nil, nil
+	// ponytail: stub — implement on next ticket
+	return nil, errors.New("UpdateUser not implemented")
 }
 
 func (r *PostgresUserRepo) DeleteUser(id string) error {
-	return nil
+	// ponytail: stub — implement on next ticket
+	return errors.New("DeleteUser not implemented")
 }

@@ -36,10 +36,9 @@ type Session struct {
 
 // -- Admin models --
 
-// update user
 type UpdateUserInput struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	IsAdmin bool `json:"is_admin"`
+	Name    *string `json:"name"`
+	Email   *string `json:"email"`
+	IsAdmin *bool   `json:"is_admin"`
 }
 

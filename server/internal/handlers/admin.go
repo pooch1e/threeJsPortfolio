@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"math"
 	"net/http"
 	"strconv"
@@ -35,7 +36,7 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 		limit := r.URL.Query().Get("limit")
 		limitInt, _ := strconv.Atoi(limit)
 
-		if limitInt <= 1 {
+		if limitInt < 1 {
 			limitInt = 20
 		}
 
@@ -45,15 +46,16 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 
 		offset := (pageInt - 1) * limitInt
 
-		// call repo and get list of users
 		usersList, err := repo.GetAllUsers(limitInt, offset)
 		if err != nil {
+			slog.Error("ListUsersHandler: GetAllUsers failed", "error", err)
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user list")
 			return
 		}
 
 		userCount, err := repo.GetUserCount()
 		if err != nil {
+			slog.Error("ListUsersHandler: GetUserCount failed", "error", err)
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user count")
 			return
 		}
@@ -76,23 +78,21 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 	}
 }
 
-// GET user:id
+// ponytail: stubs — implement on next ticket
 func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// implement here
+		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
 	}
 }
 
-// PUT user
-func UpdateUserInput(repo repos.UserRepository) http.HandlerFunc {
+func UpdateUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// strub
-}
+		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+	}
 }
 
-// DELETE user
 func DeleteUser(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//stub
+		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
 	}
 }

@@ -337,7 +337,7 @@ func TestIntegration_ListUsers_Unauthenticated(t *testing.T) {
 	srv, cleanup := newTestServer(t)
 	defer cleanup()
 
-	resp := get(t, srv.URL+"/api/users", nil)
+	resp := get(t, srv.URL+"/api/admin/users", nil)
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Errorf("GET /api/users: got %d, want %d", resp.StatusCode, http.StatusUnauthorized)
 	}
@@ -361,7 +361,7 @@ func TestIntegration_ListUsers_NonAdmin(t *testing.T) {
 		t.Fatal("no session cookie after login")
 	}
 
-	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	resp := get(t, srv.URL+"/api/admin/users", []*http.Cookie{sessionCookie})
 	if resp.StatusCode != http.StatusForbidden {
 		t.Errorf("GET /api/users non-admin: got %d, want %d", resp.StatusCode, http.StatusForbidden)
 	}
@@ -379,7 +379,7 @@ func TestIntegration_ListUsers_Admin(t *testing.T) {
 		}, nil)
 	}
 
-	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	resp := get(t, srv.URL+"/api/admin/users", []*http.Cookie{sessionCookie})
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /api/users admin: got %d, want %d", resp.StatusCode, http.StatusOK)
 	}
@@ -441,7 +441,7 @@ func TestIntegration_ListUsers_EmptyDB(t *testing.T) {
 	srv, sessionCookie, cleanup := makeAdminServer(t)
 	defer cleanup()
 
-	resp := get(t, srv.URL+"/api/users", []*http.Cookie{sessionCookie})
+	resp := get(t, srv.URL+"/api/admin/users", []*http.Cookie{sessionCookie})
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /api/users empty: got %d, want %d", resp.StatusCode, http.StatusOK)
 	}
