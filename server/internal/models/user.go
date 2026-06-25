@@ -33,3 +33,12 @@ type Session struct {
 	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// -- Admin models --
+
+type UpdateUserInput struct {
+	Name    *string `json:"name"`
+	Email   *string `json:"email"`
+	IsAdmin *bool   `json:"is_admin"`
+}
+

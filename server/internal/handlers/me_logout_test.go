@@ -86,6 +86,7 @@ func TestMeHandler_HappyPath(t *testing.T) {
 
 	var body struct {
 		Username string `json:"username"`
+		IsAdmin bool `json:"is_admin"`
 	}
 	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
 		t.Fatalf("decode body: %v", err)
@@ -93,6 +94,10 @@ func TestMeHandler_HappyPath(t *testing.T) {
 	if body.Username != "alice" {
 		t.Errorf("username: got %q, want %q", body.Username, "alice")
 	}
+	if body.IsAdmin != false {
+		t.Errorf("isAdmin: got %v, want %q", body.IsAdmin, "false")
+	}
+
 }
 
 // --- LogoutHandler ---

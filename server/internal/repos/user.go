@@ -8,19 +8,14 @@ import (
 	"threejsPortfolioServer/internal/models"
 )
 
-// ErrNotFound is returned when a requested record does not exist.
-// Callers use errors.Is(err, repos.ErrNotFound) to distinguish "not found"
-// from genuine database failures so they can return the correct HTTP status.
+
 var ErrNotFound = errors.New("not found")
 
-// PostgresUserRepo is the production implementation of UserRepository backed
-// by a PostgreSQL database.
 type PostgresUserRepo struct {
 	db *sql.DB
 }
 
-// NewPostgresUserRepo creates a PostgresUserRepo. The caller retains ownership
-// of db and is responsible for closing it.
+
 func NewPostgresUserRepo(db *sql.DB) *PostgresUserRepo {
 	return &PostgresUserRepo{db: db}
 }
@@ -74,6 +69,43 @@ func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *PostgresUserRepo) GetAllUsers(limit, offset int) ([]models.User, error) {
+	var users []models.User
+	rows, err := r.db.Query(
+		`SELECT id, name, email, is_admin, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`, limit, offset,
+	)
+	if err != nil {
+		slog.Error("GetAllUsers: query failed", "error", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var u models.User
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			slog.Error("GetAllUsers: scan failed", "error", err)
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("GetAllUsers: rows iteration error", "error", err)
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (r *PostgresUserRepo) GetUserCount() (int, error) {
+	var count int
+	err := r.db.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)
+	if err != nil {
+		slog.Error("Error checking count of users", "error", err)
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.QueryRow(
@@ -92,4 +124,14 @@ func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, err
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
+	// ponytail: stub — implement on next ticket
+	return nil, errors.New("UpdateUser not implemented")
+}
+
+func (r *PostgresUserRepo) DeleteUser(id string) error {
+	// ponytail: stub — implement on next ticket
+	return errors.New("DeleteUser not implemented")
 }
