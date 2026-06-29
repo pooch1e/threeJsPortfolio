@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "server": "cd server && make docker-up && make dev",
     "full-stack": "./scripts/start-all.sh",
     "full-stack-down": "./scripts/stop-all.sh",
     "test": "vitest"

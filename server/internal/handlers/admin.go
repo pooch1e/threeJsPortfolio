@@ -27,16 +27,14 @@ type listUsersResponse struct {
 func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pageString := r.URL.Query().Get("page")
-		pageInt, _ := strconv.Atoi(pageString)
-
-		if pageInt <= 1 {
+		pageInt, err := strconv.Atoi(pageString)
+		if err != nil || pageInt < 1 {
 			pageInt = 1
 		}
 
 		limit := r.URL.Query().Get("limit")
-		limitInt, _ := strconv.Atoi(limit)
-
-		if limitInt < 1 {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil || limitInt < 1 {
 			limitInt = 20
 		}
 
@@ -59,7 +57,9 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user count")
 			return
 		}
-
+		if usersList == nil {
+			usersList = []models.User{}
+		}
 		totalPages := int(math.Ceil(float64(userCount)/float64(limitInt)))
 		// build meta payload
 		meta := paginationMeta{
@@ -78,7 +78,6 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 	}
 }
 
-// ponytail: stubs — implement on next ticket
 func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
