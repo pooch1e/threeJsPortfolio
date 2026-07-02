@@ -10,7 +10,7 @@ export class Time extends EventEmitter {
     this.elapsedTime = 0;
     this.deltaTime = 16;
 
-    window.requestAnimationFrame(() => {
+    this.animationId = window.requestAnimationFrame(() => {
       this.tick();
     });
   }
@@ -23,7 +23,7 @@ export class Time extends EventEmitter {
 
     this.trigger('tick');
 
-    window.requestAnimationFrame(() => {
+    this.animationId = window.requestAnimationFrame(() => {
       this.tick();
     });
   }
