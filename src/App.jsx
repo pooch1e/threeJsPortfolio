@@ -21,6 +21,8 @@ const PortalPage = lazy(() => import("./pages/PortalPage"));
 const AsciiPage = lazy(() => import("./pages/AsciiPage"));
 const SineWavePage = lazy(() => import("./pages/SineWavePage"));
 const FlowerPage = lazy(() => import("./pages/FlowerPage"));
+const RectPage = lazy(() => import("./pages/RectPage"));
+
 function App() {
   const setUsername = userLoginStore((s) => s.setUsername);
   const setLoaded = userLoginStore((s) => s.setLoaded);
@@ -42,7 +44,7 @@ function App() {
         logout();
       })
       .finally(() => setLoaded());
-  }, []);
+  }, [logout, setUsername, setLoaded]);
 
   return (
     <>
@@ -114,6 +116,14 @@ function App() {
               }
             />
           </Route>
+          <Route
+            path="/rects"
+            element={
+              <Suspense fallback={<LoadingOverlay />}>
+                <RectPage />
+              </Suspense>
+            }
+          />
         </Route>
         {/* No header/footer — redirect away if already logged in */}
         <Route element={<PublicOnlyRoute />}>

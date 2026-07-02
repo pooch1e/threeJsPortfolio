@@ -5,5 +5,6 @@ export const projectLinks = [
   { order: "004", projectName: "SineWave Playground", url: "/sineWave" },
   { order: "005", projectName: "Portal Blend", url: "/portalblend" },
   { order: "006", projectName: "Ascii", url: "/ascii" },
-  { order: "0067", projectName: "Flower", url: "/flower" },
+  { order: "007", projectName: "Flower", url: "/flower" },
+  { order: "008", projectName: "Rects", url: "/rects" },
 ];
