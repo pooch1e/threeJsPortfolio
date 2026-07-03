@@ -1,11 +1,15 @@
 import { MeshBasicMaterial, Mesh, PlaneGeometry, Group } from "three";
 import { randomFloat, randomInt } from "../../src/utils/helpers";
+
 export class Ribbon {
-  constructor({ world, xOffset, xWidth }) {
+  constructor({ world, ribbonParams }) {
     this.world = world;
     this.scene = world.scene;
     this.debug = world.rectExperience.debug;
     this.time = this.world.rectExperience.time;
+
+    // ribbon param object to control in debug
+    this.ribbonParamsDebug = { ...ribbonParams };
 
     this.ribbonGroup = new Group();
 
@@ -14,42 +18,59 @@ export class Ribbon {
       wireframe: false,
     });
 
-    this.setMeshes({ xWidth, xOffset });
+    this.ribbonGroup.position.x = this.ribbonParamsDebug.ribbonXPos;
+
+    this.setPlanes();
 
     this.scene.add(this.ribbonGroup);
+    // start lower than camera
     this.ribbonGroup.position.y = -10;
   }
 
-  setMeshes({ xWidth, xOffset }) {
-    // each ribbon is made up of planes with same x, variable y's
-    // need to ensure the gap between each plane exists
-    // the y of each plane kinda needs to be longer than the last one
+  setPlanes() {
+    // each ribbon is made up of planes with same width, variable heights,
+    // stacked straight up on y with a y-gap between them
+    const { xWidth, planeCount, yGapScale } = this.ribbonParamsDebug;
 
-    let offset = 0;
+ 
+    while (this.ribbonGroup.children.length > 0) {
+      const mesh = this.ribbonGroup.children.pop();
+      this.ribbonGroup.remove(mesh);
+      mesh.geometry.dispose();
+    }
 
-    for (let i = 1; i <= 10; i++) {
+    let yOffset = 0;
+
+    for (let i = 1; i <= planeCount; i++) {
       const height = randomFloat(1, 5);
-      this.planeGeometry = new PlaneGeometry(xWidth, height);
-      // translate origin of geometry to base as it is in middle on instatiation
-      this.planeGeometry.translate(0, height / 2, 0);
+      const planeGeometry = new PlaneGeometry(xWidth, height);
 
-      const mesh = new Mesh(this.planeGeometry, this.material);
-      mesh.position.y = offset;
-      this.ribbonGroup.position.x = xOffset;
+      // translate origin of geometry to base as it is in middle on instatiation
+      planeGeometry.translate(0, height / 2, 0);
+
+      const mesh = new Mesh(planeGeometry, this.material);
+      mesh.position.y = yOffset;
       this.ribbonGroup.add(mesh);
 
-      const randomGap = randomInt(1, 2);
-      offset += height + randomGap;
+      yOffset += height + randomInt(1, 2) * yGapScale;
     }
+  }
+
+  updateParams(newParams) {
+    Object.assign(this.ribbonParamsDebug, newParams);
+    this.setPlanes();
+  }
+
+  setXPosition(x) {
+    this.ribbonParamsDebug.ribbonXPos = x;
+    this.ribbonGroup.position.x = x;
   }
 
   destroy() {
-    console.log("destroyed");
+    this.scene.remove(this.ribbonGroup);
+    this.ribbonGroup.children.forEach((mesh) => mesh.geometry.dispose());
+    this.material.dispose();
   }
 
-  update(time) {
-    if (time) {
-      console.log("animating");
-    }
-  }
+  update(time) {}
 }
