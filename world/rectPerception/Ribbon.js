@@ -32,7 +32,7 @@ export class Ribbon {
     // stacked straight up on y with a y-gap between them
     const { xWidth, planeCount, yGapScale } = this.ribbonParamsDebug;
 
- 
+
     while (this.ribbonGroup.children.length > 0) {
       const mesh = this.ribbonGroup.children.pop();
       this.ribbonGroup.remove(mesh);
@@ -42,7 +42,7 @@ export class Ribbon {
     let yOffset = 0;
 
     for (let i = 1; i <= planeCount; i++) {
-      const height = randomFloat(1, 5);
+      const height = randomFloat(1, 10);
       const planeGeometry = new PlaneGeometry(xWidth, height);
 
       // translate origin of geometry to base as it is in middle on instatiation
@@ -52,7 +52,7 @@ export class Ribbon {
       mesh.position.y = yOffset;
       this.ribbonGroup.add(mesh);
 
-      yOffset += height + randomInt(1, 2) * yGapScale;
+      yOffset += height + randomInt(1, 10) * yGapScale;
     }
   }
 

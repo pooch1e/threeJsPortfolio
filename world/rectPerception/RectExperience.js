@@ -24,6 +24,12 @@ export class RectExperience {
       controls: true,
     });
 
+    this.camera.perspectiveCamera.position.set(7.5, -9, 4);
+    if (this.camera.controls) {
+      this.camera.controls.target.set(7.5, 15, -10);
+      this.camera.controls.update();
+    }
+
     this.renderer = new Renderer({
       canvas: this.canvas,
       sizes: this.sizes,

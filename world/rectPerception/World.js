@@ -13,17 +13,27 @@ export class World {
       ribbonCount: 20,
     };
 
-    this.xGapScale = 0.3;
+    this.xGapScale = 0.2;
 
     this.sharedParams = {
-      yGapScale: 1,
-      planeCount: 10,
-      xWidth: 0.2,
+      yGapScale: 0.8,
+      planeCount: 15,
+      xWidth: 0.1,
     };
 
     this.groupConfigs = [
-      {
+            {
         label: "RibbonsA",
+        ribbonCount: this.worldParams.ribbonCount,
+        spacing: 3,
+        groupXOffset: -10,
+        xGapScale: this.xGapScale,
+        yGapScale: 1,
+        planeCount: this.sharedParams.planeCount,
+        xWidth: 0.08,
+      },
+      {
+        label: "RibbonsB",
         ribbonCount: this.worldParams.ribbonCount,
         spacing: 2,
         groupXOffset: 0,
@@ -33,12 +43,32 @@ export class World {
         xWidth: 0.2,
       },
       {
-        label: "RibbonsB",
+        label: "RibbonsC",
+        ribbonCount: this.worldParams.ribbonCount,
+        spacing: 2,
+        groupXOffset: 8,
+        xGapScale: this.xGapScale,
+        yGapScale: 2,
+        planeCount: this.sharedParams.planeCount,
+        xWidth: 0.1,
+      },
+      {
+        label: "RibbonsD",
         ribbonCount: this.worldParams.ribbonCount,
         spacing: 2,
         groupXOffset: 15,
         xGapScale: this.xGapScale,
-        yGapScale: 1,
+        yGapScale: 0.4,
+        planeCount: this.sharedParams.planeCount,
+        xWidth: 0.2,
+      },
+            {
+        label: "RibbonsE",
+        ribbonCount: this.worldParams.ribbonCount,
+        spacing: 2,
+        groupXOffset: 25,
+        xGapScale: this.xGapScale,
+        yGapScale: 0.4,
         planeCount: this.sharedParams.planeCount,
         xWidth: 0.2,
       },

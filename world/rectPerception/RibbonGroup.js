@@ -33,6 +33,7 @@ export class RibbonGroup {
         },
       });
       ribbon.ribbonIndex = ribbonIndex;
+
       this.ribbons.push(ribbon);
     }
   }
