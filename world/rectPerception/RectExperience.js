@@ -1,4 +1,4 @@
-import { Scene, Mesh } from "three";
+import { Scene, Mesh, Color } from "three";
 import { Sizes } from "../utils/Sizes.js";
 import { Time } from "../utils/Time.js";
 import { Debug } from "../utils/Debug.js";
@@ -16,6 +16,9 @@ export class RectExperience {
     this.sizes = new Sizes();
     this.time = new Time();
     this.scene = new Scene();
+    // set background to white
+
+    console.log(this.scene.bacckground);
     this.resources = new EventEmitter();
 
     this.camera = new Camera({

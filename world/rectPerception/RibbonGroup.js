@@ -96,7 +96,9 @@ export class RibbonGroup {
 
       const rerollSpeeds = () => {
         const { speedMin, speedMax } = this.sharedParams;
-        this.ribbons.forEach((ribbon) => ribbon.setSpeedRange(speedMin, speedMax));
+        this.ribbons.forEach((ribbon) =>
+          ribbon.setSpeedRange(speedMin, speedMax),
+        );
       };
 
       this.debugFolder
@@ -111,8 +113,8 @@ export class RibbonGroup {
     }
   }
 
-  update(time) {
-    this.ribbons.forEach((ribbon) => ribbon.update(time));
+  update(time, speedMultiplier = 1) {
+    this.ribbons.forEach((ribbon) => ribbon.update(time, speedMultiplier));
   }
 
   destroy() {

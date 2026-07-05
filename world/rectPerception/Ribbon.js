@@ -56,7 +56,9 @@ export class Ribbon {
     let yOffset = 0;
 
     for (let i = 1; i <= planeCount; i++) {
-      const height = randomFloat(heightMin, heightMax);
+      // skew toward heightMin so most blocks are short with occasional
+      // long spikes, instead of an even spread across the full range
+      const height = heightMin + Math.pow(Math.random(), 3) * (heightMax - heightMin);
       planeDefs.push({ height, y: yOffset });
       yOffset += height + randomInt(1, 10) * yGapScale;
     }
@@ -104,10 +106,10 @@ export class Ribbon {
     this.material.dispose();
   }
 
-  update(time) {
+  update(time, speedMultiplier = 1) {
     if (!time || !this.patternHeight) return;
 
-    this.scrollY += this.speed * (time.deltaTime * 0.001);
+    this.scrollY += this.speed * speedMultiplier * (time.deltaTime * 0.001);
 
     //wrap tiles
     this.scrollY %= this.patternHeight;
