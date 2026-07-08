@@ -1,4 +1,5 @@
 import { Ribbon } from "./Ribbon";
+import { wave, WAVE_TYPES } from "../utils/Wave";
 
 export class RibbonGroup {
   constructor({ world, groupParams }) {
@@ -6,8 +7,17 @@ export class RibbonGroup {
     this.scene = world.scene;
     this.debug = world.rectExperience.debug;
 
-    // { label, ribbonCount, spacing, groupXOffset, xGapScale, yGapScale, planeCount, xWidth }
+    // { label, ribbonCount, spacing, groupXOffset, xGapScale, yGapScale, planeCount, xWidth, wave }
     this.groupParams = { ...groupParams };
+
+    this.waveParams = {
+      type: WAVE_TYPES.SINE,
+      frequency: 0.1,
+      amplitude: 0,
+      offset: 1,
+      phase: 0,
+      ...groupParams.wave,
+    };
 
     this.xGapScale = this.groupParams.xGapScale;
     this.sharedParams = {
@@ -114,7 +124,14 @@ export class RibbonGroup {
   }
 
   update(time, speedMultiplier = 1) {
-    this.ribbons.forEach((ribbon) => ribbon.update(time, speedMultiplier));
+    const waveMultiplier = wave(
+      this.waveParams.type,
+      time.elapsedTime * 0.001,
+      this.waveParams,
+    );
+    this.ribbons.forEach((ribbon) =>
+      ribbon.update(time, speedMultiplier * waveMultiplier),
+    );
   }
 
   destroy() {

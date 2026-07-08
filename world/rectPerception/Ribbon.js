@@ -109,7 +109,7 @@ export class Ribbon {
   update(time, speedMultiplier = 1) {
     if (!time || !this.patternHeight) return;
 
-    this.scrollY += this.speed * speedMultiplier * (time.deltaTime * 0.001);
+    this.scrollY += this.speed * speedMultiplier * (time.deltaTime * 0.005);
 
     //wrap tiles
     this.scrollY %= this.patternHeight;
