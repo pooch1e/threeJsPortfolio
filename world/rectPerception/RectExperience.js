@@ -1,4 +1,4 @@
-import { Scene, Mesh, Color } from "three";
+import { Scene, Mesh } from "three";
 import { Sizes } from "../utils/Sizes.js";
 import { Time } from "../utils/Time.js";
 import { Debug } from "../utils/Debug.js";
