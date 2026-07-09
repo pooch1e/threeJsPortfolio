@@ -7,7 +7,7 @@ import { Renderer } from "./objects/Renderer.js";
 import EventEmitter from "./utils/EventEmitter.js";
 import { disposeScene } from "./utils/disposeScene.js";
 
-export class Experience {
+export class BaseExperience {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
     this.scene = new Scene();

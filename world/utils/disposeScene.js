@@ -19,7 +19,7 @@ export function disposeScene(scene) {
         materials.forEach((material) => {
           for (const key in material) {
             const value = material[key];
-            if (value && typeof value === "object" && "dispose" in value) {
+            if (value && typeof value === "function") {
               value.dispose();
             }
           }
