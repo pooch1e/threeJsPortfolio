@@ -1,5 +1,5 @@
-import { MeshBasicMaterial, Mesh, PlaneGeometry, Group } from "three";
-import { randomFloat, randomInt } from "../../utils/helpers";
+import { MeshBasicMaterial, Mesh, PlaneGeometry, Group, Color } from "three";
+import { randomFloat } from "../../utils/helpers";
 
 const TILE_OFFSETS = [-1, 0, 1];
 
@@ -19,6 +19,7 @@ export class Ribbon {
     // const material as nothing gonna change
     this.material = new MeshBasicMaterial({
       wireframe: false,
+      color: ribbonParams.colour ?? new Color("black"),
     });
 
     this.ribbonGroup.position.x = this.ribbonParamsDebug.ribbonXPos;
@@ -58,10 +59,11 @@ export class Ribbon {
     for (let i = 1; i <= planeCount; i++) {
       // skew toward heightMin so most blocks are short with occasional
       // long spikes, instead of an even spread across the full range
-      const height =
-        heightMin + Math.pow(Math.random(), 3) * (heightMax - heightMin);
+      const height = randomFloat(heightMin, heightMax);
+      // const height =
+      //   heightMin + Math.pow(Math.random(), 3) * (heightMax - heightMin);
       planeDefs.push({ height, y: yOffset });
-      yOffset += height + randomInt(1, 10) * yGapScale;
+      yOffset += height + yGapScale;
     }
 
     this.patternHeight = yOffset;

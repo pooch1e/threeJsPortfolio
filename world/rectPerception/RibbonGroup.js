@@ -1,5 +1,7 @@
 import { Ribbon } from "./Ribbon";
 import { wave, WAVE_TYPES } from "../utils/Wave";
+import { randomChance } from "../../utils/helpers";
+import { Color } from "three";
 
 export class RibbonGroup {
   constructor({ world, groupParams }) {
@@ -36,17 +38,18 @@ export class RibbonGroup {
   }
 
   buildRibbons() {
-    const { ribbonCount, spacing, groupXOffset } = this.groupParams;
+    const { ribbonCount, spacing, groupXOffset, xWidth } = this.groupParams;
     for (let i = 0; i < ribbonCount; i++) {
-      const ribbonIndex = i - (ribbonCount - 1) / 2;
+      // const ribbonIndex = i - (ribbonCount - 1) / 2;
       const ribbon = new Ribbon({
         world: this.world,
         ribbonParams: {
           ...this.sharedParams,
-          ribbonXPos: groupXOffset + ribbonIndex * spacing * this.xGapScale,
+          ribbonXPos: groupXOffset + (spacing + xWidth) * i,
+          colour: randomChance(0.001) ? new Color("red") : null,
         },
       });
-      ribbon.ribbonIndex = ribbonIndex;
+      // ribbon.ribbonIndex = i;
 
       this.ribbons.push(ribbon);
     }
@@ -62,17 +65,17 @@ export class RibbonGroup {
         this.ribbons.forEach((ribbon) => ribbon.updateParams({ [key]: value }));
       };
 
-      this.debugFolder
-        .add(this, "xGapScale", 0.15, 3, 0.05)
-        .name("X Gap Scale")
-        .onChange((value) => {
-          const { spacing, groupXOffset } = this.groupParams;
-          this.ribbons.forEach((ribbon) => {
-            ribbon.setXPosition(
-              groupXOffset + ribbon.ribbonIndex * spacing * value,
-            );
-          });
-        });
+      // this.debugFolder
+      //   .add(this, "xGapScale", 0.15, 3, 0.05)
+      //   .name("X Gap Scale")
+      //   .onChange((value) => {
+      //     const { spacing, groupXOffset } = this.groupParams;
+      //     this.ribbons.forEach((ribbon) => {
+      //       ribbon.setXPosition(
+      //         groupXOffset + ribbon.ribbonIndex * spacing, // * value,
+      //       );
+      //     });
+      //   });
 
       this.debugFolder
         .add(this.sharedParams, "yGapScale", 0, 3, 0.05)
