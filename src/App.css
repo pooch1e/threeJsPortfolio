@@ -17,37 +17,89 @@
   font-style: italic;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Offbit';
+  src: url('./assets/fonts/WOFF2/OffBit-101.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Offbit';
+  src: url('./assets/fonts/WOFF2/OffBit-101Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OffbitRegular';
+  src: url('./assets/fonts/WOFF2/OffBit-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OffbitRegular';
+  src: url('./assets/fonts/WOFF2/OffBit-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OffbitDot';
+  src: url('./assets/fonts/WOFF2/OffBit-Dot.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OffbitDot';
+  src: url('./assets/fonts/WOFF2/OffBit-DotBold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Dirtyline';
+  src: url('./assets/fonts/WOFF2/Dirtyline 36daysoftype 2022.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
-    --color-bg: #798086;
-    --color-bg-mid: #848691;
-    --color-bg-midlight: #b0b1b3;
-    --color-bg-light: #cccccc;
-    --color-bg-lightest: #f2f2f2;
+    --color-bg: #D1D3D9;
+    --color-bg-mid: #C3C0C2;
+    --color-bg-midlight: #B5B1B2;
+    --color-bg-light: #ADA9B7;
 
-    --text-color-light: #caf0f8;
-    --text-color-mid: #90e0ef;
-    --text-color-standard: #67e8f9;
-    --text-color-dark: #0077b6;
-    --text-color-verydark: #03045e;
+    --text-color-dark: #0D161F;
+    --text-primary: #EC5023;
+    --text-secondary: #F54C1D;
+    --text-alt: #AA92C2;
+
+    --object-alt: #564FF3;
 
     /* Semantic tokens */
-    --color-accent: #67e8f9;
-    --color-ink: #03045e;
-    --color-index: rgba(3, 4, 94, 0.38);
-    --color-divider: rgba(3, 4, 94, 0.12);
-
     --text-xsmall: 12px;
     --text-small: 16px;
     --text-mid: 24px;
     --text-lg: 32px;
+    --text-xl: 42px;
 
-    
+
     --font-size-100: 0.75rem;  /* 12px */
     --font-size-200: 1rem;     /* 16px */
     --font-size-300: 1.5rem;   /* 24px */
     --font-size-400: 2rem;     /* 32px */
+    --font-size-500: 2.625rem;  /* 42px */
 
     --font-weight-regular: 400;
     --font-weight-medium: 500;
@@ -58,7 +110,6 @@
     --line-height-normal: 1.5;
     --line-height-relaxed: 1.7;
 
-    
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -73,9 +124,5 @@
     --size-content-w: 72rem;
     --size-hero-h: 60vh;
 
-    
-    --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.15);
-    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.2);
-    --shadow-focus: 0 0 0 3px rgba(103, 232, 249, 0.35);
   }
 }

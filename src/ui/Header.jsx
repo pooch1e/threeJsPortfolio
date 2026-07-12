@@ -3,12 +3,12 @@ import UserDropdown from "../components/UserDropdown";
 
 export default function Header() {
   return (
-    <section className="font-karrik bg-[var(--color-bg)] w-full">
+    <section className="font-dirtyline bg-[var(--color-bg)] w-full">
       <header className="px-6 pt-4 pb-4">
         <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
           <div />
           <Link to="/homepage" className="justify-self-center">
-            <h1 className="text-4xl uppercase tracking-widest text-ink hover:text-accent transition-colors ease-linear text-center">
+            <h1 className="text-5xl uppercase tracking-widest text-[var(--text-primary)] hover:text-accent transition-colors ease-linear text-center">
               Experiments
             </h1>
           </Link>

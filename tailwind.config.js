@@ -5,9 +5,13 @@ export default {
     extend: {
       fontFamily: {
         karrik: ['Karrik', 'sans-serif'],
+        offbit: ['Offbit', 'sans-serif'],
+        offbitRegular: ['OffbitRegular', 'sans-serif'],
+        offbitDot: ['OffbitDot', 'sans-serif'],
+        dirtyline: ['Dirtyline', 'sans-serif'],
       },
 
-      
+
       fontSize: {
         100: [
           'var(--font-size-100)',
