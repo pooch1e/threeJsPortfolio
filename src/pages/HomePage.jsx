@@ -1,15 +1,24 @@
 import ProjectCard from '../components/ProjectCard';
+import UserDropdown from '../components/UserDropdown';
 import HomeStyle from '../layout/HomeStyle';
-import { projectLinks } from '../config/projectLinksConfig';
+import { experiences } from '../config/experienceConfig';
 
 export default function HomePage() {
   return (
     <HomeStyle>
-      <main className="min-h-screen flex items-center justify-center px-4">
-        <section className="w-full max-w-3xl flex flex-col">
-          {projectLinks.map((project) => (
-            <ProjectCard key={project.order} project={project} />
+      <div className="fixed top-4 right-4 z-20">
+        <UserDropdown />
+      </div>
+      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+        <h1 className="font-dirtyline text-5xl uppercase tracking-widest text-[var(--text-primary)] text-center mb-10">
+          Experiments
+        </h1>
+        <section className="w-full max-w-3xl">
+          <div className='grid grid-cols-2 gap-12'>
+          {experiences.map((project) => (
+            <ProjectCard key={project.slug} project={project} />
           ))}
+            </div>
         </section>
       </main>
     </HomeStyle>
