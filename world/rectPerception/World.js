@@ -1,7 +1,7 @@
 import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
-import { randomFloat, randomElement } from "../../utils/helpers";
+import { randomFloat, randomElement, createRangeOfInts, randomIndex } from "../../utils/helpers";
 
 export class World {
   constructor(rectExperience) {
@@ -25,6 +25,7 @@ export class World {
       // TODO: make this random per group
       worldRibbonCount: 10,
     };
+
 
     // Amount of singular ribbons in a group of ribbons
     const ribbonGroupCount = 15;
