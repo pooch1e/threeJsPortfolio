@@ -3,6 +3,16 @@ import { useForm } from "react-hook-form";
 import { postSignup } from "../utils/postSignup";
 import { useNavigate } from "react-router-dom";
 import ErrorMessage from "../components/ErrorMessage";
+import HomeStyle from "../layout/HomeStyle";
+
+const inputClass =
+  "rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] " +
+  "text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
+  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear";
+
+const labelClass =
+  "font-offbit text-100 uppercase tracking-widest text-[var(--object-alt)]";
+
 export default function SignUpPage() {
   const {
     handleSubmit,
@@ -25,90 +35,96 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] font-karrik">
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-card p-8 flex flex-col gap-6">
-        <h1 className="text-2xl font-semibold text-center mb-2 text-cyan-700">
-          Sign Up Here
-        </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="username" className="font-medium">
-              Username
-            </label>
-            <input
-              type="text"
-              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
-              {...register("username", {
-                required: "A username is required",
-                minLength: { value: 3, message: "Min 3 characters" },
-              })}
-            />
-            <ErrorMessage error={errors.username?.message} type="validation" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="font-medium">
-              Email
-            </label>
-            <input
-              type="email"
-              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
-              {...register("email", {
-                required: "An email address is required",
-              })}
-            />
-            <ErrorMessage error={errors.email?.message} type="validation" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
-              {...register("password", {
-                required: "A new password is required",
-              })}
-            />
-            <ErrorMessage error={errors.password?.message} type="validation" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="confirmPassword" className="font-medium">
-              Repeat Password
-            </label>
-            <input
-              type="password"
-              className="rounded-md p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 text-black"
-              {...register("confirmPassword", {
-                validate: (val) => {
-                  if (watch("password") !== val) {
-                    return "Your passwords do not match";
-                  }
-                },
-              })}
-            />
-            <ErrorMessage error={errors.confirmPassword?.message} type="user" />
-          </div>
-          <button
-            type="submit"
-            className="mt-2 bg-cyan-600 text-white rounded-md py-2 font-semibold hover:bg-cyan-700 transition-colors"
-          >
+    <HomeStyle>
+      <div className="min-h-svh flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md flex flex-col gap-8">
+          <h1 className="font-dirtyline text-4xl uppercase tracking-widest text-[var(--text-primary)] text-center">
             Sign Up
-          </button>
-          <div className="flex flex-col gap-2 mt-2">
-          <span className="flex justify-center">
-            <h2>Already signed up? Login here...</h2>
-          </span>
-          <button
-            type="button"
-            className="w-full border border-cyan-600 text-cyan-700 rounded-md py-2 font-semibold hover:bg-cyan-50 transition-colors"
-            onClick={() => navigate("/")}
-          >
-            Login
-          </button>
+          </h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="username" className={labelClass}>
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                className={inputClass}
+                {...register("username", {
+                  required: "A username is required",
+                  minLength: { value: 3, message: "Min 3 characters" },
+                })}
+              />
+              <ErrorMessage error={errors.username?.message} type="validation" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="email" className={labelClass}>
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                className={inputClass}
+                {...register("email", {
+                  required: "An email address is required",
+                })}
+              />
+              <ErrorMessage error={errors.email?.message} type="validation" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="password" className={labelClass}>
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                className={inputClass}
+                {...register("password", {
+                  required: "A new password is required",
+                })}
+              />
+              <ErrorMessage error={errors.password?.message} type="validation" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="confirmPassword" className={labelClass}>
+                Repeat Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                className={inputClass}
+                {...register("confirmPassword", {
+                  validate: (val) => {
+                    if (watch("password") !== val) {
+                      return "Your passwords do not match";
+                    }
+                  },
+                })}
+              />
+              <ErrorMessage error={errors.confirmPassword?.message} type="user" />
+            </div>
+            <button
+              type="submit"
+              className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors ease-linear"
+            >
+              Sign Up
+            </button>
+            <ErrorMessage error={serverError} type="api" />
+          </form>
+          <div className="flex flex-col items-center gap-3">
+            <span className="font-karrik text-[var(--text-color-dark)] text-sm">
+              Already signed up?
+            </span>
+            <button
+              type="button"
+              className="w-full border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors ease-linear"
+              onClick={() => navigate("/")}
+            >
+              Login
+            </button>
           </div>
-          <ErrorMessage error={serverError} type="api" />
-        </form>
+        </div>
       </div>
-    </div>
+    </HomeStyle>
   );
 }
