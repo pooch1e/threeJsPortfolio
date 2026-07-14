@@ -76,27 +76,13 @@ export default class FlowerField {
     const targetSize = 3; // world units — longest axis fills this
     this.modelScale = longestSpan > 0 ? targetSize / longestSpan : 1;
     this.bounds = { minX, maxX, minY, maxY, minZ, maxZ };
-    console.log("[FlowerField] vertex bounds:", {
-      minX,
-      maxX,
-      minY,
-      maxY,
-      minZ,
-      maxZ,
-    });
-    console.log(
-      "[FlowerField] longestSpan:",
-      longestSpan,
-      "→ modelScale:",
-      this.modelScale,
-    );
+
 
     // Particle world offset — matches the hidden polygon model's position
     const offsetY = -1;
     const offsetZ = 1;
     const s = this.modelScale;
 
-    // Fill particle texture with base positions (scaled + offset)
     for (let i = 0; i < this.baseGeometry.count; i++) {
       const i3 = i * 3;
       const i4 = i * 4;
@@ -106,7 +92,6 @@ export default class FlowerField {
         posArr[i3 + 1] * s + offsetY;
       this.gpgpu.baseParticleTexture.image.data[i4 + 2] =
         posArr[i3 + 2] * s + offsetZ;
-      // Alpha: randomised initial life so particles don't all reset simultaneously
       this.gpgpu.baseParticleTexture.image.data[i4 + 3] = Math.random();
     }
 
@@ -134,7 +119,6 @@ export default class FlowerField {
     // Init
     this.gpgpu.computation.init();
 
-    // Debug plane (hidden by default — toggle visible for debugging)
     this.gpgpu.debug = new Mesh(
       new PlaneGeometry(3, 3),
       new MeshBasicMaterial({
@@ -156,7 +140,6 @@ export default class FlowerField {
       modelScene.position.y = -1;
     }
 
-    // Build the particle Points object and add it to the scene
     this.setParticles();
     this.setDebug();
   }
@@ -258,7 +241,6 @@ export default class FlowerField {
   update(time) {
     if (!this.gpgpu || !this.particles) return;
 
-    // Both in seconds — shader scales time internally with * 0.2
     this.gpgpu.particleVariable.material.uniforms.uTime.value =
       time.elapsedTime * 0.001;
     this.gpgpu.particleVariable.material.uniforms.uDeltaTime.value =

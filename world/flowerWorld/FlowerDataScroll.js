@@ -16,7 +16,6 @@ export default class FlowerDataScroll {
     const lines = [];
     const f = (n) => (typeof n === "number" ? n.toFixed(3) : String(n));
 
-    // Top-level scene header
     lines.push('scene: "FlowerScene"');
     lines.push("children:");
 
@@ -87,9 +86,6 @@ export default class FlowerDataScroll {
       lines.push(`  attributes: [ ${attrNames.join(", ")} ]`);
     }
 
-    // Pad with blank lines at the end so the loop resets with visual breathing room
-    for (let i = 0; i < 8; i++) lines.push("");
-
     return lines;
   }
 
@@ -142,9 +138,8 @@ export default class FlowerDataScroll {
 
     this.canvasTexture = new CanvasTexture(this._canvas);
 
-    // Plane sized to be readable — left side of view, in front of particle cloud
-    // Camera at z=5, particles at z=1, plane at z=2
-    const planeW = 2.2;
+
+    const planeW = 10.2;
     const planeH = planeW * (this._canvasH / this._canvasW);
 
     this.geometry = new PlaneGeometry(planeW, planeH);
@@ -155,8 +150,7 @@ export default class FlowerDataScroll {
     });
 
     this.mesh = new Mesh(this.geometry, this.material);
-    // Left side of the view, centred vertically, just in front of the particles
-
+    this.mesh.position.x = 2
     this.scene.add(this.mesh);
   }
 
