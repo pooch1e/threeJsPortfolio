@@ -45,11 +45,8 @@ void main()
 
 
     // Point size
-    float sizeIn = smoothstep(0.0, 0.1, particle.a);
-    float sizeOut = 1.0 - smoothstep(0.7, 1.0, particle.a);
-    float size = min(sizeIn, sizeOut);
-
-    gl_PointSize = size * aSize * uSize * uResolution.y;
+    gl_PointSize = 0.15 * uResolution.y;
+    gl_PointSize *= (1.0 / -viewPosition.z);
 
     // Varyings
     vColor = vec3(pow(pictureIntensity, 2.0));
