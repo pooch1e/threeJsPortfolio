@@ -9,12 +9,12 @@ export default function HomePage() {
       <div className="fixed top-4 right-4 z-20">
         <UserDropdown />
       </div>
-      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <main className="min-h-svh flex flex-col items-center justify-start sm:justify-center px-4 py-10">
         <h1 className="font-dirtyline text-5xl uppercase tracking-widest text-[var(--text-primary)] text-center mb-10">
           Experiments
         </h1>
         <section className="w-full max-w-3xl">
-          <div className='grid grid-cols-2 gap-12'>
+          <div className='grid md:grid-cols-2 gap-12 grid-cols-1'>
           {experiences.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}
