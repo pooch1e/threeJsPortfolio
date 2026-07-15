@@ -1,3 +1,20 @@
+/**
+ * Owns the single shared GPGPU flow-field particle simulation used by every
+ * FlowerPoints instance, plus the particle geometry they all render (aParticlesUv/
+ * aSize/aColor attributes — identical for every flower since they all read the
+ * same simulation texture by the same UV lookup, so it's safe to share one
+ * BufferGeometry across multiple Points objects rather than duplicating it).
+ *
+ * The flow-field noise only depends on a particle's local position and time,
+ * not on where a flower sits in the scene, so one GPUComputationRenderer pass
+ * can drive many differently-positioned, differently-colored flowers —
+ * FlowerPoints instances read getTexture()/getGeometry() and apply their own
+ * position via modelMatrix instead of the simulation baking a world offset in.
+ *
+ * update() throttles the compute() call to TARGET_FPS: flower motion doesn't
+ * need to recompute every render frame to look right, and this is the
+ * expensive part of the scene.
+ */
 import {
   Uniform,
   Mesh,
@@ -5,55 +22,46 @@ import {
   MeshBasicMaterial,
   BufferGeometry,
   BufferAttribute,
-  ShaderMaterial,
-  Vector2,
-  Points,
 } from "three";
-import vertexParticles from "./shaders/gppuFlower/vertex.glsl";
-import fragmentParticles from "./shaders/gppuFlower/fragment.glsl";
 import { GPUComputationRenderer } from "three/addons/misc/GPUComputationRenderer.js";
 import particleShader from "./shaders/particles/particles.glsl";
-export default class FlowerField {
+
+const TARGET_FPS = 15;
+const TICK_INTERVAL = 1000 / TARGET_FPS;
+
+export default class FlowerSimulation {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
     this.resources = world.resources;
-    this.debug = this.world.flowerExperience.debug;
-    this.sizes = world.flowerExperience.sizes;
+    this.debug = world.flowerExperience.debug;
     this.renderer = world.flowerExperience.renderer.renderer;
 
-    if (this.resources) {
-      this.model = this.resources.items.flowerModel;
-    }
+    this.model = this.resources.items.flowerModel;
+    this.gltf = this.model;
 
-    this.setModel();
+    this._accumulator = 0;
+
+    this.setup();
   }
 
-  setModel() {
+  setup() {
     this.baseGeometry = {};
-
-    this.gltf = this.model;
     this.baseGeometry.instance = this.gltf.scene.children[0].geometry;
-
-    // Geometry
     this.baseGeometry.count =
       this.baseGeometry.instance.attributes.position.count;
 
-    // GPU COMPUTE - Ping pong render
     this.gpgpu = {};
     this.gpgpu.size = Math.ceil(Math.sqrt(this.baseGeometry.count));
 
-    // Each pixel of the FBOs (texture) will correspond to one particle
     this.gpgpu.computation = new GPUComputationRenderer(
       this.gpgpu.size,
       this.gpgpu.size,
       this.renderer,
     );
 
-    // Base Particle Texture
     this.gpgpu.baseParticleTexture = this.gpgpu.computation.createTexture();
 
-    // Measure actual vertex bounds to auto-scale regardless of GLB export scale
     const posArr = this.baseGeometry.instance.attributes.position.array;
     let minX = Infinity,
       maxX = -Infinity;
@@ -73,29 +81,21 @@ export default class FlowerField {
       if (z > maxZ) maxZ = z;
     }
     const longestSpan = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
-    const targetSize = 3; // world units — longest axis fills this
+    const targetSize = 3;
     this.modelScale = longestSpan > 0 ? targetSize / longestSpan : 1;
     this.bounds = { minX, maxX, minY, maxY, minZ, maxZ };
 
-
-    // Particle world offset — matches the hidden polygon model's position
-    const offsetY = -1;
-    const offsetZ = 1;
     const s = this.modelScale;
-
     for (let i = 0; i < this.baseGeometry.count; i++) {
       const i3 = i * 3;
       const i4 = i * 4;
 
       this.gpgpu.baseParticleTexture.image.data[i4 + 0] = posArr[i3 + 0] * s;
-      this.gpgpu.baseParticleTexture.image.data[i4 + 1] =
-        posArr[i3 + 1] * s + offsetY;
-      this.gpgpu.baseParticleTexture.image.data[i4 + 2] =
-        posArr[i3 + 2] * s + offsetZ;
+      this.gpgpu.baseParticleTexture.image.data[i4 + 1] = posArr[i3 + 1] * s;
+      this.gpgpu.baseParticleTexture.image.data[i4 + 2] = posArr[i3 + 2] * s;
       this.gpgpu.baseParticleTexture.image.data[i4 + 3] = Math.random();
     }
 
-    // Particle Variable
     this.gpgpu.particleVariable = this.gpgpu.computation.addVariable(
       "uParticles",
       particleShader,
@@ -106,17 +106,14 @@ export default class FlowerField {
       [this.gpgpu.particleVariable],
     );
 
-    // Uniforms on GPGPU
     this.gpgpu.particleVariable.material.uniforms.uTime = new Uniform(0);
     this.gpgpu.particleVariable.material.uniforms.uBase = new Uniform(
       this.gpgpu.baseParticleTexture,
     );
     this.gpgpu.particleVariable.material.uniforms.uDeltaTime = new Uniform(0);
-    this.gpgpu.particleVariable.material.uniforms.uFieldInfluence = new Uniform(
-      0.5,
-    );
+    this.gpgpu.particleVariable.material.uniforms.uFieldInfluence =
+      new Uniform(0.5);
 
-    // Init
     this.gpgpu.computation.init();
 
     this.gpgpu.debug = new Mesh(
@@ -133,24 +130,17 @@ export default class FlowerField {
 
     if (this.model) {
       const modelScene = this.model.scene ?? this.model;
-      // Hide the raw polygon mesh — particles are the display
       modelScene.visible = false;
       this.scene.add(modelScene);
-      modelScene.position.z = 1;
-      modelScene.position.y = -1;
     }
 
-    this.setParticles();
+    this.buildGeometry();
     this.setDebug();
   }
 
-  setParticles() {
-    this.particles = {};
+  buildGeometry() {
+    this.geometry = new BufferGeometry();
 
-    // Create empty geometry
-    this.particles.geometry = new BufferGeometry();
-
-    // Create particle UV array for GPGPU texture lookup
     const particlesUvArray = new Float32Array(this.baseGeometry.count * 2);
     const sizesArray = new Float32Array(this.baseGeometry.count);
 
@@ -159,7 +149,6 @@ export default class FlowerField {
         const i = y * this.gpgpu.size + x;
         const i2 = i * 2;
 
-        // Particle UV coordinates for texture lookup
         const uvX = (x + 0.5) / this.gpgpu.size;
         const uvY = (y + 0.5) / this.gpgpu.size;
 
@@ -170,56 +159,32 @@ export default class FlowerField {
       }
     }
 
-    // Set attributes
-    this.particles.geometry.setAttribute(
+    this.geometry.setAttribute(
       "aParticlesUv",
       new BufferAttribute(particlesUvArray, 2),
     );
-    this.particles.geometry.setAttribute(
-      "aSize",
-      new BufferAttribute(sizesArray, 1),
-    );
-    this.particles.geometry.setAttribute(
+    this.geometry.setAttribute("aSize", new BufferAttribute(sizesArray, 1));
+    this.geometry.setAttribute(
       "aColor",
       this.baseGeometry.instance.attributes.color,
     );
 
-    // Material
-    this.particles.material = new ShaderMaterial({
-      vertexShader: vertexParticles,
-      fragmentShader: fragmentParticles,
-      uniforms: {
-        uSize: new Uniform(0.01),
-        uParticlesTexture: new Uniform(),
-        uResolution: new Uniform(
-          new Vector2(
-            this.sizes.width * this.sizes.pixelRatio,
-            this.sizes.height * this.sizes.pixelRatio,
-          ),
-        ),
-      },
-    });
+    this.geometry.setDrawRange(0, this.baseGeometry.count);
+  }
 
-    // Create points with empty geometry
-    this.particles.points = new Points(
-      this.particles.geometry,
-      this.particles.material,
-    );
+  getGeometry() {
+    return this.geometry;
+  }
 
-    this.particles.geometry.setDrawRange(0, this.baseGeometry.count);
-    this.scene.add(this.particles.points);
+  getTexture() {
+    return this.gpgpu.computation.getCurrentRenderTarget(
+      this.gpgpu.particleVariable,
+    ).texture;
   }
 
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder("Flower Flow Field");
-
-      this.debugFolder
-        .add(this.particles.material.uniforms.uSize, "value")
-        .min(0)
-        .max(1)
-        .step(0.001)
-        .name("Particle Size");
 
       this.debugFolder
         .add(
@@ -231,7 +196,6 @@ export default class FlowerField {
         .step(0.001)
         .name("Flow Field Influence");
 
-      // Toggle GPGPU render target texture plane (for texture debugging)
       this.debugFolder
         .add(this.gpgpu.debug.material, "visible")
         .name("Show GPGPU Texture");
@@ -239,47 +203,31 @@ export default class FlowerField {
   }
 
   update(time) {
-    if (!this.gpgpu || !this.particles) return;
+    if (!this.gpgpu) return;
+
+    this._accumulator += time.deltaTime;
+    if (this._accumulator < TICK_INTERVAL) return;
+    this._accumulator = 0;
 
     this.gpgpu.particleVariable.material.uniforms.uTime.value =
       time.elapsedTime * 0.001;
     this.gpgpu.particleVariable.material.uniforms.uDeltaTime.value =
-      time.deltaTime * 0.001;
+      TICK_INTERVAL * 0.001;
 
-    // Run GPGPU simulation step
     this.gpgpu.computation.compute();
-
-    // Feed the updated texture into the particle render material
-    this.particles.material.uniforms.uParticlesTexture.value =
-      this.gpgpu.computation.getCurrentRenderTarget(
-        this.gpgpu.particleVariable,
-      ).texture;
   }
 
   destroy() {
-    // Clean up lil-gui debug folder
     this.debugFolder?.destroy();
-    if (this.gpgpu) {
-      this.scene.remove(this.gpgpu.debug);
-      this.gpgpu.debug.geometry.dispose();
-      this.gpgpu.debug.material.dispose();
 
-      if (this.gpgpu.computation) {
-        this.gpgpu.computation.dispose?.();
-      }
+    this.scene.remove(this.gpgpu.debug);
+    this.gpgpu.debug.geometry.dispose();
+    this.gpgpu.debug.material.dispose();
+    this.gpgpu.computation.dispose?.();
+    this.gpgpu.baseParticleTexture.dispose();
 
-      if (this.gpgpu.baseParticleTexture) {
-        this.gpgpu.baseParticleTexture.dispose();
-      }
-    }
+    this.geometry.dispose();
 
-    if (this.particles) {
-      this.scene.remove(this.particles.points);
-      this.particles.geometry.dispose();
-      this.particles.material.dispose();
-    }
-
-    // Remove the loaded GLTF scene
     if (this.model) {
       const modelScene = this.model.scene ?? this.model;
       this.scene.remove(modelScene);
