@@ -8,6 +8,8 @@ import (
 	"threejsPortfolioServer/internal/models"
 )
 
+// user db controllers which handle database operations for users
+// Each handler is called by the corresponding HTTP handler in the server (admin.go)
 
 var ErrNotFound = errors.New("not found")
 
@@ -127,11 +129,30 @@ func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, err
 }
 
 func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
-	// ponytail: stub — implement on next ticket
-	return nil, errors.New("UpdateUser not implemented")
+	var user models.User
+	err := r.db.QueryRow(
+		`UPDATE users SET name = $1, email = $2, is_admin = $3, updated_at = NOW()
+		 WHERE id = $4 RETURNING id, name, email, password_hash, is_admin, created_at, updated_at`,
+		input.Name, input.Email, input.IsAdmin, id,
+	).Scan(
+		&user.ID, &user.Name, &user.Email, &user.Password_hash,
+		&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		slog.Error("Error updating user", "error", err)
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *PostgresUserRepo) DeleteUser(id string) error {
 	// ponytail: stub — implement on next ticket
 	return errors.New("DeleteUser not implemented")
+}
+
+func (r *PostgresUserRepo) UpdatePasswordHash(id string, passwordHash []byte) error {
+	return errors.New("UpdatePasswordHash not implemented")
 }

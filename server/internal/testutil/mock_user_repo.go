@@ -12,6 +12,7 @@ type MockUserRepo struct {
 	GetUserByUsernameFn func(username string) (*models.User, error)
 	UpdateUserFn 				func(id string, input models.UpdateUserInput) ( *models.User, error)
 	DeleteUserFn 				func(id string) error
+	UpdatePasswordHashFn func(id string, passwordHash []byte) error
 
 	// mocks
 	GetAllUsersFn func(limit, offset int) ([]models.User, error)
@@ -71,6 +72,13 @@ func (m *MockUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*mod
 func (m *MockUserRepo) DeleteUser(id string) (error) {
 	if m.DeleteUserFn != nil {
 		return m.DeleteUserFn(id)
+	}
+	return nil
+}
+
+func (m *MockUserRepo) UpdatePasswordHash(id string, passwordHash []byte) error {
+	if m.UpdatePasswordHashFn != nil {
+		return m.UpdatePasswordHashFn(id, passwordHash)
 	}
 	return nil
 }

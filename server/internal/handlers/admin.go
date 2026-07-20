@@ -80,17 +80,47 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 
 func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+		username := r.URL.Query().Get("username")
+		if username == "" {
+			json.WriteError(w, http.StatusBadRequest, "Username is required")
+			return
+		}
+		user, err := repo.GetUserByUsername(username)
+		if err != nil {
+			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user")
+			return
+		}
+		if user == nil {
+			json.WriteError(w, http.StatusNotFound, "User not found")
+			return
+		}
+		json.WriteJson(w, http.StatusOK, user)
 	}
 }
 
 func UpdateUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+		updatedUserInput := r.URL.Query().Get("username")
+		if username == "" {
+			json.WriteError(w, http.StatusBadRequest, "Username is required")
+			return
+		}
+		updatedUser, err := repo.UpdateUser(username, models.UpdateUserInput{})
+		if err != nil {
+			json.WriteError(w, http.StatusInternalServerError, "Error in updating user")
+			return
+		}
+		json.WriteJson(w, http.StatusOK, updatedUser)
 	}
 }
 
 func DeleteUser(repo repos.UserRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+	}
+}
+
+func UpdatePasswordHashHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
 	}

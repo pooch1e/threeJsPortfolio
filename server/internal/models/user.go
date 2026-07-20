@@ -25,6 +25,12 @@ type User struct {
 	Password_hash []byte    `json:"-"` // For database operations, never serialized to JSON
 }
 
+type updateUserInput struct {
+	Name    *string `json:"name"`
+	Email   *string `json:"email"`
+	IsAdmin *bool   `json:"is_admin"`
+}
+
 // Session represents an authenticated user session
 type Session struct {
 	ID        string    `json:"id"`
@@ -41,4 +47,3 @@ type UpdateUserInput struct {
 	Email   *string `json:"email"`
 	IsAdmin *bool   `json:"is_admin"`
 }
-
