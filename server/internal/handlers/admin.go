@@ -100,6 +100,7 @@ func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 
 func UpdateUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// !! TODO WIP STUB
 		updatedUserInput := r.URL.Query().Get("username")
 		if username == "" {
 			json.WriteError(w, http.StatusBadRequest, "Username is required")
