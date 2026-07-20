@@ -11,7 +11,7 @@ export default function ProjectCard({ project }) {
           {project.name}
         </span>
       </div>
-      <div className="h-px w-full bg-[var(--color-divider)]" />
+      <div className=" w-full border-b" />
     </Link>
   );
 }

@@ -3,71 +3,72 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Karrik';
-  src: url('./assets/fonts/WOFF2/Karrik-Regular.woff2') format('woff2');
+  font-family: "Karrik";
+  src: url("./assets/fonts/WOFF2/Karrik-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Karrik';
-  src: url('./assets/fonts/WOFF2/Karrik-Italic.woff2') format('woff2');
+  font-family: "Karrik";
+  src: url("./assets/fonts/WOFF2/Karrik-Italic.woff2") format("woff2");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Offbit';
-  src: url('./assets/fonts/WOFF2/OffBit-101.woff2') format('woff2');
+  font-family: "Offbit";
+  src: url("./assets/fonts/WOFF2/OffBit-101.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Offbit';
-  src: url('./assets/fonts/WOFF2/OffBit-101Bold.woff2') format('woff2');
+  font-family: "Offbit";
+  src: url("./assets/fonts/WOFF2/OffBit-101Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'OffbitRegular';
-  src: url('./assets/fonts/WOFF2/OffBit-Regular.woff2') format('woff2');
+  font-family: "OffbitRegular";
+  src: url("./assets/fonts/WOFF2/OffBit-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'OffbitRegular';
-  src: url('./assets/fonts/WOFF2/OffBit-Bold.woff2') format('woff2');
+  font-family: "OffbitRegular";
+  src: url("./assets/fonts/WOFF2/OffBit-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'OffbitDot';
-  src: url('./assets/fonts/WOFF2/OffBit-Dot.woff2') format('woff2');
+  font-family: "OffbitDot";
+  src: url("./assets/fonts/WOFF2/OffBit-Dot.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'OffbitDot';
-  src: url('./assets/fonts/WOFF2/OffBit-DotBold.woff2') format('woff2');
+  font-family: "OffbitDot";
+  src: url("./assets/fonts/WOFF2/OffBit-DotBold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Dirtyline';
-  src: url('./assets/fonts/WOFF2/Dirtyline 36daysoftype 2022.woff2') format('woff2');
+  font-family: "Dirtyline";
+  src: url("./assets/fonts/WOFF2/Dirtyline 36daysoftype 2022.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -75,17 +76,17 @@
 
 @layer base {
   :root {
-    --color-bg: #D1D3D9;
-    --color-bg-mid: #C3C0C2;
-    --color-bg-midlight: #B5B1B2;
-    --color-bg-light: #ADA9B7;
+    --color-bg: #d1d3d9;
+    --color-bg-mid: #c3c0c2;
+    --color-bg-midlight: #b5b1b2;
+    --color-bg-light: #ada9b7;
 
-    --text-color-dark: #0D161F;
-    --text-primary: #EC5023;
-    --text-secondary: #F54C1D;
-    --text-alt: #AA92C2;
+    --text-color-dark: #0d161f;
+    --text-primary: #ec5023;
+    --text-secondary: #f54c1d;
+    --text-alt: #aa92c2;
 
-    --object-alt: #564FF3;
+    --object-alt: #564ff3;
 
     /* Semantic tokens */
     --text-xsmall: 12px;
@@ -94,12 +95,11 @@
     --text-lg: 32px;
     --text-xl: 42px;
 
-
-    --font-size-100: 0.75rem;  /* 12px */
-    --font-size-200: 1rem;     /* 16px */
-    --font-size-300: 1.5rem;   /* 24px */
-    --font-size-400: 2rem;     /* 32px */
-    --font-size-500: 2.625rem;  /* 42px */
+    --font-size-100: 0.75rem; /* 12px */
+    --font-size-200: 1rem; /* 16px */
+    --font-size-300: 1.5rem; /* 24px */
+    --font-size-400: 2rem; /* 32px */
+    --font-size-500: 2.625rem; /* 42px */
 
     --font-weight-regular: 400;
     --font-weight-medium: 500;
@@ -123,6 +123,5 @@
     --size-card-h: 14rem;
     --size-content-w: 72rem;
     --size-hero-h: 60vh;
-
   }
 }

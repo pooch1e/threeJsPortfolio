@@ -1,7 +1,7 @@
 import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
-import { randomFloat, randomElement, createRangeOfInts, randomIndex } from "../../utils/helpers";
+import { randomFloat, randomElement} from "../../utils/helpers";
 
 export class World {
   constructor(rectExperience) {
