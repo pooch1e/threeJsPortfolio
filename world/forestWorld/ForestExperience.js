@@ -4,7 +4,7 @@ import { World } from "./World";
 import { Mouse } from "../utils/Mouse";
 import { Resources } from "../utils/Resources";
 import { sources } from "../sources/sources";
-
+import { GRID_SIZE } from "./Forest";
 
 export class ForestExperience extends BaseExperience {
   createWorld() {
@@ -14,5 +14,31 @@ export class ForestExperience extends BaseExperience {
   setupUtils() {
     this.mouse = new Mouse(this.canvas, this.camera);
     this.resources = new Resources(sources)
+  }
+
+  cameraOptions() {
+    return { controls: false };
+  }
+
+  setupCamera() {
+    this.fitCameraToGrid();
+  }
+
+  resize() {
+    super.resize();
+    this.fitCameraToGrid();
+  }
+
+  fitCameraToGrid() {
+    const camera = this.camera.perspectiveCamera;
+    const center = (GRID_SIZE - 1) / 2;
+
+    const halfFovY = (camera.fov * Math.PI) / 360;
+    const distanceForHeight = GRID_SIZE / 2 / Math.tan(halfFovY);
+    const distanceForWidth = distanceForHeight / camera.aspect;
+    const distance = Math.max(distanceForHeight, distanceForWidth);
+
+    camera.position.set(center, center, distance);
+    camera.lookAt(center, center, 0);
   }
 }

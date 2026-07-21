@@ -1,5 +1,8 @@
 import { Mesh, PlaneGeometry, MeshStandardMaterial, AmbientLight, DirectionalLight, RepeatWrapping } from "three";
 import { randomElement } from "../../utils/helpers";
+
+export const GRID_SIZE = 18;
+
 export class Forest {
   constructor(world) {
     this.world = world;
@@ -19,8 +22,8 @@ export class Forest {
   }
 
   testPlane() {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
       const texture = randomElement(this.resources);
       const tiles = 4;
       texture.wrapS = RepeatWrapping;
@@ -34,8 +37,6 @@ export class Forest {
       this.scene.add(plane);
       plane.position.set(i, j, 0);
       }
-
     }
-
   }
 }
