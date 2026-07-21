@@ -55,6 +55,18 @@ export const sources = [
     ],
   },
   {
+    name: "flowerTextures",
+    type: "textureArray",
+    path: [
+      "/static/textures/flowerPng/C4PP_Flower_Blue.png",
+      "/static/textures/flowerPng/C4PP_Flower_DarkRed.png",
+      "/static/textures/flowerPng/C4PP_Flower_Red.png",
+      "/static/textures/flowerPng/C4PP_Round_LightGreen.png",
+      "/static/textures/flowerPng/C4PP_Terrain_DarkGreen.png",
+      "/static/textures/flowerPng/C4PP_Triangle_Blue.png",
+    ],
+  },
+  {
     name: "lensesTextures",
     type: "textureArray",
     path: [

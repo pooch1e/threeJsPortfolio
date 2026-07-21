@@ -52,6 +52,12 @@ export const experiences = [
     name: "Ascii",
     load: () => import("../../world/asciiWorld/AsciiExperience").then((m) => m.AsciiExperience),
   },
+  {
+    order: "009",
+    slug: "forest",
+    name: "Forest",
+    load: () => import("../../world/forestWorld/ForestExperience").then((m) => m.ForestExperience),
+  },
 ];
 
 export const experienceBySlug = Object.fromEntries(

@@ -111,7 +111,7 @@ export class BaseExperience {
 
     // Dispose camera controls and renderer
     if (this.camera?.controls) this.camera.controls.dispose();
-    if (this.renderer?.instance) this.renderer.instance.dispose();
+    if (this.renderer?.renderer) this.renderer.renderer.dispose();
 
     // Destroy debug UI
     if (this.debug?.active && this.debug?.ui) this.debug.ui.destroy();
