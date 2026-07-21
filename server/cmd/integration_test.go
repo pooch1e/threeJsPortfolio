@@ -413,7 +413,7 @@ func TestIntegration_ListUsers_Pagination(t *testing.T) {
 		}, nil)
 	}
 
-	resp := get(t, srv.URL+"/api/users?page=1&limit=2", []*http.Cookie{sessionCookie})
+	resp := get(t, srv.URL+"/api/admin/users?page=1&limit=2", []*http.Cookie{sessionCookie})
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET /api/users pagination: got %d, want %d", resp.StatusCode, http.StatusOK)
 	}

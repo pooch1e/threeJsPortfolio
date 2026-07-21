@@ -96,7 +96,11 @@ Chi router with middleware applied in order:
 | `POST` | `/api/login` | No | `LoginHandler` |
 | `GET` | `/api/me` | `RequireAuth` | `MeHandler` |
 | `POST` | `/api/logout` | `RequireAuth` | `LogoutHandler` |
-| _(admin group)_ | — | `RequireAuth` + `RequireAdmin` | _(no routes yet)_ |
+| `GET` | `/api/admin/users` | `RequireAuth` + `RequireAdmin` | `ListUsersHandler` |
+| `GET` | `/api/admin/users/{id}` | `RequireAuth` + `RequireAdmin` | `GetUserHandler` |
+| `PUT` | `/api/admin/users/{id}` | `RequireAuth` + `RequireAdmin` | `UpdateUserHandler` |
+| `DELETE` | `/api/admin/users/{id}` | `RequireAuth` + `RequireAdmin` | `DeleteUser` |
+| `POST` | `/api/admin/users/{id}/passwordReset` | `RequireAuth` + `RequireAdmin` | `UpdatePasswordHashHandler` |
 
 Protected routes live inside a `r.Group` that applies `RequireAuth` only to routes declared within it.
 
@@ -353,6 +357,4 @@ Scenarios covered: health check, signup, duplicate email rejection, login, wrong
 | Session hydration on refresh | `/api/me` exists but the frontend doesn't call it on mount; login state lost on page refresh |
 | Token refresh | JWT expires after 1 hour with no renewal mechanism |
 | `sessions` table | Created in schema but unused; reserved for revocable-token / multi-device logout support |
-| Admin routes | Route group with `RequireAdmin` middleware exists but no routes are mounted inside it |
 | GitHub OAuth | `githubClientID` / `gitHubClientSecret` fields in `config` struct; OAuth not yet implemented |
-| Dead code | `store/db.go` duplicates `openDb` and has not been deleted |

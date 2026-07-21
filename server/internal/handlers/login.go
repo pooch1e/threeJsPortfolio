@@ -61,12 +61,7 @@ func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc 
 			return
 		}
 
-		sameSite := http.SameSiteLaxMode
-		secure := false
-		if os.Getenv("APP_ENV") == "production" {
-			sameSite = http.SameSiteNoneMode
-			secure = true
-		}
+		sameSite, secure := sessionCookieFlags()
 
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
@@ -80,4 +75,15 @@ func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc 
 
 		json.WriteJson(w, http.StatusOK, LoginResponse{Username: user.Name})
 	}
+}
+
+// sessionCookieFlags returns the SameSite/Secure attributes the "session"
+// cookie must be set (and cleared) with. Browsers reject a Set-Cookie that
+// drops Secure/SameSite=None from a cookie previously set with them ("Leave
+// Secure Cookies Alone", RFC 6265bis), so login and logout must agree.
+func sessionCookieFlags() (http.SameSite, bool) {
+	if os.Getenv("APP_ENV") == "production" {
+		return http.SameSiteNoneMode, true
+	}
+	return http.SameSiteLaxMode, false
 }

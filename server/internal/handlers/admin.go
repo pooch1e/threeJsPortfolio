@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	stdjson "encoding/json"
+	"errors"
 	"log/slog"
 	"math"
 	"net/http"
@@ -9,7 +11,14 @@ import (
 	json "threejsPortfolioServer/internal/json"
 	"threejsPortfolioServer/internal/models"
 	"threejsPortfolioServer/internal/repos"
+	"threejsPortfolioServer/internal/utils"
+
+	"github.com/go-chi/chi/v5"
 )
+
+type updatePasswordRequest struct {
+	Password string `json:"password"`
+}
 
 type paginationMeta struct {
 	Page int`json:"page"`
@@ -80,18 +89,18 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 
 func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		username := r.URL.Query().Get("username")
-		if username == "" {
-			json.WriteError(w, http.StatusBadRequest, "Username is required")
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			json.WriteError(w, http.StatusBadRequest, "Id is required")
 			return
 		}
-		user, err := repo.GetUserByUsername(username)
+		user, err := repo.GetUserByID(id)
 		if err != nil {
+			if errors.Is(err, repos.ErrNotFound) {
+				json.WriteError(w, http.StatusNotFound, "User not found")
+				return
+			}
 			json.WriteError(w, http.StatusInternalServerError, "Error in retrieving user")
-			return
-		}
-		if user == nil {
-			json.WriteError(w, http.StatusNotFound, "User not found")
 			return
 		}
 		json.WriteJson(w, http.StatusOK, user)
@@ -100,14 +109,24 @@ func GetUserHandler(repo repos.UserRepository) http.HandlerFunc {
 
 func UpdateUserHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// !! TODO WIP STUB
-		updatedUserInput := r.URL.Query().Get("username")
-		if username == "" {
-			json.WriteError(w, http.StatusBadRequest, "Username is required")
+		input := models.UpdateUserInput{}
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			json.WriteError(w, http.StatusBadRequest, "Id is required")
 			return
 		}
-		updatedUser, err := repo.UpdateUser(username, models.UpdateUserInput{})
+
+		if err := stdjson.NewDecoder(r.Body).Decode(&input); err != nil {
+			json.WriteError(w, http.StatusBadRequest, "Invalid input")
+			return
+		}
+
+		updatedUser, err := repo.UpdateUser(id, input)
 		if err != nil {
+			if errors.Is(err, repos.ErrNotFound) {
+				json.WriteError(w, http.StatusNotFound, "User not found")
+				return
+			}
 			json.WriteError(w, http.StatusInternalServerError, "Error in updating user")
 			return
 		}
@@ -117,12 +136,58 @@ func UpdateUserHandler(repo repos.UserRepository) http.HandlerFunc {
 
 func DeleteUser(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			json.WriteError(w, http.StatusBadRequest, "Id is required")
+			return
+		}
+
+		if err := repo.DeleteUser(id); err != nil {
+			if errors.Is(err, repos.ErrNotFound) {
+				json.WriteError(w, http.StatusNotFound, "User not found")
+				return
+			}
+			json.WriteError(w, http.StatusInternalServerError, "Error in deleting user")
+			return
+		}
+		json.WriteJson(w, http.StatusOK, "Successfully deleted user")
 	}
 }
 
 func UpdatePasswordHashHandler(repo repos.UserRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		json.WriteError(w, http.StatusNotImplemented, "Not implemented")
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			json.WriteError(w, http.StatusBadRequest, "Id is required")
+			return
+		}
+
+		var input updatePasswordRequest
+		if err := stdjson.NewDecoder(r.Body).Decode(&input); err != nil {
+			json.WriteError(w, http.StatusBadRequest, "Invalid input")
+			return
+		}
+
+		if errMsg := utils.ValidatePasswordRules(input.Password); errMsg != "" {
+			json.WriteError(w, http.StatusBadRequest, errMsg)
+			return
+		}
+
+		hash, err := utils.HashPassword(input.Password)
+		if err != nil {
+			slog.Error("Error hashing password", "error", err)
+			json.WriteError(w, http.StatusInternalServerError, "Error updating password")
+			return
+		}
+
+		if err := repo.UpdatePasswordHash(id, hash); err != nil {
+			if errors.Is(err, repos.ErrNotFound) {
+				json.WriteError(w, http.StatusNotFound, "User not found")
+				return
+			}
+			json.WriteError(w, http.StatusInternalServerError, "Error updating password")
+			return
+		}
+		json.WriteJson(w, http.StatusOK, "Successfully updated password")
 	}
 }

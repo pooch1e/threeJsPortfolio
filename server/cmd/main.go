@@ -23,7 +23,6 @@ func main() {
 			dsn: os.Getenv("DATABASE_URL"),
 		},
 	}
-	log.Printf("dsn is: %s", cfg.db.dsn)
 	log.Printf("port is %s", cfg.adr)
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
