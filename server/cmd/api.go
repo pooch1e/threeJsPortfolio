@@ -70,6 +70,7 @@ func (app *application) mount() http.Handler {
 			r.Get("/api/admin/users/{id}", handlers.GetUserHandler(app.userRepo))
 			r.Put("/api/admin/users/{id}", handlers.UpdateUserHandler(app.userRepo))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(app.userRepo))
+			r.Post("/api/admin/users/{id}/passwordReset", handlers.UpdatePasswordHashHandler(app.userRepo))
 		})
 
 		r.Post("/api/logout", handlers.LogoutHandler())

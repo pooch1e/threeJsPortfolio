@@ -138,6 +138,44 @@ func TestLoginHandler_HappyPath(t *testing.T) {
 	if sessionCookie.Value == "" {
 		t.Error("session cookie value must not be empty")
 	}
+	if sessionCookie.Secure {
+		t.Error("session cookie must not be Secure outside APP_ENV=production")
+	}
+	if sessionCookie.SameSite != http.SameSiteLaxMode {
+		t.Errorf("SameSite: got %v, want SameSiteLaxMode outside APP_ENV=production", sessionCookie.SameSite)
+	}
+}
+
+func TestLoginHandler_ProductionCookieFlags(t *testing.T) {
+	t.Setenv("APP_ENV", "production")
+
+	const password = "Test1ng@123"
+	user := newUserWithPassword(t, "joel", "joel@example.com", password)
+	repo := &testutil.MockUserRepo{
+		GetUserByUsernameFn: func(username string) (*models.User, error) { return user, nil },
+	}
+	h := handlers.LoginHandler(repo, loginTestSecret)
+	body := mustMarshal(t, map[string]string{"username": "joel", "password": password})
+	req := httptest.NewRequest(http.MethodPost, "/api/login", body)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+
+	var sessionCookie *http.Cookie
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "session" {
+			sessionCookie = c
+			break
+		}
+	}
+	if sessionCookie == nil {
+		t.Fatal("session cookie not set")
+	}
+	if !sessionCookie.Secure {
+		t.Error("session cookie must be Secure when APP_ENV=production")
+	}
+	if sessionCookie.SameSite != http.SameSiteNoneMode {
+		t.Errorf("SameSite: got %v, want SameSiteNoneMode when APP_ENV=production", sessionCookie.SameSite)
+	}
 
 	// Body must contain the username.
 	var respBody struct {

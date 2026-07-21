@@ -8,6 +8,8 @@ import (
 	"threejsPortfolioServer/internal/models"
 )
 
+// user db controllers which handle database operations for users
+// Each handler is called by the corresponding HTTP handler in the server (admin.go)
 
 var ErrNotFound = errors.New("not found")
 
@@ -63,7 +65,7 @@ func (r *PostgresUserRepo) GetUserByID(id string) (*models.User, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNotFound
 		}
-		slog.Error("Error getting user by ID", "error", err)
+		slog.Error("Error getting user by ID", "id", id, "error", err)
 		return nil, err
 	}
 	return &user, nil
@@ -126,12 +128,66 @@ func (r *PostgresUserRepo) GetUserByUsername(username string) (*models.User, err
 	return &user, nil
 }
 
+// UpdateUser applies a partial update: a nil field in input leaves the
+// existing column value untouched (COALESCE), rather than overwriting it
+// with NULL.
 func (r *PostgresUserRepo) UpdateUser(id string, input models.UpdateUserInput) (*models.User, error) {
-	// ponytail: stub — implement on next ticket
-	return nil, errors.New("UpdateUser not implemented")
+	var user models.User
+	err := r.db.QueryRow(
+		`UPDATE users SET
+		   name = COALESCE($1, name),
+		   email = COALESCE($2, email),
+		   is_admin = COALESCE($3, is_admin),
+		   updated_at = NOW()
+		 WHERE id = $4 RETURNING id, name, email, password_hash, is_admin, created_at, updated_at`,
+		input.Name, input.Email, input.IsAdmin, id,
+	).Scan(
+		&user.ID, &user.Name, &user.Email, &user.Password_hash,
+		&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		slog.Error("Error updating user", "id", id, "error", err)
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *PostgresUserRepo) DeleteUser(id string) error {
-	// ponytail: stub — implement on next ticket
-	return errors.New("DeleteUser not implemented")
+	result, err := r.db.Exec(`DELETE FROM users WHERE id = $1`, id)
+	if err != nil {
+		slog.Error("Error deleting user", "id", id, "error", err)
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		slog.Error("Error checking rows affected for delete", "id", id, "error", err)
+		return err
+	}
+	if rows == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+func (r *PostgresUserRepo) UpdatePasswordHash(id string, passwordHash []byte) error {
+	result, err := r.db.Exec(
+		`UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2`,
+		passwordHash, id,
+	)
+	if err != nil {
+		slog.Error("Error updating password hash", "id", id, "error", err)
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		slog.Error("Error checking rows affected for password update", "id", id, "error", err)
+		return err
+	}
+	if rows == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

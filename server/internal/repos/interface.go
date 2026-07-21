@@ -14,4 +14,5 @@ type UserRepository interface {
 	GetUserCount() (int, error)
 	UpdateUser(id string, input models.UpdateUserInput) (*models.User, error)
 	DeleteUser(id string) error
+	UpdatePasswordHash(id string, passwordHash []byte) error
 }

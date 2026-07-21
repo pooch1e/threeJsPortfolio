@@ -41,4 +41,3 @@ type UpdateUserInput struct {
 	Email   *string `json:"email"`
 	IsAdmin *bool   `json:"is_admin"`
 }
-

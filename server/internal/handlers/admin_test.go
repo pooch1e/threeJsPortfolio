@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -8,8 +9,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
+
 	"threejsPortfolioServer/internal/handlers"
 	"threejsPortfolioServer/internal/models"
+	"threejsPortfolioServer/internal/repos"
 	"threejsPortfolioServer/internal/testutil"
 )
 
@@ -227,5 +231,305 @@ func TestListUsersHandler_InvalidPageDefaultsTo1(t *testing.T) {
 	}
 	if body.Pagination.Limit != 10 {
 		t.Errorf("got %d limit, want 10", body.Pagination.Limit)
+	}
+}
+
+// -- UpdateUserHandler --
+
+// route mounts a handler on a chi path pattern so tests exercise the same
+// {id}-extraction path the real router (cmd/api.go) uses.
+func route(method, pattern string, h http.HandlerFunc) *chi.Mux {
+	r := chi.NewRouter()
+	r.Method(method, pattern, h)
+	return r
+}
+
+// The handler must forward the decoded request body to the repo.
+func TestUpdateUserHandler_ForwardsDecodedInputToRepo(t *testing.T) {
+	var gotInput models.UpdateUserInput
+	name := "New Name"
+
+	mock := &testutil.MockUserRepo{
+		UpdateUserFn: func(id string, input models.UpdateUserInput) (*models.User, error) {
+			gotInput = input
+			return &models.User{ID: id}, nil
+		},
+	}
+
+	r := route(http.MethodPut, "/api/admin/users/{id}", handlers.UpdateUserHandler(mock))
+	body, _ := json.Marshal(models.UpdateUserInput{Name: &name})
+	req := httptest.NewRequest(http.MethodPut, "/api/admin/users/1", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: got %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+	if gotInput.Name == nil || *gotInput.Name != name {
+		t.Errorf("repo.UpdateUser received %+v, want Name=%q — handler is discarding the decoded body", gotInput, name)
+	}
+}
+
+// repos.ErrNotFound must surface as 404, not a generic 500, so admin UIs can
+// tell "bad id" apart from "server broke."
+func TestUpdateUserHandler_NotFoundReturns404(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		UpdateUserFn: func(id string, input models.UpdateUserInput) (*models.User, error) {
+			return nil, repos.ErrNotFound
+		},
+	}
+
+	r := route(http.MethodPut, "/api/admin/users/{id}", handlers.UpdateUserHandler(mock))
+	req := httptest.NewRequest(http.MethodPut, "/api/admin/users/999", strings.NewReader("{}"))
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status: got %d, want %d (repos.ErrNotFound isn't checked with errors.Is)", w.Code, http.StatusNotFound)
+	}
+}
+
+// id comes from the {id} chi path param (cmd/api.go registers the route that
+// way), not a query string.
+func TestUpdateUserHandler_ReadsIDFromRoutePath(t *testing.T) {
+	var gotID string
+	mock := &testutil.MockUserRepo{
+		UpdateUserFn: func(id string, input models.UpdateUserInput) (*models.User, error) {
+			gotID = id
+			return &models.User{ID: id}, nil
+		},
+	}
+
+	r := chi.NewRouter()
+	r.Put("/api/admin/users/{id}", handlers.UpdateUserHandler(mock))
+
+	req := httptest.NewRequest(http.MethodPut, "/api/admin/users/42", strings.NewReader("{}"))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: got %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+	if gotID != "42" {
+		t.Errorf("repo.UpdateUser got id=%q, want %q — handler ignored the {id} path param", gotID, "42")
+	}
+}
+
+// -- DeleteUser --
+
+func TestDeleteUser_NotFoundReturns404(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		DeleteUserFn: func(id string) error {
+			return repos.ErrNotFound
+		},
+	}
+
+	r := route(http.MethodDelete, "/api/admin/users/{id}", handlers.DeleteUser(mock))
+	req := httptest.NewRequest(http.MethodDelete, "/api/admin/users/999", nil)
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status: got %d, want %d (repos.ErrNotFound isn't checked with errors.Is)", w.Code, http.StatusNotFound)
+	}
+}
+
+func TestDeleteUser_ReadsIDFromRoutePath(t *testing.T) {
+	var gotID string
+	mock := &testutil.MockUserRepo{
+		DeleteUserFn: func(id string) error {
+			gotID = id
+			return nil
+		},
+	}
+
+	r := chi.NewRouter()
+	r.Delete("/api/admin/users/{id}", handlers.DeleteUser(mock))
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/admin/users/42", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if gotID != "42" {
+		t.Errorf("repo.DeleteUser got id=%q, want %q — handler ignored the {id} path param", gotID, "42")
+	}
+}
+
+func TestDeleteUser_HappyPath(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		DeleteUserFn: func(id string) error { return nil },
+	}
+
+	r := route(http.MethodDelete, "/api/admin/users/{id}", handlers.DeleteUser(mock))
+	req := httptest.NewRequest(http.MethodDelete, "/api/admin/users/1", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusOK)
+	}
+}
+
+func TestDeleteUser_GenericErrorReturns500(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		DeleteUserFn: func(id string) error { return errors.New("db down") },
+	}
+
+	r := route(http.MethodDelete, "/api/admin/users/{id}", handlers.DeleteUser(mock))
+	req := httptest.NewRequest(http.MethodDelete, "/api/admin/users/1", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusInternalServerError)
+	}
+}
+
+// -- UpdateUserHandler: remaining branches --
+
+func TestUpdateUserHandler_MalformedJSONReturns400(t *testing.T) {
+	mock := &testutil.MockUserRepo{}
+	r := route(http.MethodPut, "/api/admin/users/{id}", handlers.UpdateUserHandler(mock))
+	req := httptest.NewRequest(http.MethodPut, "/api/admin/users/1", strings.NewReader("not json"))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusBadRequest)
+	}
+}
+
+func TestUpdateUserHandler_GenericErrorReturns500(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		UpdateUserFn: func(id string, input models.UpdateUserInput) (*models.User, error) {
+			return nil, errors.New("db down")
+		},
+	}
+	r := route(http.MethodPut, "/api/admin/users/{id}", handlers.UpdateUserHandler(mock))
+	req := httptest.NewRequest(http.MethodPut, "/api/admin/users/1", strings.NewReader("{}"))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusInternalServerError)
+	}
+}
+
+// -- GetUserHandler --
+
+func TestGetUserHandler_HappyPath(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		GetUserByIDFn: func(id string) (*models.User, error) {
+			return &models.User{ID: id, Name: "joel"}, nil
+		},
+	}
+	r := route(http.MethodGet, "/api/admin/users/{id}", handlers.GetUserHandler(mock))
+	req := httptest.NewRequest(http.MethodGet, "/api/admin/users/1", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: got %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+	var body models.User
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if body.Name != "joel" {
+		t.Errorf("got name %q, want %q", body.Name, "joel")
+	}
+}
+
+func TestGetUserHandler_NotFoundReturns404(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		GetUserByIDFn: func(id string) (*models.User, error) {
+			return nil, repos.ErrNotFound
+		},
+	}
+	r := route(http.MethodGet, "/api/admin/users/{id}", handlers.GetUserHandler(mock))
+	req := httptest.NewRequest(http.MethodGet, "/api/admin/users/999", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusNotFound)
+	}
+}
+
+func TestGetUserHandler_GenericErrorReturns500(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		GetUserByIDFn: func(id string) (*models.User, error) {
+			return nil, errors.New("db down")
+		},
+	}
+	r := route(http.MethodGet, "/api/admin/users/{id}", handlers.GetUserHandler(mock))
+	req := httptest.NewRequest(http.MethodGet, "/api/admin/users/1", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusInternalServerError)
+	}
+}
+
+// -- UpdatePasswordHashHandler --
+
+func TestUpdatePasswordHashHandler_HappyPath(t *testing.T) {
+	var gotID string
+	var gotHash []byte
+	mock := &testutil.MockUserRepo{
+		UpdatePasswordHashFn: func(id string, passwordHash []byte) error {
+			gotID = id
+			gotHash = passwordHash
+			return nil
+		},
+	}
+	r := route(http.MethodPost, "/api/admin/users/{id}/passwordReset", handlers.UpdatePasswordHashHandler(mock))
+	body, _ := json.Marshal(map[string]string{"password": "NewPass1@"})
+	req := httptest.NewRequest(http.MethodPost, "/api/admin/users/1/passwordReset", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: got %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+	if gotID != "1" {
+		t.Errorf("repo.UpdatePasswordHash got id=%q, want %q", gotID, "1")
+	}
+	if len(gotHash) == 0 {
+		t.Error("repo.UpdatePasswordHash got an empty hash — handler didn't hash the password")
+	}
+}
+
+func TestUpdatePasswordHashHandler_WeakPasswordReturns400(t *testing.T) {
+	mock := &testutil.MockUserRepo{}
+	r := route(http.MethodPost, "/api/admin/users/{id}/passwordReset", handlers.UpdatePasswordHashHandler(mock))
+	body, _ := json.Marshal(map[string]string{"password": "weak"})
+	req := httptest.NewRequest(http.MethodPost, "/api/admin/users/1/passwordReset", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusBadRequest)
+	}
+}
+
+func TestUpdatePasswordHashHandler_NotFoundReturns404(t *testing.T) {
+	mock := &testutil.MockUserRepo{
+		UpdatePasswordHashFn: func(id string, passwordHash []byte) error {
+			return repos.ErrNotFound
+		},
+	}
+	r := route(http.MethodPost, "/api/admin/users/{id}/passwordReset", handlers.UpdatePasswordHashHandler(mock))
+	body, _ := json.Marshal(map[string]string{"password": "NewPass1@"})
+	req := httptest.NewRequest(http.MethodPost, "/api/admin/users/999/passwordReset", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status: got %d, want %d", w.Code, http.StatusNotFound)
 	}
 }

@@ -141,3 +141,38 @@ func TestLogoutHandler_NoCookiePresent(t *testing.T) {
 		t.Errorf("status: got %d, want %d", w.Code, http.StatusOK)
 	}
 }
+
+// Browsers reject a Set-Cookie that drops Secure/SameSite=None from a cookie
+// previously set with them ("Leave Secure Cookies Alone", RFC 6265bis), so
+// login and logout must agree on these flags in every APP_ENV mode.
+func TestLogoutHandler_CookieFlags_Dev(t *testing.T) {
+	h := handlers.LogoutHandler()
+	req := httptest.NewRequest(http.MethodPost, "/api/logout", nil)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+
+	c := w.Result().Cookies()[0]
+	if c.Secure {
+		t.Error("session cookie must not be Secure outside APP_ENV=production")
+	}
+	if c.SameSite != http.SameSiteLaxMode {
+		t.Errorf("SameSite: got %v, want SameSiteLaxMode outside APP_ENV=production", c.SameSite)
+	}
+}
+
+func TestLogoutHandler_CookieFlags_Production(t *testing.T) {
+	t.Setenv("APP_ENV", "production")
+
+	h := handlers.LogoutHandler()
+	req := httptest.NewRequest(http.MethodPost, "/api/logout", nil)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+
+	c := w.Result().Cookies()[0]
+	if !c.Secure {
+		t.Error("session cookie must be Secure when APP_ENV=production")
+	}
+	if c.SameSite != http.SameSiteNoneMode {
+		t.Errorf("SameSite: got %v, want SameSiteNoneMode when APP_ENV=production", c.SameSite)
+	}
+}

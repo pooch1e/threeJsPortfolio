@@ -155,6 +155,101 @@ func TestGetUserByUsername_NotFound(t *testing.T) {
 	}
 }
 
+// --- UpdateUser ---
+
+func TestUpdateUser_PartialUpdateLeavesOtherFieldsUntouched(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	inserted := insertTestUser(t, repo, "frank", "frank@example.com")
+
+	newName := "Frank Updated"
+	got, err := repo.UpdateUser(inserted.ID, models.UpdateUserInput{Name: &newName})
+	if err != nil {
+		t.Fatalf("UpdateUser: %v", err)
+	}
+	if got.Name != newName {
+		t.Errorf("Name: got %q, want %q", got.Name, newName)
+	}
+	// Email/IsAdmin were omitted from the input (nil pointers) — COALESCE
+	// must leave them as they were, not overwrite them with NULL.
+	if got.Email != inserted.Email {
+		t.Errorf("Email: got %q, want unchanged %q", got.Email, inserted.Email)
+	}
+	if got.IsAdmin != inserted.IsAdmin {
+		t.Errorf("IsAdmin: got %v, want unchanged %v", got.IsAdmin, inserted.IsAdmin)
+	}
+}
+
+func TestUpdateUser_NotFound(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	newName := "Nobody"
+	_, err := repo.UpdateUser("00000000-0000-0000-0000-000000000000", models.UpdateUserInput{Name: &newName})
+	if !errors.Is(err, repos.ErrNotFound) {
+		t.Errorf("expected repos.ErrNotFound, got %v", err)
+	}
+}
+
+// --- DeleteUser ---
+
+func TestDeleteUser_OK(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	inserted := insertTestUser(t, repo, "grace", "grace@example.com")
+
+	if err := repo.DeleteUser(inserted.ID); err != nil {
+		t.Fatalf("DeleteUser: %v", err)
+	}
+	if _, err := repo.GetUserByID(inserted.ID); !errors.Is(err, repos.ErrNotFound) {
+		t.Errorf("expected user to be gone, GetUserByID returned err=%v", err)
+	}
+}
+
+func TestDeleteUser_NotFound(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	err := repo.DeleteUser("00000000-0000-0000-0000-000000000000")
+	if !errors.Is(err, repos.ErrNotFound) {
+		t.Errorf("expected repos.ErrNotFound for deleting a nonexistent id, got %v", err)
+	}
+}
+
+// --- UpdatePasswordHash ---
+
+func TestUpdatePasswordHash_OK(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	inserted := insertTestUser(t, repo, "heidi", "heidi@example.com")
+	newHash := []byte("$2a$10$anothernewfakehash")
+
+	if err := repo.UpdatePasswordHash(inserted.ID, newHash); err != nil {
+		t.Fatalf("UpdatePasswordHash: %v", err)
+	}
+
+	got, err := repo.GetUserByUsername("heidi")
+	if err != nil {
+		t.Fatalf("GetUserByUsername: %v", err)
+	}
+	if string(got.Password_hash) != string(newHash) {
+		t.Errorf("Password_hash: got %q, want %q", got.Password_hash, newHash)
+	}
+}
+
+func TestUpdatePasswordHash_NotFound(t *testing.T) {
+	repo, cleanup := setupRepo(t)
+	defer cleanup()
+
+	err := repo.UpdatePasswordHash("00000000-0000-0000-0000-000000000000", []byte("hash"))
+	if !errors.Is(err, repos.ErrNotFound) {
+		t.Errorf("expected repos.ErrNotFound, got %v", err)
+	}
+}
+
 // --- helpers ---
 
 func insertTestUser(t *testing.T, repo repos.UserRepository, name, email string) *models.User {
