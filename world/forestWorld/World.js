@@ -3,7 +3,8 @@ import { Forest } from "./Forest.js";
 import { Color } from "three";
 
 export class World {
-  constructor(experience) {
+  constructor(experience, gridSize) {
+    this.gridSize = gridSize;
     this.experience = experience;
     this.scene = experience.scene;
     this.resources = this.experience.resources;

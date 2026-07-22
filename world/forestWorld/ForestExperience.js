@@ -4,11 +4,17 @@ import { World } from "./World";
 import { Mouse } from "../utils/Mouse";
 import { Resources } from "../utils/Resources";
 import { sources } from "../sources/sources";
-import { GRID_SIZE } from "./Forest";
+
+export const GRID_SIZE = 18;
 
 export class ForestExperience extends BaseExperience {
+  constructor() {
+    super();
+    this.gridSize = 18;
+  }
+
   createWorld() {
-    return new World(this)
+    return new World(this, this.gridSize)
   }
 
   setupUtils() {
