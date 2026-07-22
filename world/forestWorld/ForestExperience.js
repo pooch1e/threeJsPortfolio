@@ -8,13 +8,9 @@ import { sources } from "../sources/sources";
 export const GRID_SIZE = 18;
 
 export class ForestExperience extends BaseExperience {
-  constructor() {
-    super();
-    this.gridSize = 18;
-  }
 
   createWorld() {
-    return new World(this, this.gridSize)
+    return new World(this)
   }
 
   setupUtils() {
