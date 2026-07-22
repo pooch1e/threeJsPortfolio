@@ -20,13 +20,3 @@ export const randomIndex = (arr) => {
 export const randomChance = (chance) => {
   return Math.random() < chance;
 };
-
-// accepts int
-export const createRangeOfInts = (min, max) => {
-  if (max < min) return []
-  let range = []
-  for (let i = min; i <= max; i++) {
-    range.push(i)
-  }
-  return range
-}
