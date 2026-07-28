@@ -1,16 +1,31 @@
 import { Mesh, PlaneGeometry, MeshStandardMaterial, AmbientLight, DirectionalLight, RepeatWrapping } from "three";
-import { randomElement } from "../../utils/helpers";
 
 
 export class Forest {
   constructor(world) {
     this.world = world;
-    this.gridSize = this.world.gridSize;
+    this.gridSize = this.world.gridSize; // const 18 for loop
     this.scene = this.world.scene;
     this.resources = this.world.resources.items.flowerTextures;
 
+    if (this.resources) {
+      this.forestConfig = {
+        tiles: [
+          { type: 'blueFlower', texture: this.resources[0], density: 1 },
+          { type: 'darkRedFlower', texture: this.resources[1], density: 1 },
+          { type: 'redFlower', texture: this.resources[2], density: 1 },
+          { type: 'roundLightGreen', texture: this.resources[3], density: 4 },
+          { type: 'terrainDarkGreen', texture: this.resources[4], density: 5 },
+          { type: 'tree', texture: this.resources[5], density: 1 },
+        ]
+      }
+    }
+
+
+
     this.addLights()
     this.testPlane()
+
 
   }
 
@@ -21,22 +36,30 @@ export class Forest {
     this.scene.add(sun);
   }
 
-  testPlane() {
-    for (let i = 0; i < this.gridSize; i++) {
-      for (let j = 0; j < this.gridSize; j++) {
-      const texture = randomElement(this.resources);
-      const tiles = 4;
-      texture.wrapS = RepeatWrapping;
-      texture.wrapT = RepeatWrapping;
-      texture.repeat.set(tiles, tiles);
+  createTile( tileConfig ) {
+    const { texture, density } = tileConfig;
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    texture.repeat.set(density, density);
 
-      const plane = new Mesh(
-        new PlaneGeometry(1, 1),
-        new MeshStandardMaterial({ map: texture, transparent: true })
-      );
-      this.scene.add(plane);
-      plane.position.set(i, j, 0);
-      }
-    }
+    const plane = new Mesh(
+      new PlaneGeometry(1, 1),
+      new MeshStandardMaterial({ map: texture, transparent: true })
+    );
+    this.scene.add(plane);
+    return plane
+  }
+
+  testPlane() {
+    const blueFlower = this.createTile(this.forestConfig.tiles[0]);
+
+    const tree = this.createTile(this.forestConfig.tiles[5]);
+    tree.position.x = 1
+
+    const roundLightGreen = this.createTile(this.forestConfig.tiles[4]);
+    roundLightGreen.position.x = 2
+
+    this.scene.add(blueFlower)
+
   }
 }
