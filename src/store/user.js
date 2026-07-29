@@ -7,20 +7,24 @@ export const userLoginStore = create(
       username: "",
       isAuthenticated: false,
       isLoading: true,
+      isAdmin: false,
 
       // Set user data after successful login/session validation
-      setUsername: (username) => set({ 
-        username, 
-        isAuthenticated: !!username 
+      setUsername: (username) => set({
+        username,
+        isAuthenticated: !!username
       }),
+
+      setIsAdmin: (isAdmin) => set({ isAdmin }),
 
       // Called after session check resolves (success or failure)
       setLoaded: () => set({ isLoading: false }),
-      
+
       // Clear user data on logout
-      logout: () => set({ 
-        username: "", 
-        isAuthenticated: false 
+      logout: () => set({
+        username: "",
+        isAuthenticated: false,
+        isAdmin: false,
       }),
     }),
     {

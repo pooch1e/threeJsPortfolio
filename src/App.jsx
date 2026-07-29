@@ -17,6 +17,7 @@ const ExperienceView = lazy(() => import("./pages/ExperienceView"));
 
 function App() {
   const setUsername = userLoginStore((s) => s.setUsername);
+  const setIsAdmin = userLoginStore((s) => s.setIsAdmin);
   const setLoaded = userLoginStore((s) => s.setLoaded);
   const logout = userLoginStore((s) => s.logout);
 
@@ -27,6 +28,7 @@ function App() {
         // The repo uses 'name' for username
         if (res && (res.name || res.username)) {
           setUsername(res.name || res.username);
+          setIsAdmin(res.is_admin);
         } else {
           logout();
         }
@@ -36,7 +38,7 @@ function App() {
         logout();
       })
       .finally(() => setLoaded());
-  }, [logout, setUsername, setLoaded]);
+  }, [logout, setUsername, setIsAdmin, setLoaded]);
 
   return (
     <>
