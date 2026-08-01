@@ -26,6 +26,45 @@ export class World {
       worldRibbonCount: 10,
     };
 
+    // TODO: random ribbonCount per group — sketch of the fix
+    //
+    // Right now groupXOffset = index * groupSpacing assumes every group has
+    // the same width (worldRibbonCount is a single shared number). Once each
+    // group gets its own random ribbonCount, groups have different widths,
+    // so position can no longer be "index * uniform slot width" — it has to
+    // be a running total of everything placed before it. That means two
+    // passes: decide widths first, then accumulate positions.
+    //
+    // 1. Pick a spacing/xWidth up front (already fixed values below) and a
+    //    fixed gap to leave between groups, e.g. const groupGap = 0.5.
+    //
+    // 2. Build a plain array of per-group specs BEFORE creating RibbonGroups,
+    //    so widths are known ahead of the position pass:
+    //      const groupSpecs = Array.from({ length: ribbonGroupCount }).map(() => {
+    //        const ribbonCount = randomInt(minRibbons, maxRibbons); // new helper
+    //        const width = (xWidth + spacing) * ribbonCount;
+    //        return { ribbonCount, width };
+    //      });
+    //
+    // 3. Walk the specs with a running cursor to get each group's left edge,
+    //    then its center (this replaces groupSpacing/middleOffset math):
+    //      let cursor = 0;
+    //      const offsets = groupSpecs.map(({ width }) => {
+    //        const center = cursor + width / 2;
+    //        cursor += width + groupGap;
+    //        return center;
+    //      });
+    //      const totalSpan = cursor - groupGap; // cursor overshoots by one gap
+    //      const centeredOffsets = offsets.map((c) => c - totalSpan / 2);
+    //
+    // 4. .map over groupSpecs (zipped with centeredOffsets) to build the
+    //    actual RibbonGroups, using spec.ribbonCount for ribbonCount and
+    //    centeredOffsets[index] for groupXOffset — same as groupXOffset
+    //    below, just sourced from the cursor pass instead of index * groupSpacing.
+    //
+    // Net effect: groupSpacing/middleOffset (computed per-index below) go
+    // away entirely once this lands — they only make sense under the
+    // uniform-width assumption.
 
     // Amount of singular ribbons in a group of ribbons
     const ribbonGroupCount = 15;
