@@ -1,7 +1,6 @@
 import { Ribbon } from "./Ribbon";
 import { wave, WAVE_TYPES } from "../utils/Wave";
-import { randomChance } from "../../utils/helpers";
-import { Color } from "three";
+
 
 export class RibbonGroup {
   constructor({ world, groupParams }) {
@@ -9,7 +8,6 @@ export class RibbonGroup {
     this.scene = world.scene;
     this.debug = world.rectExperience.debug;
 
-    // { label, ribbonCount, spacing, groupXOffset, xGapScale, yGapScale, planeCount, xWidth, wave }
     this.groupParams = { ...groupParams };
 
     this.waveParams = {
@@ -35,6 +33,9 @@ export class RibbonGroup {
     this.ribbons = [];
     this.buildRibbons();
     this.setDebug();
+
+    this.activeRedIndex = -1;
+    this.redSweepPeriod = this.groupParams.redSweepPeriod ?? 4;
   }
 
   buildRibbons() {
@@ -46,10 +47,9 @@ export class RibbonGroup {
         ribbonParams: {
           ...this.sharedParams,
           ribbonXPos: groupXOffset + (spacing + xWidth) * i,
-          colour: randomChance(0.001) ? new Color("red") : null,
+          colour: null,
         },
       });
-      // ribbon.ribbonIndex = i;
 
       this.ribbons.push(ribbon);
     }
@@ -64,19 +64,6 @@ export class RibbonGroup {
       const pushToRibbons = (key) => (value) => {
         this.ribbons.forEach((ribbon) => ribbon.updateParams({ [key]: value }));
       };
-
-      // this.debugFolder
-      //   .add(this, "xGapScale", 0.15, 3, 0.05)
-      //   .name("X Gap Scale")
-      //   .onChange((value) => {
-      //     const { spacing, groupXOffset } = this.groupParams;
-      //     this.ribbons.forEach((ribbon) => {
-      //       ribbon.setXPosition(
-      //         groupXOffset + ribbon.ribbonIndex * spacing, // * value,
-      //       );
-      //     });
-      //   });
-
       this.debugFolder
         .add(this.sharedParams, "yGapScale", 0, 3, 0.05)
         .name("Y Gap Scale")
@@ -135,6 +122,20 @@ export class RibbonGroup {
     this.ribbons.forEach((ribbon) =>
       ribbon.update(time, speedMultiplier * waveMultiplier),
     );
+
+    if (this.ribbons.length > 0) {
+      const progress =
+        (time.elapsedTime * 0.001 / this.redSweepPeriod) % 1;
+      const nextIndex = Math.floor(progress * this.ribbons.length);
+
+      if (nextIndex !== this.activeRedIndex) {
+        const previous = this.ribbons[this.activeRedIndex];
+        if (previous) previous.setColour(previous.baseColour);
+
+        this.ribbons[nextIndex].setColour("red");
+        this.activeRedIndex = nextIndex;
+      }
+    }
   }
 
   destroy() {

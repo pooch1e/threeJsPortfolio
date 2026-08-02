@@ -16,10 +16,10 @@ export class Ribbon {
     this.ribbonGroup = new Group();
     this.baseY = -10;
 
-    // const material as nothing gonna change
+    this.baseColour = ribbonParams.colour ?? new Color("black");
     this.material = new MeshBasicMaterial({
       wireframe: false,
-      color: ribbonParams.colour ?? new Color("black"),
+      color: this.baseColour,
     });
 
     this.ribbonGroup.position.x = this.ribbonParamsDebug.ribbonXPos;
@@ -57,11 +57,7 @@ export class Ribbon {
     let yOffset = 0;
 
     for (let i = 1; i <= planeCount; i++) {
-      // skew toward heightMin so most blocks are short with occasional
-      // long spikes, instead of an even spread across the full range
       const height = randomFloat(heightMin, heightMax);
-      // const height =
-      //   heightMin + Math.pow(Math.random(), 3) * (heightMax - heightMin);
       planeDefs.push({ height, y: yOffset });
       yOffset += height + yGapScale;
     }
@@ -101,6 +97,10 @@ export class Ribbon {
 
   setSpeedRange(speedMin, speedMax) {
     this.speed = randomFloat(speedMin, speedMax);
+  }
+  
+  setColour(color) {
+    this.material.color.set(color);
   }
 
   destroy() {
