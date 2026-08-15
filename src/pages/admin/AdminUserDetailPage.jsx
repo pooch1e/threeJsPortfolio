@@ -26,7 +26,7 @@ const labelClass =
 export default function AdminUserDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const currentUsername = userLoginStore((s) => s.username);
+  const currentUserId = userLoginStore((s) => s.userId);
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +52,7 @@ export default function AdminUserDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const isSelf = user && currentUsername && user.name === currentUsername;
+  const isSelf = user && currentUserId && user.id === currentUserId;
 
   const onSaveUser = async (data) => {
     setSaveError(null);

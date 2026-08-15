@@ -48,8 +48,8 @@ export default function AdminDashboardPage() {
     setPendingDelete(null);
     try {
       await deleteUser(user.id);
-      // If this was the only user on a page beyond the first, step back a page.
-      if (users.length === 1 && page > 1) {
+      const wasLastUserOnPageBeyondFirst = users.length === 1 && page > 1;
+      if (wasLastUserOnPageBeyondFirst) {
         setPage((p) => p - 1);
       } else {
         fetchUsers();

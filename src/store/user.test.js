@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { userLoginStore } from './user';
 
 const initialState = {
+  userId: '',
   username: '',
   isAuthenticated: false,
   isLoading: true,
@@ -71,5 +72,22 @@ describe('userLoginStore', () => {
     userLoginStore.getState().setIsAdmin(true);
     userLoginStore.getState().logout();
     expect(userLoginStore.getState().isAdmin).toBe(false);
+  });
+
+  it('setUserId sets userId', () => {
+    userLoginStore.getState().setUserId('user-123');
+    expect(userLoginStore.getState().userId).toBe('user-123');
+  });
+
+  it('setUserId with falsy value stores an empty string', () => {
+    userLoginStore.getState().setUserId('user-123');
+    userLoginStore.getState().setUserId(undefined);
+    expect(userLoginStore.getState().userId).toBe('');
+  });
+
+  it('logout resets userId', () => {
+    userLoginStore.getState().setUserId('user-123');
+    userLoginStore.getState().logout();
+    expect(userLoginStore.getState().userId).toBe('');
   });
 });

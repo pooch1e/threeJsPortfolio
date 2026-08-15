@@ -8,6 +8,7 @@ import { persist } from "zustand/middleware";
 export const userLoginStore = create(
   persist(
     (set) => ({
+      userId: "",
       username: "",
       isAuthenticated: false,
       isLoading: true,
@@ -18,11 +19,14 @@ export const userLoginStore = create(
         isAuthenticated: !!username
       }),
 
+      setUserId: (userId) => set({ userId: userId || "" }),
+
       setIsAdmin: (isAdmin) => set({ isAdmin: !!isAdmin }),
 
       setLoaded: () => set({ isLoading: false }),
 
       logout: () => set({
+        userId: "",
         username: "",
         isAuthenticated: false,
         isAdmin: false,

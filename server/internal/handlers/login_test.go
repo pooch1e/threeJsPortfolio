@@ -144,6 +144,41 @@ func TestLoginHandler_HappyPath(t *testing.T) {
 	if sessionCookie.SameSite != http.SameSiteLaxMode {
 		t.Errorf("SameSite: got %v, want SameSiteLaxMode outside APP_ENV=production", sessionCookie.SameSite)
 	}
+
+	var respBody struct {
+		Username string `json:"username"`
+		IsAdmin  bool   `json:"is_admin"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&respBody); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if respBody.IsAdmin {
+		t.Error("is_admin: got true, want false for non-admin user")
+	}
+}
+
+func TestLoginHandler_AdminUser(t *testing.T) {
+	const password = "Test1ng@123"
+	user := newUserWithPassword(t, "joel", "joel@example.com", password)
+	user.IsAdmin = true
+	repo := &testutil.MockUserRepo{
+		GetUserByUsernameFn: func(username string) (*models.User, error) { return user, nil },
+	}
+	h := handlers.LoginHandler(repo, loginTestSecret)
+	body := mustMarshal(t, map[string]string{"username": "joel", "password": password})
+	req := httptest.NewRequest(http.MethodPost, "/api/login", body)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+
+	var respBody struct {
+		IsAdmin bool `json:"is_admin"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&respBody); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if !respBody.IsAdmin {
+		t.Error("is_admin: got false, want true for admin user")
+	}
 }
 
 func TestLoginHandler_ProductionCookieFlags(t *testing.T) {

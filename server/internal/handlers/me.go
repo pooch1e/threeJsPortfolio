@@ -10,8 +10,9 @@ import (
 )
 
 type MeResponse struct {
+	ID       string `json:"id"`
 	Username string `json:"username"`
-	IsAdmin bool `json:"is_admin"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 // MeHandler returns the currently authenticated user's profile.
@@ -35,6 +36,6 @@ func MeHandler(repo repos.UserRepository) http.HandlerFunc {
 			return
 		}
 
-		json.WriteJson(w, http.StatusOK, MeResponse{Username: user.Name, IsAdmin: user.IsAdmin})
+		json.WriteJson(w, http.StatusOK, MeResponse{ID: user.ID, Username: user.Name, IsAdmin: user.IsAdmin})
 	}
 }
