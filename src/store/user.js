@@ -1,3 +1,7 @@
+/**
+ * user store — Zustand store for the logged-in user's session state
+ * (username, admin flag, auth/loading status), persisted to localStorage.
+ */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -9,18 +13,15 @@ export const userLoginStore = create(
       isLoading: true,
       isAdmin: false,
 
-      // Set user data after successful login/session validation
       setUsername: (username) => set({
         username,
         isAuthenticated: !!username
       }),
 
-      setIsAdmin: (isAdmin) => set({ isAdmin }),
+      setIsAdmin: (isAdmin) => set({ isAdmin: !!isAdmin }),
 
-      // Called after session check resolves (success or failure)
       setLoaded: () => set({ isLoading: false }),
 
-      // Clear user data on logout
       logout: () => set({
         username: "",
         isAuthenticated: false,
@@ -28,8 +29,8 @@ export const userLoginStore = create(
       }),
     }),
     {
-      name: "user-storage", // localStorage key
-      partialize: (state) => ({ username: state.username }), // Only persist username
+      name: "user-storage",
+      partialize: (state) => ({ username: state.username }),
     }
   )
 );

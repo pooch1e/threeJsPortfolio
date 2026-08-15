@@ -1,0 +1,102 @@
+/**
+ * AdminDashboardPage — paginated, filterable admin view of all users,
+ * with inline deletion.
+ */
+import { useEffect, useState, useCallback } from "react";
+import HomeStyle from "../../layout/HomeStyle";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import ErrorMessage from "../../components/ErrorMessage";
+import AdminUserTable from "../../components/admin/AdminUserTable";
+import AdminPagination from "../../components/admin/AdminPagination";
+import ConfirmDialog from "../../components/admin/ConfirmDialog";
+import { listUsers } from "../../utils/admin/listUsers";
+import { deleteUser } from "../../utils/admin/deleteUser";
+
+const LIMIT = 20;
+
+export default function AdminDashboardPage() {
+  const [page, setPage] = useState(1);
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, total_pages: 1 });
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const fetchUsers = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    listUsers(page, LIMIT)
+      .then((res) => {
+        setUsers(res.users || []);
+        setPagination(res.pagination || { page, total_pages: 1 });
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => {
+        setLoading(false);
+        setIsFirstLoad(false);
+      });
+  }, [page]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleDeleteConfirmed = async () => {
+    const user = pendingDelete;
+    setPendingDelete(null);
+    try {
+      await deleteUser(user.id);
+      // If this was the only user on a page beyond the first, step back a page.
+      if (users.length === 1 && page > 1) {
+        setPage((p) => p - 1);
+      } else {
+        fetchUsers();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const filteredUsers = filter
+    ? users.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(filter.toLowerCase()) ||
+          u.email?.toLowerCase().includes(filter.toLowerCase())
+      )
+    : users;
+
+  return (
+    <HomeStyle>
+      {isFirstLoad && loading && <LoadingOverlay />}
+      <div className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
+        <h1 className="font-dirtyline text-3xl uppercase tracking-widest text-[var(--text-primary)]">
+          Admin — Users
+        </h1>
+
+        <input
+          type="text"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter this page…"
+          className="rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear max-w-sm"
+        />
+
+        <ErrorMessage error={error} type="api" />
+
+        <AdminUserTable users={filteredUsers} loading={loading} onDelete={setPendingDelete} />
+
+        <AdminPagination pagination={pagination} onPageChange={setPage} />
+      </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete user"
+        message={pendingDelete ? `Delete ${pendingDelete.name}? This cannot be undone.` : ""}
+        onConfirm={handleDeleteConfirmed}
+        onCancel={() => setPendingDelete(null)}
+      />
+    </HomeStyle>
+  );
+}

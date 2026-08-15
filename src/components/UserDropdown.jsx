@@ -1,3 +1,7 @@
+/**
+ * UserDropdown — account menu with a link to the admin dashboard
+ * (for admin users) and logout.
+ */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userLoginStore } from "../store/user";
@@ -7,6 +11,7 @@ import { User, LogOut } from "./icons";
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const username = userLoginStore((s) => s.username);
+  const isAdmin = userLoginStore((s) => s.isAdmin);
   const logout = userLoginStore((s) => s.logout);
   const navigate = useNavigate();
 
@@ -43,6 +48,17 @@ export default function UserDropdown() {
               <p className="text-xs text-gray-400 uppercase tracking-wider">Signed in as</p>
               <p className="text-[var(--object-alt)]">{username}</p>
             </div>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate("/admin");
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 hover:text-white transition-colors flex items-center"
+              >
+                Admin Dashboard
+              </button>
+            )}
             <button
               onClick={() => {
                 setIsOpen(false);

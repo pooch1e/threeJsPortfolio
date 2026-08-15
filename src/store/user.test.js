@@ -5,6 +5,7 @@ const initialState = {
   username: '',
   isAuthenticated: false,
   isLoading: true,
+  isAdmin: false,
 };
 
 beforeEach(() => {
@@ -52,5 +53,23 @@ describe('userLoginStore', () => {
     userLoginStore.getState().setUsername('alice');
     userLoginStore.getState().logout();
     expect(userLoginStore.getState().isLoading).toBe(false);
+  });
+
+  it('setIsAdmin sets isAdmin', () => {
+    userLoginStore.getState().setIsAdmin(true);
+    expect(userLoginStore.getState().isAdmin).toBe(true);
+  });
+
+  it('setIsAdmin coerces truthy/falsy values to booleans', () => {
+    userLoginStore.getState().setIsAdmin(1);
+    expect(userLoginStore.getState().isAdmin).toBe(true);
+    userLoginStore.getState().setIsAdmin(undefined);
+    expect(userLoginStore.getState().isAdmin).toBe(false);
+  });
+
+  it('logout resets isAdmin', () => {
+    userLoginStore.getState().setIsAdmin(true);
+    userLoginStore.getState().logout();
+    expect(userLoginStore.getState().isAdmin).toBe(false);
   });
 });

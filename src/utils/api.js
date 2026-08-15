@@ -26,5 +26,8 @@ export const apiClient = async (endpoint, options = {}) => {
     throw new Error(errorBody.error || `HTTP error! status: ${response.status}`);
   }
 
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) return response.text();
+
   return response.json();
 };
