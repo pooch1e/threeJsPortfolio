@@ -9,8 +9,8 @@ export default function HomePage() {
       <div className="fixed top-4 right-4 z-20">
         <UserDropdown />
       </div>
-      <main className="min-h-svh flex flex-col items-center justify-start sm:justify-center px-4 py-10">
-        <h1 className="font-dirtyline text-5xl uppercase tracking-widest text-[var(--text-primary)] text-center mb-10">
+      <main className="min-h-svh flex flex-col items-center justify-start sm:justify-center px-4 pt-20 pb-10 sm:py-10">
+        <h1 className="font-dirtyline text-3xl sm:text-4xl md:text-5xl uppercase tracking-wide sm:tracking-widest text-[var(--text-primary)] text-center mb-10 max-w-full">
           Experiments
         </h1>
         <section className="w-full max-w-3xl">
