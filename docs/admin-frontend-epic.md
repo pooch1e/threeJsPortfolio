@@ -2,6 +2,13 @@
 
 Branch: `feat/admin-dashboard-frontend`
 
+> **Superseded.** FE-3 through FE-7 below describe a `react-admin`-based
+> implementation; the admin dashboard actually shipped as hand-rolled pages
+> (`src/pages/admin/AdminDashboardPage.jsx`, `AdminUserDetailPage.jsx`) with
+> plain `useState`/`fetch` wiring instead — no `react-admin` dependency was
+> added. Deliberate call, not drift. The backend contract tables below are
+> still accurate; the frontend implementation plan is not.
+
 ## Context
 
 This supersedes the frontend portion of `server/admin-dashboard-story.md` (DASH-8

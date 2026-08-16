@@ -150,7 +150,7 @@ func DeleteUser(repo repos.UserRepository) http.HandlerFunc {
 			json.WriteError(w, http.StatusInternalServerError, "Error in deleting user")
 			return
 		}
-		json.WriteJson(w, http.StatusOK, "Successfully deleted user")
+		json.WriteJson(w, http.StatusOK, map[string]string{"message": "Successfully deleted user"})
 	}
 }
 
@@ -188,6 +188,6 @@ func UpdatePasswordHashHandler(repo repos.UserRepository) http.HandlerFunc {
 			json.WriteError(w, http.StatusInternalServerError, "Error updating password")
 			return
 		}
-		json.WriteJson(w, http.StatusOK, "Successfully updated password")
+		json.WriteJson(w, http.StatusOK, map[string]string{"message": "Successfully updated password"})
 	}
 }

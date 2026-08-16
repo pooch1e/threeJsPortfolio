@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 	"time"
+
+	json "threejsPortfolioServer/internal/json"
 )
 
 // LogoutHandler clears the session cookie by overwriting it with an
@@ -21,6 +23,6 @@ func LogoutHandler() http.HandlerFunc {
 			Secure:   secure,
 			SameSite: sameSite,
 		})
-		w.WriteHeader(http.StatusOK)
+		json.WriteJson(w, http.StatusOK, map[string]string{"message": "logged out"})
 	}
 }

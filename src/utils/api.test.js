@@ -37,7 +37,7 @@ describe("apiClient", () => {
     globalThis.fetch.mockResolvedValue(
       makeFetchResponse({ status: 204, ok: true, json: null }),
     );
-    const result = await apiClient("/api/logout", { method: "POST" });
+    const result = await apiClient("/api/some-endpoint", { method: "POST" });
     expect(result).toBeNull();
   });
 
