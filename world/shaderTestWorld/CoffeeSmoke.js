@@ -95,7 +95,7 @@ export default class CoffeeSmoke {
     }
 
     if (this.debugFolder) {
-      this.debug.ui.destroy();
+      this.debugFolder.destroy();
     }
   }
 }

@@ -118,7 +118,7 @@ export default class LeePerry {
     }
 
     if (this.debugFolder) {
-      this.debug.ui.destroy();
+      this.debugFolder.destroy();
     }
   }
 

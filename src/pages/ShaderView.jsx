@@ -17,7 +17,7 @@ export default function ShaderView() {
   useEffect(() => {
     const world = worldRefRef.current?.current?.world;
     if (shaderChoice && world) {
-      world.loadPractice(shaderChoice, canvas2dRef.current);
+      world.requestShader(shaderChoice, canvas2dRef.current);
     }
   }, [shaderChoice, debugMode]);
 

@@ -134,10 +134,16 @@ export default class SlicedModel {
   }
 
   destroy() {
-    if (this.mesh) {
-      this.scene.remove(this.mesh);
-      this.mesh.geometry.dispose();
-      this.mesh.material.dispose();
+    if (this.model?.scene) {
+      this.scene.remove(this.model.scene);
+      this.model.scene.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+        }
+      });
+      this.material?.dispose();
+      this.slicedMaterial?.dispose();
+      this.slicedDepthMaterial?.dispose();
     }
 
     if (this.plane) {
@@ -157,6 +163,10 @@ export default class SlicedModel {
     }
     if (this.scene.environment === this.environmentMap) {
       this.scene.environment = null;
+    }
+
+    if (this.debugFolder) {
+      this.debugFolder.destroy();
     }
   }
 }

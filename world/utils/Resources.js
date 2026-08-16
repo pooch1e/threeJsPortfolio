@@ -13,6 +13,7 @@ export class Resources extends EventEmitter {
     this.items = {};
     this.toLoad = this.sources.length;
     this.loaded = 0;
+    this.isReady = false;
 
     // Setup
     this.setLoaders();
@@ -118,6 +119,7 @@ export class Resources extends EventEmitter {
 
     if (this.loaded === this.toLoad) {
       console.log('All resources loaded!');
+      this.isReady = true;
       this.trigger('ready');
     }
   }

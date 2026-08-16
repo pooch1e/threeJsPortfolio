@@ -132,7 +132,7 @@ export default class Halftone {
       });
     }
     if (this.debugFolder) {
-      this.debug.ui.destroy();
+      this.debugFolder.destroy();
     }
   }
 }

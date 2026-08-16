@@ -13,11 +13,25 @@ constructor(shaderExperience) {
 
     this.resources = new Resources(sources);
     this.helpers = new Helpers(this);
+    this.pendingShaderKey = 'basicShader';
+    this.pendingCanvas2D = null;
 
     this.resources.on('ready', () => {
-      //default
-      this.loadPractice('basicShader');
+      this.loadPractice(this.pendingShaderKey, this.pendingCanvas2D);
     });
+  }
+
+  // Entry point for shader selection from React. Resources reload from
+  // scratch on every remount (e.g. toggling debug mode), so a shader
+  // requested before they're ready is deferred until the 'ready' event
+  // instead of racing loadPractice against still-empty resources.items.
+  requestShader(key, canvas2D = null) {
+    if (this.resources.isReady) {
+      this.loadPractice(key, canvas2D);
+    } else {
+      this.pendingShaderKey = key;
+      this.pendingCanvas2D = canvas2D;
+    }
   }
 
   async loadPractice(key, canvas2D = null) {
