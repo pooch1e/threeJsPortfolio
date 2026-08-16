@@ -31,7 +31,7 @@ export default function ExperienceView() {
   if (cfg.custom === "shader") {
     return (
       <>
-        <ExperienceChrome />
+        <ExperienceChrome debugDefault />
         <ShaderView />
       </>
     );

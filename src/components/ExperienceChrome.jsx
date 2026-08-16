@@ -2,17 +2,15 @@ import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Bug } from "./icons";
 import { transitionStore } from "../store/transitionStore";
 
-export default function ExperienceChrome() {
+export default function ExperienceChrome({ debugDefault = false }) {
   const setTargetPath = transitionStore((s) => s.setTargetPath);
   const [searchParams, setSearchParams] = useSearchParams();
-  const debugMode = searchParams.get("debug") === "true";
+  const debugMode = debugDefault
+    ? searchParams.get("debug") !== "false" // default ON
+    : searchParams.get("debug") === "true"; // default OFF
 
   const toggleDebug = () => {
-    if (debugMode) {
-      setSearchParams("");
-    } else {
-      setSearchParams({ debug: "true" });
-    }
+    setSearchParams({ debug: debugMode ? "false" : "true" });
   };
 
   const buttonClass =
