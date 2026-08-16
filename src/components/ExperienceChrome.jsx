@@ -1,8 +1,9 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Bug } from "./icons";
+import { transitionStore } from "../store/transitionStore";
 
 export default function ExperienceChrome() {
-  const navigate = useNavigate();
+  const setTargetPath = transitionStore((s) => s.setTargetPath);
   const [searchParams, setSearchParams] = useSearchParams();
   const debugMode = searchParams.get("debug") === "true";
 
@@ -23,7 +24,7 @@ export default function ExperienceChrome() {
     <>
       <button
         className={`${buttonClass} top-4`}
-        onClick={() => navigate("/homepage")}
+        onClick={() => setTargetPath("/homepage")}
         title="Back to home"
         aria-label="Back to home">
         <ArrowLeft size={16} />

@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import AdminRoute from "./components/AdminRoute";
 import LoadingOverlay from "./components/LoadingOverlay";
+import TransitionOverlay from "./components/TransitionOverlay";
 
 import Login from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -45,6 +46,7 @@ function App() {
 
   return (
     <>
+      <TransitionOverlay />
       <Routes>
         <Route element={<ProtectedRoute />}>
           <Route
