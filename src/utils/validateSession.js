@@ -6,16 +6,7 @@ import { apiClient } from './api';
  */
 export const validateSession = async () => {
   try {
-    const res = await apiClient('/api/me', {
-      method: 'GET',
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return data; 
-    }
-
-    return null;
+    return await apiClient('/api/me', { method: 'GET' });
   } catch (error) {
     console.error('Session validation error:', error);
     return null;

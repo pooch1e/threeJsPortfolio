@@ -1,78 +1,38 @@
-# Deployment Plan: Cloudflare Pages + Fly.io + Supabase
+# Deployment Plan: Vercel + Fly.io + Supabase
 
 ## Stack Overview
 
 | Layer | Service | Reason |
 |---|---|---|
-| Frontend | Cloudflare Pages | Free, no bandwidth limits, global CDN, auto-deploys from GitHub |
+| Frontend | Vercel | User-managed — auto-deploys from GitHub, zero config for Vite |
 | Backend (Go) | Fly.io | Free 3 shared VMs, always-on (no cold starts), Docker native |
 | Database | Supabase | Free managed Postgres, no 90-day expiry (unlike Render) |
 
+Frontend deployment is handled directly by the project owner in the
+Vercel dashboard — this doc only covers the backend/DB and the two env
+vars that connect the three services.
+
 ---
 
-## Pre-Deployment Fixes Required
+## Pre-Deployment Fixes (status)
 
-These must be completed before deploying. They are bugs or gaps that will cause failures in production.
-
-### 1. Set `JWT_SECRET`
-`JWT_SECRET` in `.env.local` is currently empty. Generate a strong random secret (32+ characters) before any auth will work.
-
-```bash
-openssl rand -base64 32
-```
-
-### 2. Fix three `apiClient` usage bugs in frontend utils
-
-`apiClient` in `src/utils/api.js` returns a **parsed JSON object** (or `null` for 204 responses), not a raw `Response` object. Three utility files incorrectly call `.ok`, `.json()`, and `.text()` on the result:
-
-| File | Invalid calls |
-|---|---|
-| `src/utils/postSignup.js` | `res.ok`, `res.text()` |
-| `src/utils/validateSession.js` | `res.ok`, `res.json()` |
-| `src/utils/postLogout.js` | `res.ok` |
-
-Each should be rewritten to work with the already-parsed return value from `apiClient`.
-
-### 3. Fix `godotenv.Load` path in `server/cmd/main.go`
-
-Currently: `godotenv.Load("../.env.local")` — uses a relative path that breaks inside a Docker container. The call silently ignores errors if the file is missing, so the container won't crash, but it is still misleading. Wrap it to only load when the file is present:
-
-```go
-if _, err := os.Stat("../.env.local"); err == nil {
-    godotenv.Load("../.env.local")
-}
-```
-
-In production all config is injected as environment variables by Fly.io, so the file is not needed.
-
-### 4. Set `SameSite=None; Secure` on JWT cookie for cross-origin auth
-
-The JWT is sent as an HTTP cookie with `credentials: 'include'` from the frontend. Because the frontend (Cloudflare Pages domain) and backend (Fly.io domain) are on different origins, the cookie **must** be set with:
-
-- `SameSite=None`
-- `Secure=true`
-
-Without this, browsers will block the cookie entirely on cross-origin requests.
-
-This is a code change required in `server/internal/handlers/login.go`. Use an environment variable (e.g. `APP_ENV=production`) to set these flags conditionally so local development is not affected.
-
-```go
-sameSite := http.SameSiteLaxMode
-secure := false
-if os.Getenv("APP_ENV") == "production" {
-    sameSite = http.SameSiteNoneMode
-    secure = true
-}
-
-http.SetCookie(w, &http.Cookie{
-    Name:     "token",
-    Value:    tokenString,
-    HttpOnly: true,
-    Secure:   secure,
-    SameSite: sameSite,
-    Path:     "/",
-})
-```
+- ~~`apiClient` usage bugs in `postSignup.js`/`validateSession.js`~~ —
+  **fixed**. `apiClient` (`src/utils/api.js`) throws on non-2xx and
+  returns the already-parsed body (JSON/text/`null`), never a `Response`;
+  both files now just `return apiClient(...)` / `return await apiClient(...)`
+  directly instead of calling `.ok`/`.json()`/`.text()` on the result.
+  (`postLogout.js` never had this bug.)
+- ~~`godotenv.Load` unconditional relative path in `server/cmd/main.go`~~ —
+  **fixed**. Now guarded with `os.Stat("../.env.local")` so it's inert
+  inside the Fly.io container.
+- ~~`SameSite=None; Secure` cookie flags for cross-origin auth~~ —
+  **already implemented**. `sessionCookieFlags()` in
+  `server/internal/handlers/login.go` returns `SameSiteNoneMode, true`
+  when `APP_ENV=production`, shared by both the login and logout
+  handlers so they stay in sync.
+- `JWT_SECRET` — generate a fresh one for the Fly secret (see below); the
+  empty value in local `.env.local` doesn't block deployment since
+  production never reads that file.
 
 ---
 
@@ -80,30 +40,21 @@ http.SetCookie(w, &http.Cookie{
 
 ### Phase 1 — Dockerfile for Go Backend
 
-Create `server/Dockerfile` as a multi-stage build. The final image is ~15–20 MB.
+`server/Dockerfile` (already created):
 
 ```dockerfile
-# Stage 1: Build
 FROM golang:1.25-alpine AS builder
-
 WORKDIR /build
-
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
 RUN go build -o /app/server ./cmd/
 
-# Stage 2: Runtime
 FROM alpine:latest
-
 RUN apk --no-cache add ca-certificates
-
 WORKDIR /app
 COPY --from=builder /app/server .
-
 EXPOSE 8080
-
 ENTRYPOINT ["/app/server"]
 ```
 
@@ -152,9 +103,9 @@ primary_region = "lhr"          # choose closest region
 fly secrets set \
   PORT=8080 \
   APP_ENV=production \
-  JWT_SECRET="<generated secret>" \
+  JWT_SECRET="$(openssl rand -base64 32)" \
   DATABASE_URL="<supabase connection string — see Phase 3>" \
-  FRONTEND_URL="https://<your-cloudflare-pages-domain>"
+  FRONTEND_URL="https://<your-vercel-domain>"
 ```
 
 #### Deploy
@@ -170,7 +121,7 @@ Verify: `https://<app-name>.fly.dev/health` should return `{"status":"ok"}`.
 ### Phase 3 — Supabase (PostgreSQL)
 
 1. Create a new project at [supabase.com](https://supabase.com) (free tier)
-2. In the Supabase SQL editor, run the contents of `server/db/seed/seed.sql` to create the schema
+2. In the Supabase SQL editor, run the contents of `server/db/seed/seed.sql` to create the schema — there's no migration tool in this repo (no golang-migrate/goose), schema is applied via this flat SQL file
 3. Go to **Project Settings → Database → Connection string → URI**
 4. Copy the **Session mode** connection string (port 5432)
 5. Append `?sslmode=require` — the local string uses `?sslmode=disable` which Supabase rejects
@@ -182,33 +133,34 @@ postgres://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:
 
 Use this as the `DATABASE_URL` secret in Fly.io.
 
+Note: `openDb()` in `server/cmd/api.go` opens the connection with no pool
+tuning (`SetMaxOpenConns`/`SetMaxIdleConns`/`SetConnMaxLifetime` are never
+called) — fine at this scale, revisit if connections get exhausted.
+
 ---
 
-### Phase 4 — Cloudflare Pages (React/Vite Frontend)
+### Phase 4 — Vercel (React/Vite Frontend)
 
-1. Go to [pages.cloudflare.com](https://pages.cloudflare.com) and connect your GitHub repo
-2. Set build configuration:
+Handled directly by the project owner. Coordination points only:
 
-| Setting | Value |
-|---|---|
-| Build command | `npm run build` |
-| Output directory | `dist` |
-| Node version (env var) | `NODE_VERSION=18` |
-
-3. Add environment variable in the Pages dashboard:
+1. In the Vercel project's environment variables, set:
 
 | Variable | Value |
 |---|---|
 | `VITE_API_BASE_URL` | `https://<your-fly-app>.fly.dev` |
 
-This is already wired in `src/utils/api.js` — no code changes needed. Deploys trigger automatically on every push to `main`.
+This is already wired in `src/utils/api.js` — no code changes needed.
+
+2. Once the Vercel domain is known, set it as `FRONTEND_URL` in the Fly
+   secrets above (Phase 2) — CORS (`server/cmd/api.go`) allows exactly
+   one origin, no wildcards, and it must match exactly.
 
 ---
 
 ### Phase 5 — GitHub OAuth (when ready to implement)
 
 1. Register a new OAuth App at [github.com/settings/developers](https://github.com/settings/developers):
-   - **Homepage URL:** `https://<your-cloudflare-pages-domain>`
+   - **Homepage URL:** `https://<your-vercel-domain>`
    - **Authorization callback URL:** `https://<your-fly-app>.fly.dev/api/auth/github/callback`
 2. Add secrets to Fly.io:
 
@@ -234,13 +186,13 @@ Set via `fly secrets set`. Never committed to the repo.
 | `APP_ENV` | `production` |
 | `JWT_SECRET` | Random 32+ char string — used to sign/verify JWTs |
 | `DATABASE_URL` | Supabase Postgres connection string with `?sslmode=require` |
-| `FRONTEND_URL` | Cloudflare Pages domain — used for CORS allowed origin |
+| `FRONTEND_URL` | Vercel domain — used for CORS allowed origin |
 | `GITHUB_CLIENT_ID` | GitHub OAuth app client ID (when OAuth implemented) |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret (when OAuth implemented) |
 
-### Cloudflare Pages — Vite Frontend
+### Vercel — Vite Frontend
 
-Set in the Pages project dashboard under Settings → Environment Variables.
+Set in the Vercel project dashboard under Settings → Environment Variables.
 
 | Variable | Description |
 |---|---|
@@ -252,13 +204,11 @@ Set in the Pages project dashboard under Settings → Environment Variables.
 
 | File | Action | Notes |
 |---|---|---|
-| `server/Dockerfile` | Create | Multi-stage Go build — see Phase 1 |
+| `server/Dockerfile` | Created | Multi-stage Go build — see Phase 1 |
 | `server/fly.toml` | Create | Generated by `fly launch`, then edited |
-| `server/cmd/main.go` | Modify | Make `godotenv.Load` conditional on file existence |
-| `server/internal/handlers/login.go` | Modify | Set `SameSite=None; Secure` cookie for production |
-| `src/utils/postSignup.js` | Fix | Remove invalid `res.ok` / `res.text()` calls |
-| `src/utils/validateSession.js` | Fix | Remove invalid `res.ok` / `res.json()` calls |
-| `src/utils/postLogout.js` | Fix | Remove invalid `res.ok` check |
+| `server/cmd/main.go` | Modified | `godotenv.Load` now conditional on file existence |
+| `src/utils/postSignup.js` | Fixed | Removed invalid `res.ok` / `res.text()` calls |
+| `src/utils/validateSession.js` | Fixed | Removed invalid `res.ok` / `res.json()` calls |
 
 ---
 
@@ -266,13 +216,9 @@ Set in the Pages project dashboard under Settings → Environment Variables.
 
 Decisions to make before or during implementation:
 
-1. **Cookie SameSite handling** — use `APP_ENV=production` env var to toggle `SameSite=None; Secure` (recommended), or always use strict mode and run HTTPS locally with Vite's `--https` flag?
+1. **Fly.io app name** — the name becomes `<name>.fly.dev`. Choose before running `fly launch`.
 
-2. **Fly.io app name** — the name becomes `<name>.fly.dev`. Choose before running `fly launch`.
-
-3. **Custom domain** — attach a custom domain to Cloudflare Pages and/or Fly.io, or use default `*.pages.dev` / `*.fly.dev` subdomains for now?
-
-4. **`godotenv` in production** — keep the conditional load for developer convenience, or remove entirely and always rely on environment variables?
+2. **Custom domain** — attach a custom domain to Vercel and/or Fly.io, or use default `*.vercel.app` / `*.fly.dev` subdomains for now?
 
 ---
 
@@ -285,4 +231,4 @@ npm run full-stack        # start Docker (Postgres) + Go server + Vite dev serve
 npm run full-stack-down   # stop everything
 ```
 
-All production config is isolated to Fly.io secrets and Cloudflare Pages env vars — `.env.local` continues to serve local development only.
+All production config is isolated to Fly.io secrets and Vercel env vars — `.env.local` continues to serve local development only.

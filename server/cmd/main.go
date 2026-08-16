@@ -14,7 +14,9 @@ import (
 )
 
 func main() {
-	godotenv.Load("../.env.local")
+	if _, err := os.Stat("../.env.local"); err == nil {
+		godotenv.Load("../.env.local")
+	}
 
 	cfg := config{
 		adr:       ":" + os.Getenv("PORT"),
