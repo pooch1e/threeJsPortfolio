@@ -6,10 +6,12 @@ function makeFetchResponse({
   ok = true,
   json = null,
   text = "",
+  contentType = "application/json",
 }) {
   return {
     status,
     ok,
+    headers: { get: (name) => (name.toLowerCase() === "content-type" ? contentType : null) },
     json: () =>
       json !== null
         ? Promise.resolve(json)
@@ -81,6 +83,14 @@ describe("apiClient", () => {
         }),
       }),
     );
+  });
+
+  it("returns text for non-JSON success bodies", async () => {
+    globalThis.fetch.mockResolvedValue(
+      makeFetchResponse({ text: "Successfully deleted user", contentType: "text/plain; charset=utf-8" }),
+    );
+    const result = await apiClient("/api/admin/users/1", { method: "DELETE" });
+    expect(result).toBe("Successfully deleted user");
   });
 
   it("merges caller-provided headers with defaults", async () => {

@@ -1,3 +1,7 @@
+/**
+ * Login — username/password login form with a guest quick-login option;
+ * syncs username and admin status into the user store on success.
+ */
 import { useForm } from "react-hook-form";
 import { postLogin } from "../utils/postLogin";
 import { useState } from "react";
@@ -28,6 +32,8 @@ export default function Login() {
   const navigate = useNavigate();
 
   const setUserName = userLoginStore((state) => state.setUsername);
+  const setUserId = userLoginStore((state) => state.setUserId);
+  const setIsAdmin = userLoginStore((state) => state.setIsAdmin);
 
   const handleGuestLogin = async () => {
     setServerError(null);
@@ -37,6 +43,8 @@ export default function Login() {
       const data = await postLogin({ username: "guest", password: "Guest1234!" });
       const username = data.name || data.username;
       setUserName(username || "");
+      setUserId(data.id);
+      setIsAdmin(data.is_admin);
       setShowSuccess(true);
       setPending(false);
       setTimeout(() => {
@@ -55,10 +63,11 @@ export default function Login() {
     setShowSuccess(false);
     try {
       const data = await postLogin(e);
-      // The backend returns user info with 'name' (from your repo code)
       const username = data.name || data.username;
 
-      setUserName(username || ""); // This also sets isAuthenticated: true
+      setUserName(username || "");
+      setUserId(data.id);
+      setIsAdmin(data.is_admin);
       setShowSuccess(true);
       setPending(false);
       setTimeout(() => {

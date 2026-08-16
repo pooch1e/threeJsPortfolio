@@ -21,7 +21,9 @@ type LoginRequest struct {
 // LoginResponse is what we send back on successful login.
 // Only safe, non-sensitive fields are included.
 type LoginResponse struct {
+	ID       string `json:"id"`
 	Username string `json:"username"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc {
@@ -73,7 +75,7 @@ func LoginHandler(repo repos.UserRepository, jwtSecret string) http.HandlerFunc 
 			SameSite: sameSite,
 		})
 
-		json.WriteJson(w, http.StatusOK, LoginResponse{Username: user.Name})
+		json.WriteJson(w, http.StatusOK, LoginResponse{ID: user.ID, Username: user.Name, IsAdmin: user.IsAdmin})
 	}
 }
 

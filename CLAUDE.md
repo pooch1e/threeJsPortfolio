@@ -33,6 +33,20 @@ static/       GLTF models, HDR textures, videos
 
 ---
 
+## Code comments
+
+- No single-line comments explaining what a piece of code does. Well-named identifiers should make that self-evident.
+- Every file gets a JSDoc-style header comment at the top summarizing what the file does:
+  ```js
+  /**
+   * ComputerPage — renders the Three.js computer scene with video texture,
+   * presentation controls, and GSAP-driven zoom transitions.
+   */
+  ```
+- Inline comments are only acceptable to explain non-obvious *why* (a workaround, a hidden constraint, a subtle invariant) — never *what*.
+
+---
+
 ## Frontend (React + Three.js)
 
 - React 19, React Router 7, Vite 7, Tailwind CSS 3.4
