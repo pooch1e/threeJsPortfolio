@@ -1,7 +1,7 @@
 import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
-import { randomFloat, randomElement} from "../../utils/helpers";
+import { randomFloat, randomElement, randomInt} from "../../utils/helpers";
 
 export class World {
   constructor(rectExperience) {
@@ -13,34 +13,33 @@ export class World {
     this.scene.background = new Color("white");
 
     // TODO HOMEWORK:
-    // RibbonGroup Random ribbon count per group
-    // Oscilating colour across groups
     // Reverse direction speeds
-    // Plane Spin along movement axis
     // random width ribbons within a group (consider calculations for group offset and ribbon x position)
 
-    // Owns params on how many ribbon group/ where they are placed in scene, how much space between each group
-    this.worldParams = {
-      spacing: 1,
-      // TODO: make this random per group
-      worldRibbonCount: 10,
-    };
-
-
+    
     // Amount of singular ribbons in a group of ribbons
     const ribbonGroupCount = 15;
+    const groupGap = 0.15; // lower this for lower gap between groups
+    const spacing = 0.05; // space between individual ribbons in a group
+    const xWidth = 0.5;
+
+    const groupSpecs = Array.from({ length: ribbonGroupCount }).map(() => {
+      const ribbonCount = randomInt(1, 15);
+      const width = (xWidth + spacing) * ribbonCount;
+      return { ribbonCount, width };
+    });
+
+    let cursor = 0;
+    const offsets = groupSpecs.map(({ width }) => {
+      const leftEdge = cursor;
+      cursor += width + groupGap;
+      return leftEdge;
+    });
+    const totalSpan = cursor - groupGap;
+    const centeredOffsets = offsets.map((c) => c - totalSpan / 2);
 
     this.ribbonGroups = Array.from(new Array(ribbonGroupCount)).map(
       (_, index) => {
-        const spacing = 0.05;
-        const xWidth = 0.5;
-
-        const groupSpacing =
-          (xWidth + spacing) * this.worldParams.worldRibbonCount;
-
-        const middleOffset =
-          ((ribbonGroupCount - 1) / 2) * groupSpacing - groupSpacing / 2;
-
         const ribbonGroupTypes = [
           // TIGHT GROUP
           {
@@ -73,8 +72,8 @@ export class World {
           spacing,
           xWidth,
           ...randomElement(ribbonGroupTypes),
-          ribbonCount: this.worldParams.worldRibbonCount,
-          groupXOffset: index * groupSpacing - middleOffset,
+          ribbonCount: groupSpecs[index].ribbonCount,
+          groupXOffset: centeredOffsets[index],
           xGapScale: 0.2,
           planeCount: 20,
           wave: {
