@@ -1,12 +1,22 @@
-# Deployment Plan: Vercel + Fly.io + Supabase
+# Deployment Plan: Vercel + Cloud Run + Supabase
 
 ## Stack Overview
 
 | Layer | Service | Reason |
 |---|---|---|
 | Frontend | Vercel | User-managed — auto-deploys from GitHub, zero config for Vite |
-| Backend (Go) | Fly.io | Free 3 shared VMs, always-on (no cold starts), Docker native |
+| Backend (Go) | Google Cloud Run | Always-free tier (2M requests, 180k vCPU-s, 360k GB-s/month), scale-to-zero, Docker native |
 | Database | Supabase | Free managed Postgres, no 90-day expiry (unlike Render) |
+
+Fly.io was the original plan but its free tier ended for new accounts
+in Oct 2024 (now pay-as-you-go, ~$8-25/mo for a small always-on app).
+Cloud Run's always-free tier is still genuinely free at this app's
+traffic level. Tradeoff: Cloud Run scales to zero by default, so the
+first request after idle pays a cold start — typically well under 1s
+for a small Go binary, plus DB connection time to Supabase. If that's
+ever a problem, `--min-instances=1` eliminates cold starts entirely at
+the cost of running 24/7 (a few dollars/month, since it exceeds the
+free vCPU/memory quota).
 
 Frontend deployment is handled directly by the project owner in the
 Vercel dashboard — this doc only covers the backend/DB and the two env
@@ -30,9 +40,9 @@ vars that connect the three services.
   `server/internal/handlers/login.go` returns `SameSiteNoneMode, true`
   when `APP_ENV=production`, shared by both the login and logout
   handlers so they stay in sync.
-- `JWT_SECRET` — generate a fresh one for the Fly secret (see below); the
-  empty value in local `.env.local` doesn't block deployment since
-  production never reads that file.
+- `JWT_SECRET` — generate a fresh one for the Secret Manager secret (see
+  below); the empty value in local `.env.local` doesn't block
+  deployment since production never reads that file.
 
 ---
 
@@ -59,62 +69,65 @@ ENTRYPOINT ["/app/server"]
 ```
 
 Notes:
-- No `.env.local` is copied into the image — all config comes from Fly.io secrets
+- No `.env.local` is copied into the image — all config comes from Cloud Run env vars/secrets
 - `ca-certificates` is required for Supabase's TLS connection
+- Cloud Run injects `PORT` automatically (defaults to 8080, matching this Dockerfile's `EXPOSE`), so it doesn't need to be set explicitly as a secret/env var
 
 ---
 
-### Phase 2 — Fly.io Setup (Go Backend)
+### Phase 2 — Cloud Run Setup (Go Backend)
 
-#### Install flyctl
-
-```bash
-brew install flyctl
-fly auth login
-```
-
-#### Initialise the app
-
-Run from inside the `server/` directory:
+#### Install gcloud CLI
 
 ```bash
-fly launch --no-deploy
+brew install --cask google-cloud-sdk
+gcloud auth login
+gcloud config set project <your-gcp-project-id>
 ```
 
-This detects the Dockerfile and generates `fly.toml`. Review and confirm settings. Key values to check/set in `fly.toml`:
-
-```toml
-app = "threejs-portfolio-api"   # or your chosen name — becomes <name>.fly.dev
-primary_region = "lhr"          # choose closest region
-
-[http_service]
-  internal_port = 8080
-  force_https = true
-
-[[http_service.checks]]
-  path = "/health"
-  interval = "30s"
-  timeout = "5s"
-```
-
-#### Set secrets
+#### Enable required APIs (one-time per project)
 
 ```bash
-fly secrets set \
-  PORT=8080 \
-  APP_ENV=production \
-  JWT_SECRET="$(openssl rand -base64 32)" \
-  DATABASE_URL="<supabase connection string — see Phase 3>" \
-  FRONTEND_URL="https://<your-vercel-domain>"
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
 ```
+
+#### Create secrets
+
+```bash
+printf '%s' "$(openssl rand -base64 32)" | gcloud secrets create JWT_SECRET --data-file=-
+printf '%s' "<supabase connection string — see Phase 3>" | gcloud secrets create DATABASE_URL --data-file=-
+```
+
+To rotate either later: `gcloud secrets versions add JWT_SECRET --data-file=-` (and update `--set-secrets` to `:latest`, already the default below).
 
 #### Deploy
 
+Run from inside the `server/` directory — `--source .` builds the
+existing Dockerfile via Cloud Build, no separate `docker build`/`push`
+step needed:
+
 ```bash
-fly deploy
+gcloud run deploy threejs-portfolio-api \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 8080 \
+  --set-env-vars APP_ENV=production,FRONTEND_URL="https://<your-vercel-domain>" \
+  --set-secrets JWT_SECRET=JWT_SECRET:latest,DATABASE_URL=DATABASE_URL:latest \
+  --cpu-boost
 ```
 
-Verify: `https://<app-name>.fly.dev/health` should return `{"status":"ok"}`.
+`--allow-unauthenticated` is required since this is a public API;
+`--cpu-boost` speeds up (but doesn't eliminate) cold starts on the
+free scale-to-zero tier. Add `--min-instances=1` instead/also if
+cold starts ever become a problem — that keeps one instance warm
+24/7, which exceeds the free tier and costs a few dollars/month.
+
+Verify: `https://<service-url>.run.app/health` should return `{"status":"ok"}`. The service URL is printed at the end of `gcloud run deploy`, and can be re-fetched with:
+
+```bash
+gcloud run services describe threejs-portfolio-api --region us-central1 --format 'value(status.url)'
+```
 
 ---
 
@@ -131,7 +144,7 @@ Example format:
 postgres://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
 ```
 
-Use this as the `DATABASE_URL` secret in Fly.io.
+Use this as the `DATABASE_URL` secret in Cloud Run Secret Manager.
 
 Note: `openDb()` in `server/cmd/api.go` opens the connection with no pool
 tuning (`SetMaxOpenConns`/`SetMaxIdleConns`/`SetConnMaxLifetime` are never
@@ -147,13 +160,14 @@ Handled directly by the project owner. Coordination points only:
 
 | Variable | Value |
 |---|---|
-| `VITE_API_BASE_URL` | `https://<your-fly-app>.fly.dev` |
+| `VITE_API_BASE_URL` | `https://<service-name>-<hash>.<region>.run.app` |
 
 This is already wired in `src/utils/api.js` — no code changes needed.
 
-2. Once the Vercel domain is known, set it as `FRONTEND_URL` in the Fly
-   secrets above (Phase 2) — CORS (`server/cmd/api.go`) allows exactly
-   one origin, no wildcards, and it must match exactly.
+2. Once the Vercel domain is known, set it as `FRONTEND_URL` on the Cloud
+   Run service (Phase 2, via `gcloud run services update ... --set-env-vars`
+   or by redeploying) — CORS (`server/cmd/api.go`) allows exactly one
+   origin, no wildcards, and it must match exactly.
 
 ---
 
@@ -161,13 +175,16 @@ This is already wired in `src/utils/api.js` — no code changes needed.
 
 1. Register a new OAuth App at [github.com/settings/developers](https://github.com/settings/developers):
    - **Homepage URL:** `https://<your-vercel-domain>`
-   - **Authorization callback URL:** `https://<your-fly-app>.fly.dev/api/auth/github/callback`
-2. Add secrets to Fly.io:
+   - **Authorization callback URL:** `https://<your-cloud-run-service-url>/api/auth/github/callback`
+2. Add secrets and wire them into the service:
 
 ```bash
-fly secrets set \
-  GITHUB_CLIENT_ID="<client id>" \
-  GITHUB_CLIENT_SECRET="<client secret>"
+printf '%s' "<client id>" | gcloud secrets create GITHUB_CLIENT_ID --data-file=-
+printf '%s' "<client secret>" | gcloud secrets create GITHUB_CLIENT_SECRET --data-file=-
+
+gcloud run services update threejs-portfolio-api \
+  --region us-central1 \
+  --update-secrets GITHUB_CLIENT_ID=GITHUB_CLIENT_ID:latest,GITHUB_CLIENT_SECRET=GITHUB_CLIENT_SECRET:latest
 ```
 
 3. Implement the OAuth flow in the Go backend (callback handler, token exchange, user upsert)
@@ -176,19 +193,21 @@ fly secrets set \
 
 ## Environment Variables Reference
 
-### Fly.io — Go Backend
+### Cloud Run — Go Backend
 
-Set via `fly secrets set`. Never committed to the repo.
+`APP_ENV` and `FRONTEND_URL` are plain env vars (`--set-env-vars`);
+`JWT_SECRET` and `DATABASE_URL` are Secret Manager secrets
+(`--set-secrets`). Never committed to the repo. `PORT` is injected
+automatically by Cloud Run.
 
 | Variable | Description |
 |---|---|
-| `PORT` | `8080` |
 | `APP_ENV` | `production` |
-| `JWT_SECRET` | Random 32+ char string — used to sign/verify JWTs |
-| `DATABASE_URL` | Supabase Postgres connection string with `?sslmode=require` |
+| `JWT_SECRET` | Random 32+ char string — used to sign/verify JWTs (Secret Manager) |
+| `DATABASE_URL` | Supabase Postgres connection string with `?sslmode=require` (Secret Manager) |
 | `FRONTEND_URL` | Vercel domain — used for CORS allowed origin |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID (when OAuth implemented) |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret (when OAuth implemented) |
+| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID (when OAuth implemented, Secret Manager) |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret (when OAuth implemented, Secret Manager) |
 
 ### Vercel — Vite Frontend
 
@@ -196,7 +215,7 @@ Set in the Vercel project dashboard under Settings → Environment Variables.
 
 | Variable | Description |
 |---|---|
-| `VITE_API_BASE_URL` | Full URL of the Fly.io backend e.g. `https://threejs-portfolio-api.fly.dev` |
+| `VITE_API_BASE_URL` | Full URL of the Cloud Run backend e.g. `https://threejs-portfolio-api-xyz.us-central1.run.app` |
 
 ---
 
@@ -204,8 +223,7 @@ Set in the Vercel project dashboard under Settings → Environment Variables.
 
 | File | Action | Notes |
 |---|---|---|
-| `server/Dockerfile` | Created | Multi-stage Go build — see Phase 1 |
-| `server/fly.toml` | Create | Generated by `fly launch`, then edited |
+| `server/Dockerfile` | Created | Multi-stage Go build — see Phase 1, used as-is by Cloud Run's `--source` build |
 | `server/cmd/main.go` | Modified | `godotenv.Load` now conditional on file existence |
 | `src/utils/postSignup.js` | Fixed | Removed invalid `res.ok` / `res.text()` calls |
 | `src/utils/validateSession.js` | Fixed | Removed invalid `res.ok` / `res.json()` calls |
@@ -216,9 +234,11 @@ Set in the Vercel project dashboard under Settings → Environment Variables.
 
 Decisions to make before or during implementation:
 
-1. **Fly.io app name** — the name becomes `<name>.fly.dev`. Choose before running `fly launch`.
+1. **Cloud Run service name and region** — the name/region combination forms part of the auto-generated `*.run.app` URL. Choose before first `gcloud run deploy`; the region also affects free-tier network egress eligibility (North America only).
 
-2. **Custom domain** — attach a custom domain to Vercel and/or Fly.io, or use default `*.vercel.app` / `*.fly.dev` subdomains for now?
+2. **Custom domain** — attach a custom domain to Vercel and/or Cloud Run (via `gcloud run domain-mappings create`), or use default `*.vercel.app` / `*.run.app` subdomains for now?
+
+3. **Cold starts vs. cost** — stay on scale-to-zero (free, occasional ~1s cold start) or set `--min-instances=1` (no cold starts, a few dollars/month since it exceeds the free vCPU/memory quota)?
 
 ---
 
@@ -231,4 +251,4 @@ npm run full-stack        # start Docker (Postgres) + Go server + Vite dev serve
 npm run full-stack-down   # stop everything
 ```
 
-All production config is isolated to Fly.io secrets and Vercel env vars — `.env.local` continues to serve local development only.
+All production config is isolated to Cloud Run env vars/secrets and Vercel env vars — `.env.local` continues to serve local development only.
