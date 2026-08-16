@@ -14,8 +14,12 @@ import (
 )
 
 func main() {
-	if _, err := os.Stat("../.env.local"); err == nil {
-		godotenv.Load("../.env.local")
+	envFile := "../.env.local"
+	if os.Getenv("APP_ENV") == "production" {
+		envFile = "../.env.production"
+	}
+	if _, err := os.Stat(envFile); err == nil {
+		godotenv.Load(envFile)
 	}
 
 	cfg := config{

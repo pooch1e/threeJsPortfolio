@@ -1,6 +1,5 @@
 import { DirectionalLight, Mesh, MeshStandardMaterial } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { DotScreenPass } from 'three/addons/postprocessing/DotScreenPass.js';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
@@ -43,7 +42,6 @@ export default class PostProcessing {
     this.setDotScreenPass();
     this.setGlitchPass();
     this.setUnrealBloomPass();
-    this.setAsciiPass();
     this.setDebug();
   }
 
@@ -103,12 +101,6 @@ export default class PostProcessing {
     this.effectComposer.addPass(this.unrealBloom);
   }
 
-  setAsciiPass() {
-    this.ascii = new AsciiEffect();
-    this.ascii.enabled = false;
-    this.effectComposer.addPass(this.ascii);
-  }
-
   setDebug() {
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('Post Processing');
@@ -116,7 +108,6 @@ export default class PostProcessing {
       this.debugFolder.add(this.dotScreen, 'enabled').name('Dot Screen');
       this.debugFolder.add(this.glitchPass, 'enabled').name('Glitch Pass');
       this.debugFolder.add(this.unrealBloom, 'enabled').name('Unreal Bloom');
-      this.debugFolder.add(this.ascii, 'enabled').name('Ascii Pass');
     }
   }
 

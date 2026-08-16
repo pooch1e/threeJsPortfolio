@@ -16,4 +16,4 @@ db-users:
 	docker compose exec -T db psql -U threejs_user -d threejs_database -c "SELECT id, name, email, is_admin, created_at FROM users ORDER BY created_at;"
 
 dev:
-	go run ./cmd/
+	APP_ENV=development go run ./cmd/

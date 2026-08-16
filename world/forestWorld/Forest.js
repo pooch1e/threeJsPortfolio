@@ -1,4 +1,5 @@
 import { Mesh, PlaneGeometry, MeshStandardMaterial, AmbientLight, DirectionalLight, RepeatWrapping } from "three";
+import { randomElement } from "../../utils/helpers";
 
 
 export class Forest {
@@ -24,9 +25,7 @@ export class Forest {
 
 
     this.addLights()
-    this.testPlane()
-
-
+    this.buildTilemap()
   }
 
   addLights() {
@@ -50,16 +49,15 @@ export class Forest {
     return plane
   }
 
-  testPlane() {
-    const blueFlower = this.createTile(this.forestConfig.tiles[0]);
+  buildTilemap() {
+    if (!this.forestConfig) return;
 
-    const tree = this.createTile(this.forestConfig.tiles[5]);
-    tree.position.x = 1
-
-    const roundLightGreen = this.createTile(this.forestConfig.tiles[4]);
-    roundLightGreen.position.x = 2
-
-    this.scene.add(blueFlower)
-
+    for (let i = 0; i < this.gridSize; i++) {
+      for (let j = 0; j < this.gridSize; j++) {
+        const tileConfig = randomElement(this.forestConfig.tiles);
+        const tile = this.createTile(tileConfig);
+        tile.position.set(i, j, 0);
+      }
+    }
   }
 }

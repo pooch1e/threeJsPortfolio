@@ -1,211 +1,210 @@
 # Three.js Portfolio
 
-A portfolio website showcasing interactive Three.js visualizations and graphics experiments built with React and Vite.
+A full-stack creative portfolio: a React + Three.js frontend hosting a
+collection of interactive WebGL scenes and shader experiments, backed by
+a Go REST API for authentication and an admin dashboard. Built as a
+demonstration piece spanning real-time 3D graphics, full-stack web
+architecture, and cloud deployment.
 
-## Features
+**Live:** [three-js-portfolio-hazel.vercel.app](https://three-js-portfolio-hazel.vercel.app)
 
-- **Home Page**: Project gallery displaying various Three.js experiments
-- **Point Cloud Visualization**: Interactive 3D point cloud rendering
-- **Animal Render**: 3D animal model rendering
-- **Shader Experiments**: Custom WebGL shader demonstrations with switchable effects
-- **Debug Mode**: Built-in debug panel for development (access via `/?debug=true`)
+---
 
-## Tech Stack
+## What this project demonstrates
 
-- **Frontend Framework**: React 19
-- **3D Graphics**: Three.js
-- **Animation**: GSAP
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **Shader Support**: GLSL via vite-plugin-glsl
+| Domain | Where |
+|---|---|
+| **3D / WebGL graphics** | Custom Three.js scenes, GLSL shaders, GPU particle systems, post-processing, procedural geometry — see [Scenes](#scenes) |
+| **Frontend architecture** | Layered `Experience → World → Objects` pattern for managing many independent Three.js scenes inside one React app without them fighting over the render loop, GPU resources, or lifecycle |
+| **Full-stack application design** | Go REST API with a clean handler/repository split, stateless JWT auth, PostgreSQL — see [Backend](#backend-go) |
+| **State & auth flows** | Protected/public/admin route guards in React Router, HttpOnly cookie sessions, role-based access (admin dashboard) |
+| **Cloud deployment** | Three independently deployed services (Vercel, Google Cloud Run, Supabase) wired together via environment configuration, CORS, and TLS — see [Deployment](#deployment--infrastructure) |
+| **Testing** | Go unit + Docker-backed integration tests for the backend; Vitest for frontend logic |
 
-## Getting Started
+---
 
-### Prerequisites
+## Architecture
 
-- Node.js (v16 or higher recommended)
-- npm or yarn
+```
+React (Vite)  →  world/*  (Three.js scenes)  →  Go REST API  →  PostgreSQL (Supabase)
+   Vercel              client-side               Cloud Run        managed Postgres
+```
 
-### Installation
+**Frontend:** `src/main.jsx` → `App.jsx` (routes, auth guards) → page →
+`useWorld.jsx` hook → an `Experience` class → a `World` → its objects.
+Every scene follows the same `Experience → World → Objects` shape, with
+shared core utilities (`Time`, `Sizes`, `Mouse`, `Debug`, `Resources`,
+`EventEmitter`) in `world/utils/` — this is what lets ~15 independent
+WebGL scenes coexist in one SPA without duplicating render-loop or
+resource-loading logic.
+
+**Backend:** Go 1.25 + Chi router, no ORM (raw `database/sql`).
+Handlers use a closure/dependency-injection pattern — an outer function
+captures its dependencies (a `UserRepository` interface, never a raw
+`*sql.DB`) and returns an `http.HandlerFunc`. Auth is stateless JWT
+(HS256, 1hr) carried in an HttpOnly cookie, with `SameSite=None; Secure`
+in production for cross-origin auth between the Vercel frontend and the
+Cloud Run API.
+
+Full write-ups: [docs/architecture.md](docs/architecture.md) (frontend)
+and [docs/backend-architecture.md](docs/backend-architecture.md) (backend).
+
+---
+
+## Scenes
+
+Each folder under `world/` is a self-contained Three.js experience,
+dynamically routed via `/experience/:slug`:
+
+- **`animalWorld`** — GLTF model loading, environment/lighting setup (Fox, Rat)
+- **`portalWorld`** — baked lighting, custom portal shader, Draco-compressed GLTF
+- **`shaderTestWorld`** — a suite of standalone shader demos: procedural terrain, GPU particle flow fields, fireworks, galaxy, coffee smoke, wobbly sphere, hologram, halftone, post-processing pipeline, and more
+- **`flowerWorld`** — GPU particle simulation driving a text/point-cloud effect
+- **`forestWorld`**, **`sineWorld`**, **`pointCloudWorld`**, **`asciiWorld`**, **`rectPerception`** — further shader and procedural-geometry experiments
+
+A debug panel (lil-gui) is available on any scene via `?debug=true` for
+live-tweaking uniforms and parameters.
+
+---
+
+## Backend (Go)
+
+- Go 1.25, Chi v5 router, PostgreSQL 16
+- Stateless JWT sessions, HttpOnly + `Secure` cookies
+- Handlers depend on interfaces (`UserRepository`), not concrete DB types — enables the Docker-backed integration test suite to run against a real Postgres without mocking the DB
+- Consistent JSON error envelope (`{"error": "..."}`), sentinel errors (`ErrNotFound`) checked via `errors.Is`
+- Admin endpoints (list/update/delete users, password reset) gated behind an `is_admin` claim, surfaced in a React-admin-style dashboard on the frontend
+
+See [docs/backend-architecture.md](docs/backend-architecture.md) and
+[docs/phase2-backend.md](docs/phase2-backend.md) (auth flow walkthrough).
+
+---
+
+## Deployment & infrastructure
+
+Three independently managed services, each doing one job:
+
+| Layer | Service | Why |
+|---|---|---|
+| Frontend | **Vercel** | Auto-deploys on push to `main`, zero-config Vite build |
+| Backend | **Google Cloud Run** | Scale-to-zero, Docker-native, free tier at this traffic level |
+| Database | **Supabase** | Managed Postgres, free tier with no expiry |
+
+The backend ships as a multi-stage Docker build
+([`server/Dockerfile`](server/Dockerfile)), built and deployed straight
+from source via Cloud Build (`gcloud run deploy --source .`) — no manual
+image push step. Secrets (`JWT_SECRET`, `DATABASE_URL`) live in Google
+Secret Manager, never in the image or the repo. CORS on the API is
+locked to a single exact origin (the Vercel domain) — no wildcards,
+required for cookie-based cross-origin auth.
+
+Deploys are triggered by pushing to `main` (Vercel) or by an explicit
+`gcloud run deploy` (Cloud Run) — there's no GitHub Actions pipeline
+gating either on the test suite yet; that's the next piece to add if
+this were taken further toward a "real" CI/CD setup.
+
+Full runbook: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+---
+
+## Local development
 
 ```bash
-# Install dependencies
-npm install
+npm run dev                              # frontend only (port 5173)
+cd server && make docker-up && make dev  # backend only (port 8080, local Postgres via Docker)
+npm run full-stack                       # everything together
+npm run full-stack-down                  # stop everything
 ```
 
-### Development
-
-```bash
-# Start development server
-npm run dev
-```
-
-The application will be available at `http://localhost:5173` (default Vite port).
-
-### Build
-
-```bash
-# Create production build
-npm run build
-```
-
-### Preview
-
-```bash
-# Preview production build locally
-npm run preview
-```
-
-### Linting
-
-```bash
-# Run ESLint
-npm run lint
-```
-
-## Debug Mode
-
-To enable debug controls for Three.js scenes:
-
-### <http://localhost:5173/?debug=true>
-
-This activates the lil-gui debug panel for real-time parameter adjustments.
-
-## Project Structure
-
-```md
-threejsPortfolio/
-├── src/
-│   ├── assets/          # Static assets (images, models, etc.)
-│   ├── components/      # Reusable React components
-│   ├── config/          # Configuration files
-│   ├── hooks/           # Custom React hooks
-│   ├── layout/          # Layout components
-│   ├── pages/           # Page components (routes)
-│   ├── ui/              # UI components (Header, Footer)
-│   ├── App.jsx          # Main App component
-│   └── main.jsx         # Application entry point
-├── public/              # Public assets
-├── static/              # Static resources
-└── world/               # World/scene related files
-
-```
-
-## Available Routes
-
-- `/` - Home page with project gallery
-- `/pointCloud` - Point cloud visualization
-- `/animalPage` - Animal 3D rendering
-- `/shaders` - Shader experiments
-
-## Go Server
-
-The `server/` directory contains a Go backend REST API utilizing PostgreSQL and Docker. The architecture follows a modular approach for scalability and clear separation of concerns.
-
-### Tech Stack
-
-- **Framework**: Go 1.22+
-- **Router**: [Chi v5](https://github.com/go-chi/chi)
-- **Database**: PostgreSQL 16 (via Docker)
-- **Driver**: `lib/pq`
-- **Auth**: JWT (JSON Web Tokens)
-- **Env loading**: `godotenv`
-
-### Prerequisites
-
-- Go 1.22+
-- Docker + Docker Compose
-
-### Environment variables
-
-Add the following to `.env.local` in the repo root (create it if it doesn't exist):
+`.env.local` at the repo root holds local config (not committed):
 
 ```
 PORT=8080
 DATABASE_URL=postgres://threejs_user:threejs_password@localhost:5433/threejs_database?sslmode=disable
-JWT_SECRET=replace_this_with_a_long_random_string
+JWT_SECRET=<any string, local only>
 FRONTEND_URL=http://localhost:5173
 ```
 
-### Database (Docker)
-
-Postgres runs in a Docker container.
+## Testing
 
 ```bash
-# Start Postgres in the background
-cd server
-make docker-up
-
-# Stop Postgres (data is preserved in the Docker volume)
-make docker-down
-
-# Wipe all data and start fresh
-docker compose down -v
-make docker-up
-
-# Run seeding scripts
-make db-create
+npm run test                                    # Vitest — frontend
+cd server && go test ./...                      # Go unit tests
+cd server && go test -tags integration ./cmd/    # integration tests (requires Docker)
 ```
 
-The container exposes Postgres on port `5433` (to avoid conflicts with any system Postgres on `5432`).
-
-### Running the server
+## Linting
 
 ```bash
-cd server
-make docker-up   # ensure Postgres is running first
-make dev         # runs: go run cmd/main.go
+npm run lint
 ```
-
-The server will be available at `http://localhost:8080`.
-
-### Server structure
-
-```
-server/
-├── cmd/
-│   ├── main.go              # Application initialization (config, DB connection)
-│   └── api.go               # Router setup (Chi) and server configuration
-├── db/
-│   └── seed/
-│       ├── create-db.sql    # DROP/CREATE DATABASE
-│       └── seed.sql         # Creates users + sessions tables
-├── internal/
-│   ├── config/              # Opens DB connection pool, reads env vars
-│   ├── handlers/            # HTTP request handlers (Signup, Login, Me)
-│   ├── middleware/          # HTTP middlewares (Auth, Admin, Logging)
-│   ├── models/              # Go structs representing database entities
-│   ├── repos/               # Data access layer (SQL queries)
-│   └── utils/               # Reusable helpers (JWT, validation, JSON)
-├── go.mod
-├── go.sum
-└── Makefile
-```
-
-### Auth flow
-
-1. **Login**: User submits credentials to `/api/login`.
-2. **JWT**: On success, the server generates a JWT and sets it as an **HttpOnly cookie** named `session`.
-3. **Session Verification**: The frontend calls `/api/me` on mount. The `RequireAuth` middleware validates the cookie and attaches the `userID` to the request context.
-4. **CORS**: Configured to allow specific frontend origins with credentials (cookies) enabled.
-
-### API routes
-
-| Method | Path | Auth required | Description |
-|--------|------|---------------|-------------|
-| `GET` | `/health` | No | System health check |
-| `POST` | `/api/signup` | No | Create new user |
-| `POST` | `/api/login` | No | Authenticate and set cookie |
-| `GET` | `/api/me` | Yes | Get current user profile |
-| `POST` | `/api/logout` | Yes | Clear session cookie |
-
-## License
-
-Private project
-
-**See task-CLI tool for admin epic**
 
 ---
 
-Built with Three.js and React
+## Tech stack
+
+**Frontend:** React 19, React Router 7, Vite 7, Tailwind CSS 3.4, Three.js 0.180, GSAP, Zustand, GLSL (via `vite-plugin-glsl`) — no TypeScript, pure JSX.
+
+**Backend:** Go 1.25, Chi v5, PostgreSQL 16, `lib/pq`, `golang-jwt`.
+
+**Infra:** Vercel, Google Cloud Run, Google Secret Manager, Supabase.
+
+---
+
+## Key docs
+
+| Doc | Contents |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Three.js + React frontend architecture |
+| [docs/backend-architecture.md](docs/backend-architecture.md) | Go backend reference |
+| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel + Cloud Run + Supabase deployment runbook |
+| [docs/admin-plan.md](docs/admin-plan.md) | Admin dashboard plan (react-admin + Go endpoints) |
+
+---
+
+## Agentic workflow
+
+This project is built in an ongoing pairing session with [Claude
+Code](https://claude.com/claude-code) rather than treating the AI as a
+one-off autocomplete tool. The docs above aren't just for humans — they're
+the primary context the agent reads before making changes, so keeping them
+accurate is part of how the project stays maintainable.
+
+**Steering — `CLAUDE.md`.** A checked-in [`CLAUDE.md`](CLAUDE.md) at the
+repo root gives Claude the same orientation a new engineer would need: how
+to run things locally, the project layout, the `Experience → World →
+Objects` Three.js pattern, backend conventions (handler/repository split,
+JSON error envelope, sentinel errors), and the environment variables
+required. It's kept short and links out to the deeper docs rather than
+duplicating them, so it doesn't drift out of sync.
+
+**Docs as agent context, not just human reference.** `docs/architecture.md`,
+`docs/backend-architecture.md`, and friends exist so the agent (and future
+me) don't have to re-derive design decisions from scratch every session.
+When a decision is architecturally significant, it's recorded as an ADR
+under [`docs/adr/`](docs/adr/) rather than left implicit in a commit
+message.
+
+**Plan-first for non-trivial work.** Larger or in-progress features get a
+`PLAN.md` alongside the code they touch (e.g.
+[`world/computer/PLAN.md`](world/computer/PLAN.md)) — written and refined
+with the agent *before* implementation starts, then updated as the plan
+changes. This keeps multi-session work resumable: a new session can read
+the plan and pick up where the last one left off instead of re-deriving
+intent from the diff.
+
+**Comment discipline enforced by instruction, not convention.** Both the
+global and project `CLAUDE.md` files carry the same rule: no comments
+explaining *what* code does (identifiers should make that obvious), a
+JSDoc-style header on every file summarizing its purpose, and inline
+comments reserved for non-obvious *why*. This is enforced consistently
+across the codebase because it's part of the agent's standing instructions
+rather than something re-explained per session.
+
+**Review and testing loop.** Changes are run through `npm run lint`, the Go
+test suite, and the Vitest suite (see [Testing](#testing)) before being
+considered done, with the agent driving UI changes in a real browser rather
+than relying on type-checking alone. Code review passes (Claude Code's
+`/code-review`) are used on non-trivial diffs before they're treated as
+finished.

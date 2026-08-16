@@ -9,6 +9,7 @@ export default class LightingBasics {
     this.scene = this.world.scene;
     this.debug = this.world.shaderExperience.debug;
     this.resources = this.world.resources;
+    this.isDestroyed = false;
 
     this.materialConfig = {
       color: '#ffffff',
@@ -49,6 +50,8 @@ export default class LightingBasics {
       console.error('Failed to load font:', error);
       return;
     }
+
+    if (this.isDestroyed) return;
 
     const geometry = new TextGeometry(
       'See source code for more light shader options!',
@@ -126,6 +129,8 @@ export default class LightingBasics {
   }
 
   destroy() {
+    this.isDestroyed = true;
+
     // Model
     if (this.suzanneModel) {
       this.scene.remove(this.suzanneModel);
@@ -165,7 +170,7 @@ export default class LightingBasics {
       this.directionalLightHelper.traverse((child) => {
         if (child.isMesh) {
           child.geometry?.dispose();
-          this.material?.dispose();
+          child.material?.dispose();
         }
       });
       if (this.pointLightHelper) {
@@ -173,7 +178,7 @@ export default class LightingBasics {
         this.pointLightHelper.traverse((child) => {
           if (child.isMesh) {
             child.geometry?.dispose();
-            this.material?.dispose();
+            child.material?.dispose();
           }
         });
       }
@@ -186,7 +191,7 @@ export default class LightingBasics {
     }
     // Debug folder
     if (this.debugFolder) {
-      this.debug.ui.destroy();
+      this.debugFolder.destroy();
     }
   }
 
