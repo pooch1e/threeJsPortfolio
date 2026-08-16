@@ -3,18 +3,21 @@
  * with inline deletion.
  */
 import { useEffect, useState, useCallback } from "react";
-import HomeStyle from "../../layout/HomeStyle";
+import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../layout/AdminLayout";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import ErrorMessage from "../../components/ErrorMessage";
 import AdminUserTable from "../../components/admin/AdminUserTable";
 import AdminPagination from "../../components/admin/AdminPagination";
 import ConfirmDialog from "../../components/admin/ConfirmDialog";
+import { ArrowLeft } from "../../components/icons";
 import { listUsers } from "../../utils/admin/listUsers";
 import { deleteUser } from "../../utils/admin/deleteUser";
 
 const LIMIT = 20;
 
 export default function AdminDashboardPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, total_pages: 1 });
@@ -68,19 +71,29 @@ export default function AdminDashboardPage() {
     : users;
 
   return (
-    <HomeStyle>
+    <AdminLayout>
       {isFirstLoad && loading && <LoadingOverlay />}
-      <div className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
-        <h1 className="font-dirtyline text-3xl uppercase tracking-widest text-[var(--text-primary)]">
-          Admin — Users
-        </h1>
+      <div className="max-w-5xl mx-auto px-[var(--admin-space-6)] py-[var(--admin-space-8)] flex flex-col gap-[var(--admin-space-6)]">
+        <div className="flex items-center justify-between gap-[var(--admin-space-4)]">
+          <h1 className="font-semibold text-[var(--admin-font-size-2xl)] text-[var(--admin-text-primary)]">
+            Users
+          </h1>
+          <button
+            type="button"
+            onClick={() => navigate("/homepage")}
+            className="flex items-center gap-[var(--admin-space-2)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] rounded-[var(--admin-radius-sm)] text-[var(--admin-font-size-sm)] font-medium text-[var(--admin-text-secondary)] border border-[var(--admin-border)] hover:bg-[var(--admin-bg-hover)] hover:text-[var(--admin-text-primary)] transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Homepage
+          </button>
+        </div>
 
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter this page…"
-          className="rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear max-w-sm"
+          className="rounded-[var(--admin-radius-sm)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] bg-[var(--admin-bg-tertiary)] border border-[var(--admin-border)] text-[var(--admin-text-primary)] text-[var(--admin-font-size-base)] placeholder:text-[var(--admin-text-tertiary)] focus:outline-none focus:border-[var(--admin-accent)] focus:shadow-[var(--admin-focus-ring)] transition-colors max-w-sm"
         />
 
         <ErrorMessage error={error} type="api" />
@@ -97,6 +110,6 @@ export default function AdminDashboardPage() {
         onConfirm={handleDeleteConfirmed}
         onCancel={() => setPendingDelete(null)}
       />
-    </HomeStyle>
+    </AdminLayout>
   );
 }

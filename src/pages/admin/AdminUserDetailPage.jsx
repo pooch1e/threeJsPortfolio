@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import HomeStyle from "../../layout/HomeStyle";
+import AdminLayout from "../../layout/AdminLayout";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import ErrorMessage from "../../components/ErrorMessage";
 import ConfirmDialog from "../../components/admin/ConfirmDialog";
@@ -16,12 +16,13 @@ import { resetPassword } from "../../utils/admin/resetPassword";
 import { userLoginStore } from "../../store/user";
 
 const inputClass =
-  "rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] " +
-  "text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
-  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear disabled:opacity-50";
+  "rounded-[var(--admin-radius-sm)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] " +
+  "bg-[var(--admin-bg-tertiary)] border border-[var(--admin-border)] " +
+  "text-[var(--admin-text-primary)] text-[var(--admin-font-size-base)] " +
+  "focus:outline-none focus:border-[var(--admin-accent)] focus:shadow-[var(--admin-focus-ring)] " +
+  "transition-colors disabled:opacity-50";
 
-const labelClass =
-  "font-offbit text-100 uppercase tracking-widest text-[var(--object-alt)]";
+const labelClass = "text-[var(--admin-font-size-sm)] font-medium text-[var(--admin-text-secondary)]";
 
 export default function AdminUserDetailPage() {
   const { id } = useParams();
@@ -95,11 +96,11 @@ export default function AdminUserDetailPage() {
   if (loading) return <LoadingOverlay />;
 
   return (
-    <HomeStyle>
-      <div className="max-w-xl mx-auto px-4 py-10 flex flex-col gap-8">
+    <AdminLayout>
+      <div className="max-w-xl mx-auto px-[var(--admin-space-6)] py-[var(--admin-space-8)] flex flex-col gap-[var(--admin-space-8)]">
         <Link
           to="/admin"
-          className="font-karrik text-sm text-[var(--object-alt)] hover:underline w-fit"
+          className="text-[var(--admin-font-size-sm)] text-[var(--admin-accent)] hover:text-[var(--admin-accent-hover)] hover:underline w-fit"
         >
           ← Back to list
         </Link>
@@ -108,12 +109,12 @@ export default function AdminUserDetailPage() {
 
         {user && (
           <>
-            <h1 className="font-dirtyline text-3xl uppercase tracking-widest text-[var(--text-primary)]">
+            <h1 className="font-semibold text-[var(--admin-font-size-2xl)] text-[var(--admin-text-primary)]">
               Edit User
             </h1>
 
-            <form onSubmit={editForm.handleSubmit(onSaveUser)} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
+            <form onSubmit={editForm.handleSubmit(onSaveUser)} className="flex flex-col gap-[var(--admin-space-4)]">
+              <div className="flex flex-col gap-[var(--admin-space-1)]">
                 <label htmlFor="name" className={labelClass}>Name</label>
                 <input
                   id="name"
@@ -124,7 +125,7 @@ export default function AdminUserDetailPage() {
                 <ErrorMessage error={editForm.formState.errors.name?.message} type="validation" />
               </div>
 
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-[var(--admin-space-1)]">
                 <label htmlFor="email" className={labelClass}>Email</label>
                 <input
                   id="email"
@@ -135,7 +136,7 @@ export default function AdminUserDetailPage() {
                 <ErrorMessage error={editForm.formState.errors.email?.message} type="validation" />
               </div>
 
-              <label className="flex items-center gap-2 font-karrik text-[var(--text-color-dark)]">
+              <label className="flex items-center gap-[var(--admin-space-2)] text-[var(--admin-font-size-base)] text-[var(--admin-text-primary)]">
                 <input
                   type="checkbox"
                   disabled={isSelf}
@@ -143,32 +144,34 @@ export default function AdminUserDetailPage() {
                 />
                 Admin
                 {isSelf && (
-                  <span className="text-xs text-gray-500">(cannot change your own admin status)</span>
+                  <span className="text-[var(--admin-font-size-xs)] text-[var(--admin-text-tertiary)]">
+                    (cannot change your own admin status)
+                  </span>
                 )}
               </label>
 
               <button
                 type="submit"
-                className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors ease-linear"
+                className="mt-[var(--admin-space-2)] bg-[var(--admin-accent)] text-white rounded-[var(--admin-radius-sm)] py-[var(--admin-space-2)] font-medium hover:bg-[var(--admin-accent-hover)] transition-colors"
               >
                 Save
               </button>
               <ErrorMessage error={saveError} type="api" />
               {saveSuccess && (
-                <p className="text-green-400 text-sm text-center">Saved.</p>
+                <p className="text-[var(--admin-success)] text-[var(--admin-font-size-sm)] text-center">Saved.</p>
               )}
             </form>
 
-            <div className="border-t border-[var(--color-bg-light)] pt-6 flex flex-col gap-4">
-              <h2 className="font-dirtyline text-xl uppercase tracking-widest text-[var(--text-primary)]">
+            <div className="border-t border-[var(--admin-border)] pt-[var(--admin-space-6)] flex flex-col gap-[var(--admin-space-4)]">
+              <h2 className="font-semibold text-[var(--admin-font-size-lg)] text-[var(--admin-text-primary)]">
                 Reset Password
               </h2>
               <form
                 onSubmit={passwordForm.handleSubmit(onResetPassword)}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-[var(--admin-space-4)]"
               >
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="password" className={labelClass}>New Password</label>
+                <div className="flex flex-col gap-[var(--admin-space-1)]">
+                  <label htmlFor="password" className={labelClass}>New password</label>
                   <input
                     id="password"
                     type="password"
@@ -187,8 +190,8 @@ export default function AdminUserDetailPage() {
                   <ErrorMessage error={passwordForm.formState.errors.password?.message} type="validation" />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="confirmPassword" className={labelClass}>Repeat Password</label>
+                <div className="flex flex-col gap-[var(--admin-space-1)]">
+                  <label htmlFor="confirmPassword" className={labelClass}>Repeat password</label>
                   <input
                     id="confirmPassword"
                     type="password"
@@ -203,28 +206,28 @@ export default function AdminUserDetailPage() {
 
                 <button
                   type="submit"
-                  className="border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors ease-linear"
+                  className="border border-[var(--admin-accent)] text-[var(--admin-accent)] rounded-[var(--admin-radius-sm)] py-[var(--admin-space-2)] font-medium hover:bg-[var(--admin-accent)] hover:text-white transition-colors"
                 >
-                  Reset Password
+                  Reset password
                 </button>
                 <ErrorMessage error={passwordError} type="api" />
                 {passwordSuccess && (
-                  <p className="text-green-400 text-sm text-center">Password updated.</p>
+                  <p className="text-[var(--admin-success)] text-[var(--admin-font-size-sm)] text-center">Password updated.</p>
                 )}
               </form>
             </div>
 
-            <div className="border-t border-[var(--color-bg-light)] pt-6">
+            <div className="border-t border-[var(--admin-border)] pt-[var(--admin-space-6)]">
               <button
                 type="button"
                 disabled={isSelf}
                 onClick={() => setConfirmDelete(true)}
-                className="w-full border border-red-600 text-red-500 rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-red-600 hover:text-white transition-colors ease-linear disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-red-500"
+                className="w-full border border-[var(--admin-danger)] text-[var(--admin-danger)] rounded-[var(--admin-radius-sm)] py-[var(--admin-space-2)] font-medium hover:bg-[var(--admin-danger)] hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[var(--admin-danger)]"
               >
-                Delete User
+                Delete user
               </button>
               {isSelf && (
-                <p className="text-xs text-gray-500 text-center mt-2">
+                <p className="text-[var(--admin-font-size-xs)] text-[var(--admin-text-tertiary)] text-center mt-[var(--admin-space-2)]">
                   You cannot delete your own account.
                 </p>
               )}
@@ -240,6 +243,6 @@ export default function AdminUserDetailPage() {
         onConfirm={handleDeleteConfirmed}
         onCancel={() => setConfirmDelete(false)}
       />
-    </HomeStyle>
+    </AdminLayout>
   );
 }
