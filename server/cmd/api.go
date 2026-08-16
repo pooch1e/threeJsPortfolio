@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -27,14 +28,20 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// CORS must list the exact frontend origin when AllowCredentials is true.
+	// CORS must list exact frontend origins when AllowCredentials is true.
 	// Wildcards are forbidden by the CORS spec once credentials are enabled.
-	frontendURL := os.Getenv("FRONTEND_URL")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:5173"
+	// FRONTEND_URL accepts a comma-separated list to support multiple live
+	// domains (e.g. a custom domain alongside the default *.vercel.app one).
+	frontendURLs := os.Getenv("FRONTEND_URL")
+	if frontendURLs == "" {
+		frontendURLs = "http://localhost:5173"
+	}
+	allowedOrigins := strings.Split(frontendURLs, ",")
+	for i := range allowedOrigins {
+		allowedOrigins[i] = strings.TrimSpace(allowedOrigins[i])
 	}
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{frontendURL},
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
