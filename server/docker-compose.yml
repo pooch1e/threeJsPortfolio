@@ -1,3 +1,7 @@
+# Compose derives its project name from the directory name, which is "server" here —
+# a name shared with other projects, causing them to collide on the same volume.
+name: threejs-portfolio
+
 services:
   db:
     image: postgres:16
