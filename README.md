@@ -208,3 +208,5 @@ considered done, with the agent driving UI changes in a real browser rather
 than relying on type-checking alone. Code review passes (Claude Code's
 `/code-review`) are used on non-trivial diffs before they're treated as
 finished.
+
+superficial edit - need to add better gcloud config instructions to understand deployment flow
