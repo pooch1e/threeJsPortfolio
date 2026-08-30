@@ -1,3 +1,7 @@
+/**
+ * Portal — baked portal model with its emissive portal-light shader and
+ * animated firefly particles.
+ */
 import {
   RectAreaLight,
   BufferGeometry,

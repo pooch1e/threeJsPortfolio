@@ -38,6 +38,14 @@ shared core utilities (`Time`, `Sizes`, `Mouse`, `Debug`, `Resources`,
 WebGL scenes coexist in one SPA without duplicating render-loop or
 resource-loading logic.
 
+Scenes extend `BaseExperience`, customising it through hooks
+(`createWorld`, `createResources`, `cameraOptions`, `setupCamera`,
+`setupUtils`) rather than reimplementing setup. Scene objects take the
+`experience` as their single dependency and read one level deep
+(`experience.scene`, `experience.debug`) — never reaching through
+another object — so what a file needs is visible in the first few lines
+of its constructor.
+
 **Backend:** Go 1.25 + Chi router, no ORM (raw `database/sql`).
 Handlers use a closure/dependency-injection pattern — an outer function
 captures its dependencies (a `UserRepository` interface, never a raw

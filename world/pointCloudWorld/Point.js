@@ -1,3 +1,7 @@
+/**
+ * Point — animated point cloud plus randomly connected line segments
+ * between points, both tweakable through the debug panel.
+ */
 import { BufferGeometry, BufferAttribute, PointsMaterial, Points, LineBasicMaterial, LineSegments } from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 export class Point {
@@ -6,21 +10,17 @@ export class Point {
     this.scene = experience.scene;
     this.debug = experience.debug;
 
-    // Parameters for points and lines
     this.params = {
       count: 1000,
       size: 0.05,
       color: 0xffffff,
       scale: 0.01,
-      // Line parameters
       connectionsPerPoint: 1,
       lineColor: 0xffffff,
       lineOpacity: 0.3,
-      //animation params
       chanceToConnect: 0.5,
     };
 
-    // SETUP
     this.setGeometry();
     this.setDebug();
   }
@@ -38,7 +38,6 @@ export class Point {
       const y = (Math.random() - 0.5) * 10;
       const z = (Math.random() - 0.5) * 10;
 
-      //displacement
       positions[i3] =
         x +
         perlin.noise(
@@ -67,7 +66,6 @@ export class Point {
       new BufferAttribute(positions, 3)
     );
 
-    // Create material
     this.material = new PointsMaterial({
       size: this.params.size,
       color: this.params.color,
@@ -80,50 +78,38 @@ export class Point {
   }
 
   setLines(positions) {
-    // Create geometry to hold all the line segments
     const lineGeometry = new BufferGeometry();
 
-    // Array to store all line positions (each line needs 2 points = 6 values)
     const linePositions = [];
 
-    // Loop through each point
     for (let i = 0; i < this.params.count; i++) {
       const i3 = i * 3;
 
-      // For each point, create N random connections to other points
       for (let j = 0; j < this.params.connectionsPerPoint; j++) {
-        // Pick a random point to connect to
         const randomIndex = Math.floor(Math.random() * this.params.count) * 3;
 
-        // Add a line segment by pushing 6 values:
-        // First 3 values: starting point (x, y, z)
-        // Next 3 values: ending point (x, y, z)
         linePositions.push(
-          positions[i3], // Start X
-          positions[i3 + 1], // Start Y
-          positions[i3 + 2], // Start Z
-          positions[randomIndex], // End X
-          positions[randomIndex + 1], // End Y
-          positions[randomIndex + 2] // End Z
+          positions[i3],
+          positions[i3 + 1],
+          positions[i3 + 2],
+          positions[randomIndex],
+          positions[randomIndex + 1],
+          positions[randomIndex + 2]
         );
       }
     }
 
-    // Convert the array to Float32Array 
-    // Set it as the position attribute for the line geometry
     lineGeometry.setAttribute(
       'position',
       new BufferAttribute(new Float32Array(linePositions), 3)
     );
 
-    // Create material for the lines
     const lineMaterial = new LineBasicMaterial({
       color: this.params.lineColor,
       transparent: true,
       opacity: this.params.lineOpacity,
     });
 
-    // LineSegments draws individual disconnected line segments
 
     this.lines = new LineSegments(lineGeometry, lineMaterial);
 
@@ -131,23 +117,19 @@ export class Point {
   }
 
   updateGeometry() {
-    // Dispose old point geometry
     this.points.geometry.dispose();
 
-    // Create new geometry with updated count
     const geometry = new BufferGeometry();
     const positions = new Float32Array(this.params.count * 3);
 
     const perlin = new ImprovedNoise();
 
-    // Generate new point positions
     for (let i = 0; i < this.params.count; i++) {
       const i3 = i * 3;
       const x = (Math.random() - 0.5) * 10;
       const y = (Math.random() - 0.5) * 10;
       const z = (Math.random() - 0.5) * 10;
 
-      // Displacement
       positions[i3] =
         x +
         perlin.noise(
@@ -171,18 +153,15 @@ export class Point {
         );
     }
 
-    // Update points geometry
     geometry.setAttribute('position', new BufferAttribute(positions, 3));
     this.points.geometry = geometry;
 
-    // Remove old lines from scene and dispose
     if (this.lines) {
       this.scene.remove(this.lines);
       this.lines.geometry.dispose();
       this.lines.material.dispose();
     }
 
-    // Recreate lines with new positions
     this.setLines(positions);
   }
 
@@ -250,7 +229,6 @@ export class Point {
           this.lines.material.opacity = this.params.lineOpacity;
         });
 
-      // Control line color
       linesFolder
         .addColor(this.params, 'lineColor')
         .name('Line Color')
@@ -258,7 +236,6 @@ export class Point {
           this.lines.material.color.set(this.params.lineColor);
         });
 
-      // Control animation speed
       linesFolder
         .add(this.params, 'chanceToConnect')
         .min(0)
@@ -269,7 +246,6 @@ export class Point {
   }
 
   update(time) {
-    // Animate lines to connect randomly
     if (this.lines && Math.random() < this.params.chanceToConnect) {
       const positions = this.lines.geometry.attributes.position.array;
       const pointPositions = this.points.geometry.attributes.position.array;
@@ -288,16 +264,13 @@ export class Point {
       const positions = this.points.geometry.attributes.position.array;
       const t = time.elapsedTime * 0.001; // Convert ms to seconds
 
-      // Store original positions once
       if (!this.originalPositions) {
         this.originalPositions = new Float32Array(positions);
       }
 
-      // Animate each point
       for (let i = 0; i < this.params.count; i++) {
         const i3 = i * 3;
 
-        // Oscillate Y position around original
         positions[i3 + 1] =
           this.originalPositions[i3 + 1] + Math.sin(t + i * 0.1) * 0.5;
       }
@@ -307,26 +280,22 @@ export class Point {
   }
 
   destroy() {
-    // Remove points from scene
     if (this.points) {
       this.scene.remove(this.points);
       this.points.geometry.dispose();
       this.points.material.dispose();
     }
 
-    // Remove lines from scene
     if (this.lines) {
       this.scene.remove(this.lines);
       this.lines.geometry.dispose();
       this.lines.material.dispose();
     }
 
-    // Clean up debug UI
     if (this.debugFolder) {
       this.debugFolder.destroy();
     }
 
-    // Clear references
     this.originalPositions = null;
   }
 }

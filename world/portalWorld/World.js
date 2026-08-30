@@ -1,3 +1,7 @@
+/**
+ * Composition root for the Portal scene. Builds the baked portal model and
+ * its firefly particles once the GLTF and texture have loaded.
+ */
 import { Portal } from "./Portal";
 export class World {
   constructor(experience) {

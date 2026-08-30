@@ -1,3 +1,20 @@
+/**
+ * BaseExperience — shared scene/camera/renderer/loop machinery every scene
+ * builds on. Subclasses customise it through the hooks below rather than by
+ * reimplementing the constructor:
+ *
+ *   setupScene()      configure the scene itself (background, fog)
+ *   createResources() return a Resources instance; defaults to a bare emitter
+ *   cameraOptions()   options object forwarded to Camera (fov, controls, ...)
+ *   setupCamera()     position/aim the camera once it exists
+ *   setupUtils()      per-scene extras assigned onto `this` (e.g. this.mouse)
+ *   createWorld()     required — returns the scene's World
+ *   initWorld()       override to defer world construction (e.g. until 'ready')
+ *
+ * The experience is the single dependency scene objects receive; they read
+ * `experience.scene`, `experience.debug` etc. one level deep rather than
+ * reaching through the World. See docs/architecture.md.
+ */
 import { Scene } from "three";
 import { Sizes } from "./utils/Sizes.js";
 import { Time } from "./utils/Time.js";
@@ -13,9 +30,8 @@ export class BaseExperience {
     this.scene = new Scene();
     this.sizes = new Sizes();
     this.time = new Time();
-    this.debug = new Debug(options.debug); // bool
+    this.debug = new Debug(options.debug);
 
-    // config scene eg bg colour
     this.setupScene();
 
     this.resources = this.createResources();
@@ -35,11 +51,9 @@ export class BaseExperience {
       camera: this.camera,
     });
 
-    // extras eg mouse events, stats etc - subclass assigns onto `this`
     this.setupUtils();
     this.initWorld();
 
-    // bind events
     this.sizes.on("resize", () => {
       this.resize();
     });
@@ -62,14 +76,10 @@ export class BaseExperience {
 
   setupUtils() {}
 
-  // must be implemented by subclass, returns `new World(this)`
   createWorld() {
     throw new Error(`${this.constructor.name} must implement createWorld()`);
   }
 
-  // default: build world immediately. Subclasses that need to wait on
-  // async resource loading (e.g. this.resources.on('ready', ...)) should
-  // override this method instead.
   initWorld() {
     this.world = this.createWorld();
   }
@@ -90,33 +100,27 @@ export class BaseExperience {
   }
 
   destroy() {
-    // Unsub events
     this.sizes.off("resize");
     this.time.off("tick");
     // A pending 'ready' would otherwise fire after teardown and rebuild the
-    // world (and its debug folders) into a disposed scene.
+    // world, and its debug folders, into a disposed scene.
     this.resources?.off?.("ready");
-    // Destroy optional extras
+
     if (this.mouse) this.mouse.destroy();
 
-    // Stop animation loop
     if (this.time.animationId) {
       cancelAnimationFrame(this.time.animationId);
     }
 
-    // Destroy world
     if (this.world) {
       this.world.destroy?.();
     }
 
-    // Dispose all scene objects
     disposeScene(this.scene);
 
-    // Dispose camera controls and renderer
     if (this.camera?.controls) this.camera.controls.dispose();
     if (this.renderer?.renderer) this.renderer.renderer.dispose();
 
-    // Destroy debug UI
     if (this.debug?.active && this.debug?.ui) this.debug.ui.destroy();
   }
 }

@@ -1,3 +1,9 @@
+/**
+ * Composition root for the Shader scene. Unlike the other worlds this one
+ * swaps its content at runtime: requestShader() lazily imports a shader
+ * module from shaderConfig and replaces the live instance, emitting
+ * loadstart/loadcomplete for the React UI.
+ */
 import { shaderPractices } from './shaderConfig';
 import { Environment } from './Environment.js';
 import { Helpers } from '../utils/Helpers.js';
@@ -33,19 +39,15 @@ constructor(experience) {
   }
 
   async loadPractice(key, canvas2D = null) {
-    // Store reference to old shader
     const oldShader = this.shader;
 
-    // Emit loading start event
     this.trigger('loadstart', [{ shaderKey: key }]);
 
-    // load new shader
     try {
       const shaderModule = await shaderPractices[key]();
       const ShaderClass = shaderModule.default;
       this.shader = new ShaderClass(this, canvas2D);
 
-      // clean up old environment if exists
       if (this.environment) {
         this.scene.environment = null;
         this.scene.background = null;
@@ -67,7 +69,6 @@ constructor(experience) {
         }
       }
 
-      // Emit loading complete event
       this.trigger('loadcomplete', [{ shaderKey: key }]);
     } catch (err) {
       console.error(`Failed to load ${key}, falling back to basicShader:`, err);
@@ -92,11 +93,9 @@ constructor(experience) {
           }
         }
 
-        // Emit loading complete for fallback
         this.trigger('loadcomplete', [{ shaderKey: 'basicShader', fallback: true }]);
       } catch (fallbackErr) {
         console.error('Fallback to basicShader also failed:', fallbackErr);
-        // Emit loading complete even on failure
         this.trigger('loadcomplete', [{ shaderKey: key, error: true }]);
       }
     }

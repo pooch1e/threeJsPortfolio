@@ -11,12 +11,18 @@ threejsPortfolio/
 │   ├── pages/              # Route pages
 │   └── p5/                 # p5.js sketch implementations
 ├── world/                  # Three.js world implementations
+│   ├── BaseExperience.js   # Shared scene/camera/renderer/loop machinery
 │   ├── objects/            # Camera, Renderer
 │   ├── utils/              # Time, Sizes, Mouse, Debug, Resources, EventEmitter
 │   ├── sources/            # Asset definitions
 │   ├── shaderTestWorld/    # 17+ shader experiments
 │   ├── sineWorld/          # Sine wave visualization
 │   ├── pointCloudWorld/    # 3D point cloud
+│   ├── rectPerception/     # Scrolling ribbon groups
+│   ├── flowerWorld/        # GPGPU particle flowers
+│   ├── forestWorld/        # Tiled flower grid
+│   ├── portalWorld/        # Baked portal + fireflies
+│   ├── asciiWorld/         # ASCII character grid
 │   └── animalWorld/        # Animal model rendering
 ├── static/                 # GLTF models, textures, HDR
 └── docs/                   # This documentation
@@ -46,7 +52,31 @@ The Three.js implementation follows an **Experience → World → Objects** patt
 
 ### Experience Layer
 
-Each page has an Experience class that orchestrates the Three.js setup:
+Every scene extends `BaseExperience` (`world/BaseExperience.js`), which owns the
+canvas, scene, sizes, time loop, debug panel, resources, camera, renderer and
+teardown. Subclasses do not reimplement the constructor — they override hooks:
+
+| Hook | Purpose | Overridden by |
+|------|---------|---------------|
+| `createWorld()` | **Required.** Returns the scene's World | all scenes |
+| `createResources()` | Returns a `Resources`; defaults to a bare emitter | Flower, Forest, Portal, Model, Shader |
+| `cameraOptions()` | Options forwarded to `Camera` (fov, controls, near/far) | Ascii, Forest |
+| `setupCamera()` | Position/aim the camera once it exists | Rect, Forest |
+| `setupUtils()` | Per-scene extras assigned onto `this` (e.g. `this.mouse`) | Ascii, Shader |
+| `setupScene()` | Configure the scene itself (background, fog) | — |
+| `initWorld()` | Override to defer world construction | Flower |
+
+```javascript
+export class RectExperience extends BaseExperience {
+  createWorld() {
+    return new World(this);
+  }
+
+  setupCamera() {
+    this.camera.perspectiveCamera.position.set(7.5, -9, 15);
+  }
+}
+```
 
 | Experience | Purpose |
 |------------|---------|
@@ -54,22 +84,49 @@ Each page has an Experience class that orchestrates the Three.js setup:
 | `SineExperience` | Sine wave point cloud visualization |
 | `PointExperience` | 3D point cloud rendering |
 | `ModelExperience` | GLTF model loading (Fox, Rat) |
+| `RectExperience` | Scrolling ribbon groups (Ryoji Ikeda-inspired) |
+| `FlowerExperience` | GPGPU particle flowers |
+| `ForestExperience` | Tiled flower grid, camera fitted to the grid |
+| `PortalExperience` | Baked portal model with firefly particles |
+| `AsciiExperience` | Mouse-reactive ASCII character grid |
+
+### The `experience` dependency
+
+Scene objects receive the **experience** and read what they need one level
+deep. This mirrors the Three.js Journey access shape (`this.experience.scene`)
+without its singleton, which does not suit this app's multi-scene
+mount/unmount lifecycle.
 
 ```javascript
-// Pattern from ShaderExperience.js
-export class ShaderExperience {
-  constructor(canvas, options = {}) {
-    this.canvas = canvas;
-    this.debug = new Debug(options.debug);
-    this.sizes = new Sizes();      // Window resize handling
-    this.time = new Time();        // Animation timing
-    this.scene = new THREE.Scene();
-    this.camera = new Camera({...});
-    this.renderer = new Renderer({...});
-    this.world = new World(this);  // Content layer
+export class Ribbon {
+  constructor({ experience, ribbonParams }) {
+    this.scene = experience.scene;
   }
 }
 ```
+
+Two rules keep this legible:
+
+1. **Never reach through another object.** `world.someExperience.debug` is a
+   chain that hides the real dependency; `experience.debug` is one hop.
+2. **The first few lines of a constructor are the complete dependency list.**
+   Grabbing something from deep in a method hides it.
+
+`shaderTestWorld` is the deliberate exception: its shaders are World-scoped
+plugins that need sibling objects (`environment`, `helpers`), so they still
+receive `world` — but reach the experience through a single `world.experience`
+spelling.
+
+### Teardown
+
+`BaseExperience.destroy()` unsubscribes `resize`, `tick` and `resources.ready`,
+cancels the animation frame, calls `world.destroy?.()`, disposes the scene,
+controls, renderer and debug UI.
+
+Any World that builds children inside `resources.on('ready')` **must** define
+`destroy()`. Without it, leaving the route before loading finishes lets the
+callback fire post-teardown and construct objects — and lil-gui folders — into
+an already-disposed scene.
 
 ### Core Utilities (`world/utils/`)
 

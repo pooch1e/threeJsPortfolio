@@ -1,3 +1,7 @@
+/**
+ * Forest — grid of randomly chosen flower tiles laid out across gridSize,
+ * lit by an ambient and a directional light.
+ */
 import { Mesh, PlaneGeometry, MeshStandardMaterial, AmbientLight, DirectionalLight, RepeatWrapping } from "three";
 import { randomElement } from "../../utils/helpers";
 

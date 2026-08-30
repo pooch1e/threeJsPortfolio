@@ -1,3 +1,7 @@
+/**
+ * Ascii — full-screen plane whose shader samples a glyph atlas, rendering a
+ * character grid that brightens around the cursor and its neighbours.
+ */
 import { PlaneGeometry, ShaderMaterial, Vector2, Mesh, CanvasTexture, LinearFilter, DataTexture, RGBAFormat, UnsignedByteType, NearestFilter } from "three";
 import vertexShader from "./shaders/vertex.glsl";
 import fragmentShader from "./shaders/fragment.glsl";
@@ -25,7 +29,6 @@ export class Ascii {
     this.buildGlyphAtlas();
     this.buildCellDataTexture();
 
-    // assign data texture to materials
     this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     this.planeMaterial.uniforms.uGlyphAtlas.value = this.glyphAtlasTexture;
     this.updateCellDataTexture();
@@ -90,8 +93,6 @@ export class Ascii {
     this.scene.add(this.planeMesh);
   }
 
-  // Build a 2D array [cols][rows] of cell state objects.
-  // cols depends on aspect ratio; rows = gridCount.
   buildCellStates() {
     const aspect = this.sizes.width / this.sizes.height;
     this.cols = Math.round(aspect * this.gridCount);
@@ -158,7 +159,6 @@ export class Ascii {
       const intersects = this.mouse.getIntersects([this.planeMesh]);
 
       if (intersects.length === 0) {
-        // Mouse left the plane — clear hover
         this.planeMaterial.uniforms.uMouseCell.value.set(-1, -1);
         this._clearHoverStates();
         return;
@@ -203,7 +203,6 @@ export class Ascii {
           }
         }
 
-        // Neighbour cells get a mid-density char and elevated brightness
         if (cell.neighbour && !cell.hovered) {
           charIndex = 2;
           brightness = 0.75;
@@ -233,7 +232,6 @@ export class Ascii {
   }
 
   _updateHoverStates(cx, cy) {
-    // 4-directional neighbours: N, S, E, W
     const neighbourOffsets = [
       [0, 1],
       [0, -1],
@@ -248,12 +246,10 @@ export class Ascii {
       }
     }
 
-    // Mark hovered cell
     if (cx >= 0 && cx < this.cols && cy >= 0 && cy < this.rows) {
       this.cellStates[cx][cy].hovered = true;
     }
 
-    // Mark 4-directional neighbours
     for (const [dx, dy] of neighbourOffsets) {
       const nx = cx + dx;
       const ny = cy + dy;
@@ -275,7 +271,6 @@ export class Ascii {
       // Rebuild cell states since column count changes with aspect ratio
       this.buildCellStates();
       this.buildCellDataTexture();
-      // Re-assign the new DataTexture instance to the material uniform
       this.planeMaterial.uniforms.uCellData.value = this.cellDataTexture;
     });
   }

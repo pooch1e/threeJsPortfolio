@@ -1,4 +1,7 @@
-
+/**
+ * Composition root for the Forest scene. Builds the tiled flower grid once
+ * its textures have loaded. Owns gridSize, which it passes to Forest.
+ */
 import { Forest } from "./Forest.js";
 
 export class World {

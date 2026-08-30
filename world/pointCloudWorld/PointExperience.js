@@ -1,3 +1,6 @@
+/**
+ * Entry point for the Point Cloud scene.
+ */
 import { BaseExperience } from "../BaseExperience.js";
 import { World } from "./World.js";
 

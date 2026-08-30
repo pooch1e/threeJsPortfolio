@@ -1,3 +1,6 @@
+/**
+ * Floor — textured circular ground plane the fox and rat stand on.
+ */
 import { CircleGeometry, SRGBColorSpace, RepeatWrapping, MeshStandardMaterial, Mesh } from 'three';
 export class Floor {
   constructor(experience) {
@@ -5,7 +8,6 @@ export class Floor {
     this.scene = experience.scene;
     this.resources = experience.resources;
 
-    // SETUP
     this.setGeometry();
     this.setTextures();
     this.setMaterial();
