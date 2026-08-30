@@ -10,10 +10,6 @@
  *   setupUtils()      per-scene extras assigned onto `this` (e.g. this.mouse)
  *   createWorld()     required — returns the scene's World
  *   initWorld()       override to defer world construction (e.g. until 'ready')
- *
- * The experience is the single dependency scene objects receive; they read
- * `experience.scene`, `experience.debug` etc. one level deep rather than
- * reaching through the World. See docs/architecture.md.
  */
 import { Scene } from "three";
 import { Sizes } from "./utils/Sizes.js";
