@@ -1,7 +1,7 @@
 .PHONY: db-create db-tables db-users dev docker-up docker-down
 
 docker-up:
-	docker compose up -d
+	docker compose up -d --wait
 
 docker-down:
 	docker compose down
