@@ -9,13 +9,16 @@ export const GRID_SIZE = 18;
 
 export class ForestExperience extends BaseExperience {
 
+  createResources() {
+    return new Resources(sources);
+  }
+
   createWorld() {
     return new World(this)
   }
 
   setupUtils() {
     this.mouse = new Mouse(this.canvas, this.camera);
-    this.resources = new Resources(sources)
   }
 
   cameraOptions() {
