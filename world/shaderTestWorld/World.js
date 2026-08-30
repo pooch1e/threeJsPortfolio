@@ -1,17 +1,15 @@
 import { shaderPractices } from './shaderConfig';
 import { Environment } from './Environment.js';
-import { Resources } from '../utils/Resources.js';
-import { sources } from '../sources/sources.js';
 import { Helpers } from '../utils/Helpers.js';
 import EventEmitter from '../utils/EventEmitter.js';
 export class World extends EventEmitter {
-constructor(shaderExperience) {
+constructor(experience) {
     super();
-    this.shaderExperience = shaderExperience;
-    this.scene = this.shaderExperience.scene;
+    this.experience = experience;
+    this.scene = experience.scene;
     this.shader = null;
 
-    this.resources = new Resources(sources);
+    this.resources = experience.resources;
     this.helpers = new Helpers(this);
     this.pendingShaderKey = 'basicShader';
     this.pendingCanvas2D = null;

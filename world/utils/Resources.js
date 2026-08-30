@@ -2,7 +2,7 @@ import EventEmitter from './EventEmitter.js';
 import { TextureLoader, CubeTextureLoader } from 'three';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 export class Resources extends EventEmitter {
   constructor(sources) {
     super();
@@ -26,7 +26,7 @@ export class Resources extends EventEmitter {
 
     this.loaders.gltfLoader = new GLTFLoader();
     this.loaders.textureLoader = new TextureLoader();
-    this.loaders.hdrLoader = new RGBELoader();
+    this.loaders.hdrLoader = new HDRLoader();
     this.loaders.cubeTextureLoader = new CubeTextureLoader();
     this.loaders.dracoLoader = new DRACOLoader();
     this.loaders.dracoLoader.setDecoderPath('/static/draco/');

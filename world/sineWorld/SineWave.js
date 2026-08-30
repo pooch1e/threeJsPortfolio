@@ -1,10 +1,10 @@
 // will be a sine wave of points
 import { BufferGeometry, BufferAttribute, PointsMaterial, Points } from 'three';
 export default class SinePoints {
-  constructor(world) {
-    this.world = world;
-    this.scene = this.world.scene;
-    this.debug = this.world.sineExperience.debug;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.debug = experience.debug;
 
     this.params = {
       count: 100,

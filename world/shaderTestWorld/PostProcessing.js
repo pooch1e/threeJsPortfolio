@@ -11,11 +11,9 @@ export default class PostProcessing {
     this.world = world;
     this.scene = this.world.scene;
     this.resources = this.world.resources;
-    this.renderer = this.world.shaderExperience.renderer;
-    this.camera = this.world.shaderExperience.camera.perspectiveCamera;
-    this.debug = this.world.shaderExperience.debug;
-
-    this.renderer = this.world.shaderExperience.renderer;
+    this.renderer = this.world.experience.renderer;
+    this.camera = this.world.experience.camera.perspectiveCamera;
+    this.debug = this.world.experience.debug;
 
     // Activate post-processing mode
     this.renderer.usePostProcessing = true;

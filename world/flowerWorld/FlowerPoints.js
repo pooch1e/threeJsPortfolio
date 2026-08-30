@@ -11,7 +11,7 @@ import fragmentParticles from "./shaders/gppuFlower/fragment.glsl";
 
 export default class FlowerPoints {
   constructor(
-    world,
+    experience,
     simulation,
     {
       position = { x: 0, y: -1, z: 1 },
@@ -20,9 +20,9 @@ export default class FlowerPoints {
       colorB = "#F2A6C8",
     } = {},
   ) {
-    this.world = world;
-    this.scene = world.scene;
-    this.sizes = world.flowerExperience.sizes;
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.sizes = experience.sizes;
     this.simulation = simulation;
 
     this.material = new ShaderMaterial({

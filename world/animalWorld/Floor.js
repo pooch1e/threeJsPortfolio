@@ -1,9 +1,9 @@
 import { CircleGeometry, SRGBColorSpace, RepeatWrapping, MeshStandardMaterial, Mesh } from 'three';
 export class Floor {
-  constructor(modelExperience) {
-    this.modelExperience = modelExperience;
-    this.scene = this.modelExperience.scene;
-    this.resources = this.modelExperience.resources;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.resources = experience.resources;
 
     // SETUP
     this.setGeometry();

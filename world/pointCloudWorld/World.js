@@ -3,14 +3,13 @@ import { Point } from './Point';
 
 
 export class World {
-  constructor(pointExperience) {
-    this.pointExperience = pointExperience;
-    this.scene = this.pointExperience.scene;
-    this.resources = this.pointExperience.resources;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
 
     // this.setEnvironment(); commented out until environment added
 
-    this.point = new Point(this);
+    this.point = new Point(experience);
   }
 
   setMesh() {

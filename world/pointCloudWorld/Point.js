@@ -1,11 +1,10 @@
 import { BufferGeometry, BufferAttribute, PointsMaterial, Points, LineBasicMaterial, LineSegments } from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 export class Point {
-  constructor(world) {
-    this.world = world;
-    this.scene = world.scene;
-    this.debug = world.pointExperience.debug;
-    this.time = this.world.pointExperience.time;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.debug = experience.debug;
 
     // Parameters for points and lines
     this.params = {

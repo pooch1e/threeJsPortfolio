@@ -3,11 +3,11 @@ import { randomElement } from "../../utils/helpers";
 
 
 export class Forest {
-  constructor(world) {
-    this.world = world;
-    this.gridSize = this.world.gridSize; // const 18 for loop
-    this.scene = this.world.scene;
-    this.resources = this.world.resources.items.flowerTextures;
+  constructor(experience, gridSize) {
+    this.experience = experience;
+    this.gridSize = gridSize;
+    this.scene = experience.scene;
+    this.resources = experience.resources.items.flowerTextures;
 
     if (this.resources) {
       this.forestConfig = {

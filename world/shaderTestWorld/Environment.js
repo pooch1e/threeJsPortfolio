@@ -4,7 +4,7 @@ export class Environment {
     this.world = world;
     this.scene = this.world.scene;
     this.resources = this.world.resources;
-    this.debug = this.world.shaderExperience.debug;
+    this.debug = this.world.experience.debug;
 
     // Debug
     if (this.debug.active) {

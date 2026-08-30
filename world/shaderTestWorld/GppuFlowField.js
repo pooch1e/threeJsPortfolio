@@ -11,9 +11,9 @@ export default class GppuFlowField {
     this.world = world;
     this.scene = world.scene;
     this.resources = world.resources;
-    this.debug = this.world.shaderExperience.debug;
-    this.sizes = world.shaderExperience.sizes;
-    this.renderer = world.shaderExperience.renderer.renderer;
+    this.debug = this.world.experience.debug;
+    this.sizes = world.experience.sizes;
+    this.renderer = world.experience.renderer.renderer;
 
     this.model = this.resources.items.shipModel;
     this.debugObject = {};

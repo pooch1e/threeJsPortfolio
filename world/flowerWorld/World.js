@@ -35,16 +35,16 @@ const FLOWER_PLACEMENTS = [
 ];
 
 export class World {
-  constructor(flowerExperience) {
-    this.flowerExperience = flowerExperience;
-    this.scene = this.flowerExperience.scene;
-    this.resources = this.flowerExperience.resources;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.resources = experience.resources;
 
-    this.simulation = new FlowerSimulation(this);
+    this.simulation = new FlowerSimulation(experience);
     this.flowers = FLOWER_PLACEMENTS.map(
-      (placement) => new FlowerPoints(this, this.simulation, placement),
+      (placement) => new FlowerPoints(experience, this.simulation, placement),
     );
-    this.textGrid = new FlowerTextGrid(this);
+    this.textGrid = new FlowerTextGrid(experience);
 
     this.scene.background = new Color("#C3C0C2");
   }

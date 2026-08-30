@@ -1,14 +1,13 @@
-import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
+import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
 import { randomFloat, randomElement, randomInt} from "../../utils/helpers";
 
 export class World {
-  constructor(rectExperience) {
-    this.rectExperience = rectExperience;
-    this.debug = this.rectExperience.debug;
-    this.scene = this.rectExperience.scene;
-    this.resources = this.rectExperience.resources;
+  constructor(experience) {
+    this.experience = experience;
+    this.debug = experience.debug;
+    this.scene = experience.scene;
 
     this.scene.background = new Color("white");
 
@@ -84,7 +83,7 @@ export class World {
           },
         };
 
-        return new RibbonGroup({ world: this, groupParams: ribbonGroupConfig });
+        return new RibbonGroup({ experience, groupParams: ribbonGroupConfig });
       },
     );
   }
