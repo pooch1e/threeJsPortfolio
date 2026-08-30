@@ -1,4 +1,7 @@
-// will be a sine wave of points
+/**
+ * SinePoints — point cloud arranged along a sine wave, animated by
+ * modulating the wave's frequency over time.
+ */
 import { BufferGeometry, BufferAttribute, PointsMaterial, Points } from 'three';
 export default class SinePoints {
   constructor(experience) {
@@ -19,7 +22,6 @@ export default class SinePoints {
   }
 
   setPoints() {
-    // Cleanup old geometry and points if they exist
     if (this.points) {
       this.scene.remove(this.points);
     }
@@ -30,11 +32,9 @@ export default class SinePoints {
       this.material.dispose();
     }
 
-    // Create new geometry
     this.geometry = new BufferGeometry();
     this.positions = new Float32Array(this.params.count * 3);
 
-    // Initialize positions along a sine wave
     for (let i = 0; i < this.params.count; i++) {
       const i3 = i * 3;
       const x = (i / this.params.count) * 10 - 5;

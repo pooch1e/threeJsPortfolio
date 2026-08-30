@@ -1,4 +1,7 @@
-
+/**
+ * Entry point for the Forest scene. Frames a fixed GRID_SIZE grid by fitting
+ * the camera to it on start and on every resize, with orbit controls off.
+ */
 import { BaseExperience } from "../BaseExperience";
 import { World } from "./World";
 import { Resources } from "../utils/Resources";

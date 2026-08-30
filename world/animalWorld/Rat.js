@@ -1,3 +1,6 @@
+/**
+ * Rat — GLTF rat model with its diffuse/normal/ARM texture set applied.
+ */
 import { SRGBColorSpace } from 'three';
 export class Rat {
   constructor(experience) {
@@ -5,7 +8,6 @@ export class Rat {
     this.scene = experience.scene;
     this.resources = experience.resources;
 
-    // Setup
     this.resource = this.resources.items.ratModel;
 
     this.setModel();
@@ -25,21 +27,18 @@ export class Rat {
     ratNormal.flipY = false;
     ratARM.flipY = false;
 
-    //add shadows to model
     this.model.traverse((child) => {
       if (child.isMesh) {
         if (!child.geometry.attributes.uv2) {
           child.geometry.setAttribute('uv2', child.geometry.attributes.uv);
         }
 
-        // Apply textures
         child.material.map = ratDiff;
         child.material.normalMap = ratNormal;
         child.material.roughnessMap = ratARM;
         child.material.aoMap = ratARM;
         child.material.metalnessMap = ratARM;
 
-        // Set intensities
         child.material.aoMapIntensity = 1;
         child.material.roughness = 1; // Let roughnessMap control it
         child.material.metalness = 1; // Let metalnessMap control it
@@ -49,7 +48,6 @@ export class Rat {
         child.receiveShadow = true;
       }
     });
-    // model is loaded
     this.scene.add(this.model);
   }
 }

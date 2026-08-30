@@ -1,3 +1,8 @@
+/**
+ * RibbonGroup — a cluster of Ribbons sharing width/speed/height parameters,
+ * scrolled together by a wave multiplier with a red highlight sweeping
+ * through the group.
+ */
 import { Ribbon } from "./Ribbon";
 import { wave, WAVE_TYPES } from "../utils/Wave";
 
@@ -40,7 +45,6 @@ export class RibbonGroup {
   buildRibbons() {
     const { ribbonCount, spacing, groupXOffset, xWidth } = this.groupParams;
     for (let i = 0; i < ribbonCount; i++) {
-      // const ribbonIndex = i - (ribbonCount - 1) / 2;
       const ribbon = new Ribbon({
         experience: this.experience,
         ribbonParams: {

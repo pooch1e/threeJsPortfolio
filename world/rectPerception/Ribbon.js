@@ -1,3 +1,7 @@
+/**
+ * Ribbon — vertical column of variable-height planes that scrolls upward,
+ * with the pattern tiled above and below itself so it never shows a seam.
+ */
 import { MeshBasicMaterial, Mesh, PlaneGeometry, Group, Color } from "three";
 import { randomFloat } from "../../utils/helpers";
 
@@ -7,7 +11,6 @@ export class Ribbon {
   constructor({ experience, ribbonParams }) {
     this.scene = experience.scene;
 
-    // ribbon param object to control in debug
     this.ribbonParamsDebug = { ...ribbonParams };
 
     this.ribbonGroup = new Group();

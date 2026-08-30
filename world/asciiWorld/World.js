@@ -1,3 +1,7 @@
+/**
+ * Composition root for the ASCII scene. Owns the single Ascii object that
+ * renders the mouse-reactive character grid.
+ */
 import { Ascii } from "./Ascii";
 export class World {
   constructor(experience) {

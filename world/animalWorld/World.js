@@ -1,5 +1,8 @@
-// View for meshes
-// Where actual objects instantiated
+/**
+ * Composition root for the Animal scene. Builds the floor, fox, rat and
+ * environment once the GLTF models have loaded, then drives the fox's
+ * animation mixer each frame.
+ */
 import { Mesh, BoxGeometry, MeshStandardMaterial } from 'three';
 import { Environment } from './Environment.js';
 import { Floor } from './Floor.js';
@@ -12,7 +15,6 @@ export class World {
     this.resources = experience.resources;
 
     this.resources.on('ready', () => {
-      //Environment
       this.floor = new Floor(experience);
       this.fox = new Fox(experience);
       this.rat = new Rat(experience);
@@ -21,7 +23,6 @@ export class World {
   }
 
   setMesh() {
-    //test mesh
     const testMesh = new Mesh(
       new BoxGeometry(1, 1, 1),
       new MeshStandardMaterial()
@@ -36,9 +37,9 @@ export class World {
     }
   }
 
-  // Unsubscribing matters more than the child cleanup here: leaving the route
-  // before resources finish would otherwise let the 'ready' callback build
-  // objects into an already-disposed scene and GUI.
+  // Unsubscribing matters more than the child cleanup: leaving the route
+  // before resources finish would otherwise let 'ready' build objects into
+  // an already-disposed scene and GUI.
   destroy() {
     this.resources.off('ready');
     this.floor?.destroy?.();

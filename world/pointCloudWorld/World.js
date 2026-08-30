@@ -1,3 +1,7 @@
+/**
+ * Composition root for the Point Cloud scene. Owns the Point object that
+ * renders the animated points and their random line connections.
+ */
 import { Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 import { Point } from './Point';
 
@@ -13,7 +17,6 @@ export class World {
   }
 
   setMesh() {
-    //test mesh
     this.testMesh = new Mesh(
       new BoxGeometry(1, 1, 1),
       new MeshBasicMaterial()
@@ -29,12 +32,10 @@ export class World {
   }
 
   destroy() {
-    // Destroy point instance
     if (this.point) {
       this.point.destroy();
     }
 
-    // Dispose test mesh if it exists
     if (this.testMesh) {
       this.scene.remove(this.testMesh);
       this.testMesh.geometry.dispose();

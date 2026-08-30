@@ -1,3 +1,7 @@
+/**
+ * Fox — GLTF fox model and its animation mixer, with debug controls for
+ * switching between the idle, walking and running clips.
+ */
 import { AnimationMixer } from 'three';
 export class Fox {
   constructor(experience) {
@@ -6,7 +10,6 @@ export class Fox {
     this.scene = experience.scene;
     this.resources = experience.resources;
 
-    // DEBUG
 
     this.debug = experience.debug;
 
@@ -17,7 +20,6 @@ export class Fox {
       this.debugFolder = this.debug.ui.addFolder('fox');
     }
 
-    // Setup
     this.resource = this.resources.items.foxModel;
     this.time = experience.time;
 
@@ -29,7 +31,6 @@ export class Fox {
     this.model = this.resource.scene;
     this.model.scale.set(0.02, 0.02, 0.02);
     this.model.position.x = -2.5;
-    // model is loaded
     this.scene.add(this.model);
   }
 
@@ -63,7 +64,6 @@ export class Fox {
     this.animation.actions.current = this.animation.actions.idle;
     this.animation.actions.current.play();
 
-    // DEBUG
     if (this.debug.active) {
       const debugObject = {
         playIdle: () => {

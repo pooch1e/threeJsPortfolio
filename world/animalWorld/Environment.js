@@ -1,3 +1,7 @@
+/**
+ * Environment — sun light and HDR environment map for the Animal scene,
+ * applied to every mesh already in the scene.
+ */
 import { DirectionalLight, SRGBColorSpace, Mesh, MeshStandardMaterial } from 'three';
 export class Environment {
   constructor(experience) {
@@ -6,12 +10,10 @@ export class Environment {
     this.resources = experience.resources;
     this.debug = experience.debug;
 
-    // Debug
     if (this.debug.active) {
       this.debugFolder = this.debug.ui.addFolder('environment');
     }
 
-    //setup
     this.setSunLight();
     this.setEnvironmentMap();
   }

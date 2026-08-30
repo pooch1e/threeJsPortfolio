@@ -1,3 +1,6 @@
+/**
+ * Entry point for the Sine scene.
+ */
 import SineWorld from "./SineWorld.js";
 import { BaseExperience } from "../BaseExperience.js";
 

@@ -1,8 +1,10 @@
-
+/**
+ * Entry point for the Ryoji scene — scrolling ribbon groups inspired by
+ * Ryoji Ikeda, framed by a fixed camera position.
+ */
 import { World } from "./World.js";
 import { BaseExperience } from "../BaseExperience.js";
 
-// Controller
 export class RectExperience extends BaseExperience {
 
   createWorld() {

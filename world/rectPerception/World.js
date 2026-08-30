@@ -1,3 +1,7 @@
+/**
+ * Composition root for the Ryoji scene. Packs a row of ribbon groups across
+ * x, each group sampling one of three presets, then drives their scroll.
+ */
 import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
@@ -16,7 +20,6 @@ export class World {
     // random width ribbons within a group (consider calculations for group offset and ribbon x position)
 
     
-    // Amount of singular ribbons in a group of ribbons
     const ribbonGroupCount = 15;
     const groupGap = 0.15; // lower this for lower gap between groups
     const spacing = 0.05; // space between individual ribbons in a group
@@ -39,38 +42,35 @@ export class World {
 
     this.ribbonGroups = Array.from(new Array(ribbonGroupCount)).map(
       (_, index) => {
-        const ribbonGroupTypes = [
-          // TIGHT GROUP
-          {
+        const ribbonGroupTypes = {
+          tight: {
             speedMin: randomFloat(0.8, 1.1),
             speedMax: randomFloat(3, 4),
             heightMin: randomFloat(0.1, 0.3),
             heightMax: randomFloat(0.2, 1),
             yGapScale: randomFloat(0.05, 0.1),
           },
-          // MIDDLE GROUP
-          {
+          middle: {
             speedMin: randomFloat(0.8, 1.1),
             speedMax: randomFloat(3, 4),
             heightMin: randomFloat(1, 2),
             heightMax: randomFloat(3, 5),
             yGapScale: randomFloat(0.5, 1),
           },
-          // SPARSE GROUP
-          {
+          sparse: {
             speedMin: randomFloat(0.8, 1.1),
             speedMax: randomFloat(3, 4),
             heightMin: randomFloat(2, 3),
             heightMax: randomFloat(4, 6),
             yGapScale: randomFloat(2, 3),
           },
-        ];
+        };
 
         const ribbonGroupConfig = {
           label: `Ribbons - ${index}`,
           spacing,
           xWidth,
-          ...randomElement(ribbonGroupTypes),
+          ...randomElement(Object.values(ribbonGroupTypes)),
           ribbonCount: groupSpecs[index].ribbonCount,
           groupXOffset: centeredOffsets[index],
           xGapScale: 0.2,

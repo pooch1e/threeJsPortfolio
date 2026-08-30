@@ -1,3 +1,9 @@
+/**
+ * Resources — loads the asset list it is given (GLTF, textures, HDR, cube
+ * and texture arrays), exposing them on `items` and emitting 'ready' once
+ * every source has resolved. Failed loads resolve as null so one bad asset
+ * cannot stall the scene.
+ */
 import EventEmitter from './EventEmitter.js';
 import { TextureLoader, CubeTextureLoader } from 'three';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
@@ -7,7 +13,6 @@ export class Resources extends EventEmitter {
   constructor(sources) {
     super();
 
-    // Options
     this.sources = sources;
 
     this.items = {};
@@ -15,7 +20,6 @@ export class Resources extends EventEmitter {
     this.loaded = 0;
     this.isReady = false;
 
-    // Setup
     this.setLoaders();
 
     this.startLoading();
