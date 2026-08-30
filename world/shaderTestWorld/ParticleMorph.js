@@ -10,8 +10,8 @@ export default class ParticleMorph {
       this.world = world;
       this.scene = world.scene;
       this.resources = this.world.resources;
-      this.sizes = this.world.shaderExperience.sizes;
-      this.debug = this.world.shaderExperience.debug;
+      this.sizes = this.world.experience.sizes;
+      this.debug = this.world.experience.debug;
 
       // Setup
       this.particles = {

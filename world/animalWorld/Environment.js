@@ -1,11 +1,10 @@
 import { DirectionalLight, SRGBColorSpace, Mesh, MeshStandardMaterial } from 'three';
 export class Environment {
-  constructor(world) {
-    this.world = world;
-    this.scene = this.world.scene;
-    this.resources = this.world.resources;
-    this.modelExperience = this.world.modelExperience;
-    this.debug = this.world.modelExperience.debug;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.resources = experience.resources;
+    this.debug = experience.debug;
 
     // Debug
     if (this.debug.active) {

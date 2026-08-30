@@ -5,10 +5,10 @@ export default class Halftone {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
-    this.debug = this.world.shaderExperience.debug;
+    this.debug = this.world.experience.debug;
     this.resources = this.world.resources;
     this.resource = this.resources.items.suzanneModel;
-    this.sizes = this.world.shaderExperience.sizes;
+    this.sizes = this.world.experience.sizes;
 
     this.materialParameters = {
       color: '#ff794d',

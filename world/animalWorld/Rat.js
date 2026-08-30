@@ -1,12 +1,12 @@
 import { SRGBColorSpace } from 'three';
 export class Rat {
-  constructor(world) {
-    this.world = world;
-    this.scene = world.scene;
-    this.resources = world.resources;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.resources = experience.resources;
 
     // Setup
-    this.resource = this.world.resources.items.ratModel;
+    this.resource = this.resources.items.ratModel;
 
     this.setModel();
   }

@@ -4,11 +4,8 @@ import { randomFloat } from "../../utils/helpers";
 const TILE_OFFSETS = [-1, 0, 1];
 
 export class Ribbon {
-  constructor({ world, ribbonParams }) {
-    this.world = world;
-    this.scene = world.scene;
-    this.debug = world.rectExperience.debug;
-    this.time = this.world.rectExperience.time;
+  constructor({ experience, ribbonParams }) {
+    this.scene = experience.scene;
 
     // ribbon param object to control in debug
     this.ribbonParamsDebug = { ...ribbonParams };

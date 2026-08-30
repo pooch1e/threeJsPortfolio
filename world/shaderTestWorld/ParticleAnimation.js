@@ -9,7 +9,7 @@ export default class ParticleAnimation {
     this.resources = this.world.resources;
     this.canvas2D = canvas2D;
     this.ctx2D = canvas2D ? canvas2D.getContext('2d') : null;
-    this.mouse = this.world.shaderExperience.mouse;
+    this.mouse = this.world.experience.mouse;
     this.raycaster = new Raycaster();
     this.canvasTexture = new CanvasTexture(this.canvas2D);
 
@@ -61,10 +61,10 @@ export default class ParticleAnimation {
       uniforms: {
         uResolution: new Uniform(
           new Vector2(
-            this.world.shaderExperience.sizes.width *
-              this.world.shaderExperience.sizes.pixelRatio,
-            this.world.shaderExperience.sizes.height *
-              this.world.shaderExperience.sizes.pixelRatio
+            this.world.experience.sizes.width *
+              this.world.experience.sizes.pixelRatio,
+            this.world.experience.sizes.height *
+              this.world.experience.sizes.pixelRatio
           )
         ),
         uPictureTexture: new Uniform(this.imageTexture),
@@ -118,8 +118,8 @@ export default class ParticleAnimation {
   update(time) {
     if (this.raycaster && this.interactivePlane) {
       const camera =
-        this.world.shaderExperience.camera.instance ||
-        this.world.shaderExperience.camera.perspectiveCamera;
+        this.world.experience.camera.instance ||
+        this.world.experience.camera.perspectiveCamera;
 
       this.raycaster.setFromCamera(
         this.displacementParams.screenCursor,

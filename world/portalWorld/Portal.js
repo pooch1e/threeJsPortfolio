@@ -11,15 +11,13 @@ import {
 import firefliesVertexShader from "./shaders/vertex.glsl";
 import firefliesFragmentShader from "./shaders/fragment.glsl";
 export class Portal {
-  constructor(world) {
-    this.world = world;
+  constructor(experience) {
+    this.experience = experience;
 
-    this.scene = world.scene;
-    this.debug = this.world.portalExperience.debug;
-    this.resources = world.resources;
-    this.environment = this.world.environment;
-    this.debug = this.world.portalExperience.debug;
-    this.renderer = this.world.portalExperience.renderer.renderer;
+    this.scene = experience.scene;
+    this.debug = experience.debug;
+    this.resources = experience.resources;
+    this.renderer = experience.renderer.renderer;
 
     this.portalModel = this.resources.items.portalModel;
     this.portalMap = this.resources.items.portalMap;

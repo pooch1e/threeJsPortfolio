@@ -5,7 +5,7 @@ export default class Hologram {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
-    this.debug = this.world.shaderExperience.debug;
+    this.debug = this.world.experience.debug;
     this.resources = this.world.resources;
 
     this.paramaters = {

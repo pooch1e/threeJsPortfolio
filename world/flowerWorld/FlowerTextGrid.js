@@ -40,15 +40,15 @@ const SOURCE_TEXTS = [
 ];
 
 export default class FlowerTextGrid {
-  constructor(world) {
-    this.sizes = world.flowerExperience.sizes;
-    this.camera = world.flowerExperience.camera.perspectiveCamera;
+  constructor(experience) {
+    this.sizes = experience.sizes;
+    this.camera = experience.camera.perspectiveCamera;
 
     this.tiles = [];
     this.baseTextures = SOURCE_TEXTS.map((lines) => this.buildTexture(lines));
 
     if (!this.camera.parent) {
-      world.scene.add(this.camera);
+      experience.scene.add(this.camera);
     }
     this.group = new Group();
     this.camera.add(this.group);

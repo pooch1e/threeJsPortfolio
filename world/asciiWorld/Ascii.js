@@ -3,12 +3,12 @@ import vertexShader from "./shaders/vertex.glsl";
 import fragmentShader from "./shaders/fragment.glsl";
 
 export class Ascii {
-  constructor(world) {
-    this.world = world;
-    this.scene = world.scene;
-    this.debug = world.asciiExperience.debug;
-    this.sizes = world.asciiExperience.sizes;
-    this.mouse = world.asciiExperience.mouse;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.debug = experience.debug;
+    this.sizes = experience.sizes;
+    this.mouse = experience.mouse;
 
     this.gridCount = 100;
     this.rippleRadius = 10;

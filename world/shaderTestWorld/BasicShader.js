@@ -6,7 +6,7 @@ export default class BasicShader {
     this.world = world;
 
     this.scene = this.world.scene;
-    this.debug = this.world.shaderExperience.debug;
+    this.debug = this.world.experience.debug;
 
     this.setShader();
     this.setDebug();

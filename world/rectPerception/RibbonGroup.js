@@ -3,10 +3,9 @@ import { wave, WAVE_TYPES } from "../utils/Wave";
 
 
 export class RibbonGroup {
-  constructor({ world, groupParams }) {
-    this.world = world;
-    this.scene = world.scene;
-    this.debug = world.rectExperience.debug;
+  constructor({ experience, groupParams }) {
+    this.experience = experience;
+    this.debug = experience.debug;
 
     this.groupParams = { ...groupParams };
 
@@ -43,7 +42,7 @@ export class RibbonGroup {
     for (let i = 0; i < ribbonCount; i++) {
       // const ribbonIndex = i - (ribbonCount - 1) / 2;
       const ribbon = new Ribbon({
-        world: this.world,
+        experience: this.experience,
         ribbonParams: {
           ...this.sharedParams,
           ribbonXPos: groupXOffset + (spacing + xWidth) * i,

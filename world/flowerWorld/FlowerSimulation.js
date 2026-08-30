@@ -30,12 +30,12 @@ const TARGET_FPS = 15;
 const TICK_INTERVAL = 1000 / TARGET_FPS;
 
 export default class FlowerSimulation {
-  constructor(world) {
-    this.world = world;
-    this.scene = world.scene;
-    this.resources = world.resources;
-    this.debug = world.flowerExperience.debug;
-    this.renderer = world.flowerExperience.renderer.renderer;
+  constructor(experience) {
+    this.experience = experience;
+    this.scene = experience.scene;
+    this.resources = experience.resources;
+    this.debug = experience.debug;
+    this.renderer = experience.renderer.renderer;
 
     this.model = this.resources.items.flowerModel;
     this.gltf = this.model;

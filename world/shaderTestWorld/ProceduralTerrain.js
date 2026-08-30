@@ -7,7 +7,7 @@ export default class ProceduralTerrain {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
-    this.debug = this.world.shaderExperience.debug;
+    this.debug = this.world.experience.debug;
     this.environment = this.world.environment;
     this.resources = this.world.resources;
     this.environmentMap = this.resources.items.spruitSunset;

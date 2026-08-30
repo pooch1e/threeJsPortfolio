@@ -8,11 +8,10 @@ export default class Fireworks {
   constructor(world) {
     this.world = world;
     this.scene = this.world.scene;
-    this.debug = this.world.shaderExperience.debug;
-    this.sizes = this.world.shaderExperience.sizes;
+    this.debug = this.world.experience.debug;
+    this.sizes = this.world.experience.sizes;
     this.resources = this.world.resources;
-    this.mouse = this.world.shaderExperience.mouse;
-    this.camera = this.world.shaderExperience.camera;
+    this.mouse = this.world.experience.mouse;
     this.sky = new Sky();
 
     // Resource setup

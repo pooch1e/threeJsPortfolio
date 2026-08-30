@@ -5,8 +5,8 @@ export default class Galaxy {
   constructor(world) {
     this.world = world;
     this.scene = world.scene;
-    this.debug = this.world.shaderExperience.debug;
-    this.renderer = this.world.shaderExperience.renderer;
+    this.debug = this.world.experience.debug;
+    this.renderer = this.world.experience.renderer;
 
     // params for galaxy debug ui
 
