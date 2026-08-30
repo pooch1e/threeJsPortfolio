@@ -15,4 +15,9 @@ export class World {
       this.portal.update(time);
     }
   }
+
+  destroy() {
+    this.resources.off("ready");
+    this.portal?.destroy?.();
+  }
 }

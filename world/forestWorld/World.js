@@ -15,4 +15,9 @@ export class World {
   }
 
   update() {}
+
+  destroy() {
+    this.resources.off("ready");
+    this.forest?.destroy?.();
+  }
 }

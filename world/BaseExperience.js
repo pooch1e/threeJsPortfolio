@@ -93,6 +93,9 @@ export class BaseExperience {
     // Unsub events
     this.sizes.off("resize");
     this.time.off("tick");
+    // A pending 'ready' would otherwise fire after teardown and rebuild the
+    // world (and its debug folders) into a disposed scene.
+    this.resources?.off?.("ready");
     // Destroy optional extras
     if (this.mouse) this.mouse.destroy();
 

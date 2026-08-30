@@ -35,4 +35,15 @@ export class World {
       this.fox.update();
     }
   }
+
+  // Unsubscribing matters more than the child cleanup here: leaving the route
+  // before resources finish would otherwise let the 'ready' callback build
+  // objects into an already-disposed scene and GUI.
+  destroy() {
+    this.resources.off('ready');
+    this.floor?.destroy?.();
+    this.fox?.destroy?.();
+    this.rat?.destroy?.();
+    this.environment?.destroy?.();
+  }
 }
