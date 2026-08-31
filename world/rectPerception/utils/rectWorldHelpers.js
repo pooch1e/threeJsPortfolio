@@ -1,5 +1,14 @@
-  import { randomInt, randomFloat, randomElement } from "../../../utils/helpers";
+  import { randomInt, randomFloat, randomElement, randomGaussian } from "../../../utils/helpers";
   import { WAVE_TYPES } from "../../utils/Wave";
+
+// converts frame deltaTime (ms) into world units of scroll per unit of speed
+const SCROLL_SPEED_SCALE = 0.005;
+
+// centre of the preset distribution, in preset-list indices (0 tight, 1 middle,
+// 2 sparse), and how far it spreads either side
+const PRESET_MEAN = 0.85;
+const PRESET_SPREAD = 0.75;
+
 /* Returns an array of objects which define the amount
   of ribbons in a group, their width and offset
 */
@@ -43,6 +52,14 @@ export function computeGroupOffsets(groupSpecs, groupGap) {
   - heightMin/heightMax — range for ribbon height, and this is what differentiates the presets: tight ribbons are short (0.1–1), middle are medium (1–5), sparse are tall (2–6)
   - yGapScale — vertical gap scale between ribbons in the group, again increasing from tight (0.05–0.1) → middle (0.5–1) → sparse (2–3)
 */
+export function pickPresetIndex(
+  presetCount,
+  mean = PRESET_MEAN,
+  spread = PRESET_SPREAD,
+) {
+  const sample = Math.round(randomGaussian(mean, spread));
+  return Math.min(Math.max(sample, 0), presetCount - 1);
+}
 
 export function pickRibbonGroupPreset() {
   const presets = {
@@ -56,9 +73,9 @@ export function pickRibbonGroupPreset() {
         middle: {
           speedMin: randomFloat(0.8, 1.1),
           speedMax: randomFloat(3, 4),
-          heightMin: randomFloat(1, 2),
-          heightMax: randomFloat(3, 5),
-          yGapScale: randomFloat(0.5, 1),
+          heightMin: randomFloat(0.4, 0.8),
+          heightMax: randomFloat(1, 3),
+          yGapScale: randomFloat(0.5, 0.8),
         },
         sparse: {
           speedMin: randomFloat(0.8, 1.1),
@@ -68,7 +85,9 @@ export function pickRibbonGroupPreset() {
           yGapScale: randomFloat(2, 3),
         },
       };
-  return randomElement(Object.values(presets))
+
+  const ordered = [presets.tight, presets.middle, presets.sparse];
+  return ordered[pickPresetIndex(ordered.length)];
 }
 
 /* Assemble config object for RibbonGroup */
@@ -103,6 +122,48 @@ export function computeTileOffsets(patternHeight, targetCoverage) {
   const tileCount = Math.max(3, Math.ceil(targetCoverage / patternHeight));
   const half = Math.floor(tileCount / 2);
   return Array.from({ length: tileCount }, (_, i) => i - half);
+}
+
+/* Builds the stack of planes that makes up one repeat of a ribbon: each plane
+   gets a random height and sits above the previous one with a yGapScale gap.
+   patternHeight is the total height of the stack, i.e. the distance the ribbon
+   has to scroll before it repeats. */
+export function buildPlaneStack(planeCount, heightMin, heightMax, yGapScale) {
+  const planeDefs = [];
+  let yOffset = 0;
+
+  for (let i = 0; i < planeCount; i++) {
+    const height = randomFloat(heightMin, heightMax);
+    planeDefs.push({ height, y: yOffset });
+    yOffset += height + yGapScale;
+  }
+
+  return { planeDefs, patternHeight: yOffset };
+}
+
+/* Repeats a plane stack above and below itself enough times to span
+   targetCoverage, returning every plane's final y in one flat list. */
+export function buildTiledPlanes(planeDefs, patternHeight, targetCoverage) {
+  return computeTileOffsets(patternHeight, targetCoverage).flatMap((tileIndex) =>
+    planeDefs.map(({ height, y }) => ({
+      height,
+      y: y + tileIndex * patternHeight,
+    })),
+  );
+}
+
+/* Advances a ribbon's scroll position, kept as a 0–1 fraction of patternHeight
+   so it survives a rebuild that changes how tall the pattern is. */
+export function advanceScrollPhase(
+  scrollPhase,
+  speed,
+  speedMultiplier,
+  deltaTime,
+  patternHeight,
+) {
+  const distance = speed * speedMultiplier * deltaTime * SCROLL_SPEED_SCALE;
+  const next = scrollPhase + distance / patternHeight;
+  return ((next % 1) + 1) % 1;
 }
 
 /* Normalizes a RibbonGroup's groupParams into the params shared by every
