@@ -4,8 +4,11 @@
  */
 import { MeshBasicMaterial, Mesh, PlaneGeometry, Group, Color } from "three";
 import { randomFloat } from "../../utils/helpers";
+import { computeTileOffsets } from "./utils/rectWorldHelpers";
 
-const TILE_OFFSETS = [-1, 0, 1];
+// generous span over the camera's visible height at its distance from the
+// scene, so short/dense patterns get tiled enough times to still fill it
+const TILE_COVERAGE = 80;
 
 export class Ribbon {
   constructor({ experience, ribbonParams }) {
@@ -40,7 +43,7 @@ export class Ribbon {
     // each ribbon is made up of planes with same width, variable heights,
     // stacked straight up on y with a y-gap between them
     const {
-      xWidth,
+      ribbonWidth,
       planeCount,
       yGapScale,
       heightMin = 1,
@@ -70,10 +73,13 @@ export class Ribbon {
         : this.scrollY % this.patternHeight;
 
     // tile the pattern above/below itself so the ribbon can scroll infinitely
+    // and stays wide enough to fill the camera's view
 
-    TILE_OFFSETS.forEach((tileIndex) => {
+    const tileOffsets = computeTileOffsets(this.patternHeight, TILE_COVERAGE);
+
+    tileOffsets.forEach((tileIndex) => {
       planeDefs.forEach(({ height, y }) => {
-        const planeGeometry = new PlaneGeometry(xWidth, height);
+        const planeGeometry = new PlaneGeometry(ribbonWidth, height);
 
         // translate origin of geometry to base as it is in middle on instatiation
         planeGeometry.translate(0, height / 2, 0);

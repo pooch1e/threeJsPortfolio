@@ -4,7 +4,13 @@
  * through the group.
  */
 import { Ribbon } from "./Ribbon";
-import { wave, WAVE_TYPES } from "../utils/Wave";
+import { wave } from "../utils/Wave";
+import {
+  buildSharedParams,
+  buildWaveParams,
+  computeRibbonXPos,
+  computeRedSweepIndex,
+} from "./utils/rectWorldHelpers";
 
 
 export class RibbonGroup {
@@ -14,25 +20,10 @@ export class RibbonGroup {
 
     this.groupParams = { ...groupParams };
 
-    this.waveParams = {
-      type: WAVE_TYPES.SINE,
-      frequency: 0.1,
-      amplitude: 0,
-      offset: 1,
-      phase: 0,
-      ...groupParams.wave,
-    };
+    this.waveParams = buildWaveParams(groupParams.wave);
 
     this.xGapScale = this.groupParams.xGapScale;
-    this.sharedParams = {
-      yGapScale: this.groupParams.yGapScale,
-      planeCount: this.groupParams.planeCount,
-      xWidth: this.groupParams.xWidth,
-      speedMin: this.groupParams.speedMin ?? 0.5,
-      speedMax: this.groupParams.speedMax ?? 3,
-      heightMin: this.groupParams.heightMin ?? 1,
-      heightMax: this.groupParams.heightMax ?? 10,
-    };
+    this.sharedParams = buildSharedParams(this.groupParams);
 
     this.ribbons = [];
     this.buildRibbons();
@@ -43,13 +34,13 @@ export class RibbonGroup {
   }
 
   buildRibbons() {
-    const { ribbonCount, spacing, groupXOffset, xWidth } = this.groupParams;
+    const { ribbonCount, spacing, groupXOffset, ribbonWidth } = this.groupParams;
     for (let i = 0; i < ribbonCount; i++) {
       const ribbon = new Ribbon({
         experience: this.experience,
         ribbonParams: {
           ...this.sharedParams,
-          ribbonXPos: groupXOffset + (spacing + xWidth) * i,
+          ribbonXPos: computeRibbonXPos(groupXOffset, spacing, ribbonWidth, i),
           colour: null,
         },
       });
@@ -78,9 +69,9 @@ export class RibbonGroup {
         .onChange(pushToRibbons("planeCount"));
 
       this.debugFolder
-        .add(this.sharedParams, "xWidth", 0.05, 2, 0.05)
-        .name("X Width")
-        .onChange(pushToRibbons("xWidth"));
+        .add(this.sharedParams, "ribbonWidth", 0.05, 2, 0.05)
+        .name("Ribbon Width")
+        .onChange(pushToRibbons("ribbonWidth"));
 
       this.debugFolder
         .add(this.sharedParams, "heightMin", 0.1, 10, 0.1)
@@ -127,9 +118,11 @@ export class RibbonGroup {
     );
 
     if (this.ribbons.length > 0) {
-      const progress =
-        (time.elapsedTime * 0.001 / this.redSweepPeriod) % 1;
-      const nextIndex = Math.floor(progress * this.ribbons.length);
+      const nextIndex = computeRedSweepIndex(
+        time.elapsedTime * 0.001,
+        this.redSweepPeriod,
+        this.ribbons.length,
+      );
 
       if (nextIndex !== this.activeRedIndex) {
         const previous = this.ribbons[this.activeRedIndex];

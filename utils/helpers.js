@@ -4,7 +4,7 @@ export const randomInt = (min, max) =>
 
 // accepts floats or ints
 export const randomFloat = (min, max) => {
-  return Math.random() * (max - min + 1) + min;
+  return Math.random() * (max - min) + min;
 };
 
 // accepts array
