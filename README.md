@@ -169,52 +169,5 @@ npm run lint
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel + Cloud Run + Supabase deployment runbook |
 | [docs/admin-plan.md](docs/admin-plan.md) | Admin dashboard plan (react-admin + Go endpoints) |
 
----
-
-## Agentic workflow
-
-This project is built in an ongoing pairing session with [Claude
-Code](https://claude.com/claude-code) rather than treating the AI as a
-one-off autocomplete tool. The docs above aren't just for humans — they're
-the primary context the agent reads before making changes, so keeping them
-accurate is part of how the project stays maintainable.
-
-**Steering — `CLAUDE.md`.** A checked-in [`CLAUDE.md`](CLAUDE.md) at the
-repo root gives Claude the same orientation a new engineer would need: how
-to run things locally, the project layout, the `Experience → World →
-Objects` Three.js pattern, backend conventions (handler/repository split,
-JSON error envelope, sentinel errors), and the environment variables
-required. It's kept short and links out to the deeper docs rather than
-duplicating them, so it doesn't drift out of sync.
-
-**Docs as agent context, not just human reference.** `docs/architecture.md`,
-`docs/backend-architecture.md`, and friends exist so the agent (and future
-me) don't have to re-derive design decisions from scratch every session.
-When a decision is architecturally significant, it's recorded as an ADR
-under [`docs/adr/`](docs/adr/) rather than left implicit in a commit
-message.
-
-**Plan-first for non-trivial work.** Larger or in-progress features get a
-`PLAN.md` alongside the code they touch (e.g.
-[`world/computer/PLAN.md`](world/computer/PLAN.md)) — written and refined
-with the agent *before* implementation starts, then updated as the plan
-changes. This keeps multi-session work resumable: a new session can read
-the plan and pick up where the last one left off instead of re-deriving
-intent from the diff.
-
-**Comment discipline enforced by instruction, not convention.** Both the
-global and project `CLAUDE.md` files carry the same rule: no comments
-explaining *what* code does (identifiers should make that obvious), a
-JSDoc-style header on every file summarizing its purpose, and inline
-comments reserved for non-obvious *why*. This is enforced consistently
-across the codebase because it's part of the agent's standing instructions
-rather than something re-explained per session.
-
-**Review and testing loop.** Changes are run through `npm run lint`, the Go
-test suite, and the Vitest suite (see [Testing](#testing)) before being
-considered done, with the agent driving UI changes in a real browser rather
-than relying on type-checking alone. Code review passes (Claude Code's
-`/code-review`) are used on non-trivial diffs before they're treated as
-finished.
 
 superficial edit - need to add better gcloud config instructions to understand deployment flow
