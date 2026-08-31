@@ -15,10 +15,10 @@ export class World {
     this.scene.background = new Color("white");
 
     // Ribbon Group Parameters
-    const ribbonGroupCount = 15; // amount of groups
-    const groupGap = 0.05; // lower this for lower gap between groups
-    const spacing = 0.05; // space between individual ribbons in a group
-    const ribbonWidth = 0.5;
+    const ribbonGroupCount = 40; // amount of groups
+    const groupGap = 0.01; // lower this for lower gap between groups
+    const spacing = 0.02; // space between individual ribbons in a group
+    const ribbonWidth = 0.2;
 
     const groupSpecs = createGroupSpecs(ribbonGroupCount, ribbonWidth, spacing)
     const centeredGroupOffsets = computeGroupOffsets(groupSpecs, groupGap)

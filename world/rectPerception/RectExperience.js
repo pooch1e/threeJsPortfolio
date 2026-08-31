@@ -11,7 +11,7 @@ export class RectExperience extends BaseExperience {
   }
 
   setupCamera() {
-    this.camera.perspectiveCamera.position.set(10, -5, 14);
+    this.camera.perspectiveCamera.position.set(10, -4, 10);
     this.camera.perspectiveCamera.lookAt(7.5, 5, -10);
   }
 }

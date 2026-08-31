@@ -17,12 +17,10 @@ export class RibbonGroup {
   constructor({ experience, groupParams }) {
     this.experience = experience;
     this.debug = experience.debug;
-
     this.groupParams = { ...groupParams };
 
     this.waveParams = buildWaveParams(groupParams.wave);
 
-    this.xGapScale = this.groupParams.xGapScale;
     this.sharedParams = buildSharedParams(this.groupParams);
 
     this.ribbons = [];

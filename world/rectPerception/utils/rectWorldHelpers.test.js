@@ -6,6 +6,11 @@ import {
   buildWaveParams,
   computeRibbonXPos,
   computeRedSweepIndex,
+  computeTileOffsets,
+  buildPlaneStack,
+  buildTiledPlanes,
+  advanceScrollPhase,
+  pickPresetIndex,
 } from "./rectWorldHelpers";
 
 describe('createGroupSpecs', () => {
@@ -124,5 +129,112 @@ describe('computeRedSweepIndex', () => {
 
   it('scales with ribbonCount', () => {
     expect(computeRedSweepIndex(2, 4, 10)).toBe(5);
+  });
+})
+
+describe('computeTileOffsets', () => {
+  it('never tiles fewer than three times', () => {
+    expect(computeTileOffsets(100, 10)).toEqual([-1, 0, 1]);
+  });
+
+  it('adds more tiles as the pattern gets shorter', () => {
+    expect(computeTileOffsets(2, 20)).toEqual([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4]);
+  });
+})
+
+describe('buildPlaneStack', () => {
+  it('returns an empty stack with no height for a planeCount of 0', () => {
+    expect(buildPlaneStack(0, 1, 2, 0.5)).toEqual({ planeDefs: [], patternHeight: 0 });
+  });
+
+  it('returns one def per plane, each within the height range', () => {
+    const { planeDefs } = buildPlaneStack(8, 1, 2, 0.5);
+    expect(planeDefs.length).toBe(8);
+    planeDefs.forEach(({ height }) => {
+      expect(height).toBeGreaterThanOrEqual(1);
+      expect(height).toBeLessThanOrEqual(2);
+    });
+  });
+
+  it('stacks each plane above the previous one with a gap between', () => {
+    const { planeDefs } = buildPlaneStack(5, 1, 2, 0.5);
+    expect(planeDefs[0].y).toBe(0);
+    planeDefs.slice(0, -1).forEach((def, i) => {
+      expect(planeDefs[i + 1].y).toBeCloseTo(def.y + def.height + 0.5);
+    });
+  });
+
+  it('reports patternHeight as the full stack including the trailing gap', () => {
+    const { planeDefs, patternHeight } = buildPlaneStack(5, 1, 2, 0.5);
+    const last = planeDefs[planeDefs.length - 1];
+    expect(patternHeight).toBeCloseTo(last.y + last.height + 0.5);
+  });
+})
+
+describe('buildTiledPlanes', () => {
+  it('repeats every plane once per tile', () => {
+    const planeDefs = [{ height: 1, y: 0 }, { height: 2, y: 2 }];
+    const result = buildTiledPlanes(planeDefs, 100, 10);
+    expect(result.length).toBe(6);
+  });
+
+  it('offsets each tile by a whole patternHeight', () => {
+    const planeDefs = [{ height: 1, y: 0 }, { height: 2, y: 2 }];
+    expect(buildTiledPlanes(planeDefs, 10, 10)).toEqual([
+      { height: 1, y: -10 },
+      { height: 2, y: -8 },
+      { height: 1, y: 0 },
+      { height: 2, y: 2 },
+      { height: 1, y: 10 },
+      { height: 2, y: 12 },
+    ]);
+  });
+})
+
+describe('advanceScrollPhase', () => {
+  it('advances by the scrolled distance as a fraction of patternHeight', () => {
+    expect(advanceScrollPhase(0, 2, 1, 100, 10)).toBeCloseTo(0.1);
+  });
+
+  it('wraps back into 0-1 when it scrolls past the end of the pattern', () => {
+    expect(advanceScrollPhase(0.95, 2, 1, 100, 10)).toBeCloseTo(0.05);
+  });
+
+  it('wraps into 0-1 when a negative multiplier scrolls it backwards', () => {
+    expect(advanceScrollPhase(0.05, 2, -1, 100, 10)).toBeCloseTo(0.95);
+  });
+
+  it('holds position when the multiplier is zero', () => {
+    expect(advanceScrollPhase(0.4, 2, 0, 100, 10)).toBeCloseTo(0.4);
+  });
+})
+
+describe('pickPresetIndex', () => {
+  const sample = (count) =>
+    Array.from({ length: count }, () => pickPresetIndex(3));
+
+  it('only ever returns an index within the preset list', () => {
+    sample(2000).forEach((index) => {
+      expect(index).toBeGreaterThanOrEqual(0);
+      expect(index).toBeLessThanOrEqual(2);
+      expect(Number.isInteger(index)).toBe(true);
+    });
+  });
+
+  it('favours middle, then tight, then sparse', () => {
+    const counts = [0, 0, 0];
+    sample(5000).forEach((index) => counts[index]++);
+    expect(counts[1]).toBeGreaterThan(counts[0]);
+    expect(counts[0]).toBeGreaterThan(counts[2]);
+  });
+
+  it('still picks sparse often enough to show up', () => {
+    const sparse = sample(5000).filter((index) => index === 2).length;
+    expect(sparse / 5000).toBeGreaterThan(0.1);
+  });
+
+  it('collapses onto a single preset when spread is near zero', () => {
+    const indices = Array.from({ length: 100 }, () => pickPresetIndex(3, 1, 0.0001));
+    expect(new Set(indices)).toEqual(new Set([1]));
   });
 })

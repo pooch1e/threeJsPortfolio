@@ -4,7 +4,11 @@
  */
 import { MeshBasicMaterial, Mesh, PlaneGeometry, Group, Color } from "three";
 import { randomFloat } from "../../utils/helpers";
-import { computeTileOffsets } from "./utils/rectWorldHelpers";
+import {
+  buildPlaneStack,
+  buildTiledPlanes,
+  advanceScrollPhase,
+} from "./utils/rectWorldHelpers";
 
 // generous span over the camera's visible height at its distance from the
 // scene, so short/dense patterns get tiled enough times to still fill it
@@ -13,116 +17,103 @@ const TILE_COVERAGE = 80;
 export class Ribbon {
   constructor({ experience, ribbonParams }) {
     this.scene = experience.scene;
+    this.ribbonParams = { ...ribbonParams };
 
-    this.ribbonParamsDebug = { ...ribbonParams };
-
-    this.ribbonGroup = new Group();
     this.baseY = -10;
-
     this.baseColour = ribbonParams.colour ?? new Color("black");
     this.material = new MeshBasicMaterial({
       wireframe: false,
       color: this.baseColour,
     });
 
-    this.ribbonGroup.position.x = this.ribbonParamsDebug.ribbonXPos;
-
-    const { speedMin = 0.5, speedMax = 3 } = this.ribbonParamsDebug;
+    const { speedMin = 0.5, speedMax = 3 } = this.ribbonParams;
     this.speed = ribbonParams.speed ?? randomFloat(speedMin, speedMax);
-    this.phase = Math.random();
-    this.scrollY = undefined;
+    this.scrollPhase = Math.random();
+
+    this.ribbonGroup = new Group();
+    this.ribbonGroup.position.set(this.ribbonParams.ribbonXPos, this.baseY, 0);
 
     this.setPlanes();
-
     this.scene.add(this.ribbonGroup);
-    // start lower than camera
-    this.ribbonGroup.position.y = this.baseY;
   }
 
   setPlanes() {
-    // each ribbon is made up of planes with same width, variable heights,
-    // stacked straight up on y with a y-gap between them
     const {
       ribbonWidth,
       planeCount,
       yGapScale,
       heightMin = 1,
       heightMax = 10,
-    } = this.ribbonParamsDebug;
+    } = this.ribbonParams;
 
-    while (this.ribbonGroup.children.length > 0) {
-      const mesh = this.ribbonGroup.children.pop();
-      this.ribbonGroup.remove(mesh);
-      mesh.geometry.dispose();
-    }
+    this.disposeMeshes();
 
-    const planeDefs = [];
-    let yOffset = 0;
+    const { planeDefs, patternHeight } = buildPlaneStack(
+      planeCount,
+      heightMin,
+      heightMax,
+      yGapScale,
+    );
+    this.patternHeight = patternHeight;
 
-    for (let i = 1; i <= planeCount; i++) {
-      const height = randomFloat(heightMin, heightMax);
-      planeDefs.push({ height, y: yOffset });
-      yOffset += height + yGapScale;
-    }
-
-    this.patternHeight = yOffset;
-
-    this.scrollY =
-      this.scrollY === undefined
-        ? this.phase * this.patternHeight
-        : this.scrollY % this.patternHeight;
-
-    // tile the pattern above/below itself so the ribbon can scroll infinitely
-    // and stays wide enough to fill the camera's view
-
-    const tileOffsets = computeTileOffsets(this.patternHeight, TILE_COVERAGE);
-
-    tileOffsets.forEach((tileIndex) => {
-      planeDefs.forEach(({ height, y }) => {
+    buildTiledPlanes(planeDefs, patternHeight, TILE_COVERAGE).forEach(
+      ({ height, y }) => {
         const planeGeometry = new PlaneGeometry(ribbonWidth, height);
 
-        // translate origin of geometry to base as it is in middle on instatiation
+        // geometry is centred on instantiation, so shift its origin to the base
         planeGeometry.translate(0, height / 2, 0);
 
         const mesh = new Mesh(planeGeometry, this.material);
-        mesh.position.y = y + tileIndex * this.patternHeight;
+        mesh.position.y = y;
         this.ribbonGroup.add(mesh);
-      });
-    });
+      },
+    );
+  }
+
+  disposeMeshes() {
+    while (this.ribbonGroup.children.length > 0) {
+      const mesh = this.ribbonGroup.children[0];
+      this.ribbonGroup.remove(mesh);
+      mesh.geometry.dispose();
+    }
   }
 
   updateParams(newParams) {
-    Object.assign(this.ribbonParamsDebug, newParams);
+    Object.assign(this.ribbonParams, newParams);
     this.setPlanes();
   }
 
   setXPosition(x) {
-    this.ribbonParamsDebug.ribbonXPos = x;
+    this.ribbonParams.ribbonXPos = x;
     this.ribbonGroup.position.x = x;
   }
 
   setSpeedRange(speedMin, speedMax) {
     this.speed = randomFloat(speedMin, speedMax);
   }
-  
+
   setColour(color) {
     this.material.color.set(color);
-  }
-
-  destroy() {
-    this.scene.remove(this.ribbonGroup);
-    this.ribbonGroup.children.forEach((mesh) => mesh.geometry.dispose());
-    this.material.dispose();
   }
 
   update(time, speedMultiplier = 1) {
     if (!time || !this.patternHeight) return;
 
-    this.scrollY += this.speed * speedMultiplier * (time.deltaTime * 0.005);
+    this.scrollPhase = advanceScrollPhase(
+      this.scrollPhase,
+      this.speed,
+      speedMultiplier,
+      time.deltaTime,
+      this.patternHeight,
+    );
 
-    //wrap tiles
-    this.scrollY %= this.patternHeight;
+    this.ribbonGroup.position.y =
+      this.baseY + this.scrollPhase * this.patternHeight;
+  }
 
-    this.ribbonGroup.position.y = this.baseY + this.scrollY;
+  destroy() {
+    this.scene.remove(this.ribbonGroup);
+    this.disposeMeshes();
+    this.material.dispose();
   }
 }
