@@ -5,7 +5,8 @@
 import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
 import { WAVE_TYPES } from "../utils/Wave";
-import { randomFloat, randomElement, randomInt} from "../../utils/helpers";
+import { randomFloat, randomElement} from "../../utils/helpers";
+import { computeGroupOffsets, createGroupSpecs } from "./utils/rectWorldHelpers";
 
 export class World {
   constructor(experience) {
@@ -17,28 +18,15 @@ export class World {
 
     // TODO HOMEWORK:
     // Reverse direction speeds
-    // random width ribbons within a group (consider calculations for group offset and ribbon x position)
 
-    
-    const ribbonGroupCount = 15;
+    // Ribbon Group Parameters
+    const ribbonGroupCount = 15; // amount of groups
     const groupGap = 0.15; // lower this for lower gap between groups
     const spacing = 0.05; // space between individual ribbons in a group
     const xWidth = 0.5;
 
-    const groupSpecs = Array.from({ length: ribbonGroupCount }).map(() => {
-      const ribbonCount = randomInt(1, 15);
-      const width = (xWidth + spacing) * ribbonCount;
-      return { ribbonCount, width };
-    });
-
-    let cursor = 0;
-    const offsets = groupSpecs.map(({ width }) => {
-      const leftEdge = cursor;
-      cursor += width + groupGap;
-      return leftEdge;
-    });
-    const totalSpan = cursor - groupGap;
-    const centeredOffsets = offsets.map((c) => c - totalSpan / 2);
+    const groupSpecs = createGroupSpecs(ribbonGroupCount, xWidth, spacing)
+    const centeredGroupOffsets = computeGroupOffsets(groupSpecs, groupGap)
 
     this.ribbonGroups = Array.from(new Array(ribbonGroupCount)).map(
       (_, index) => {
@@ -72,7 +60,7 @@ export class World {
           xWidth,
           ...randomElement(Object.values(ribbonGroupTypes)),
           ribbonCount: groupSpecs[index].ribbonCount,
-          groupXOffset: centeredOffsets[index],
+          groupXOffset: centeredGroupOffsets[index],
           xGapScale: 0.2,
           planeCount: 20,
           wave: {
