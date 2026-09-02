@@ -6,7 +6,7 @@ a Go REST API for authentication and an admin dashboard. Built as a
 demonstration piece spanning real-time 3D graphics, full-stack web
 architecture, and cloud deployment.
 
-**Live:** [three-js-portfolio-hazel.vercel.app](https://three-js-portfolio-hazel.vercel.app)
+**Live:** [three-js-portfolio](https://playgroundtest.fyi)
 
 ---
 
