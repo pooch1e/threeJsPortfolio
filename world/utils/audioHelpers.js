@@ -1,3 +1,9 @@
+/**
+ * audioHelpers — pure maths for turning an analyser reading into the 0–1
+ * level scenes animate against. Exported as functions rather than methods so
+ * a scene can compose its own level shape without subclassing AudioSource.
+ */
+
 /* AnalyserNode reports each bin as 0–255; scenes want a 0–1 multiplier. */
 export function normalizeLevel(averageFrequency) {
   return Math.min(Math.max(averageFrequency / 255, 0), 1);

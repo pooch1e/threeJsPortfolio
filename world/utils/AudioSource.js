@@ -22,6 +22,7 @@ export class AudioSource extends EventEmitter {
     this.canvas = canvas;
     this.smoothing = smoothing;
     this.level = 0;
+    this.destroyed = false;
 
     this.listener = new AudioListener();
     camera.add(this.listener);
@@ -32,20 +33,27 @@ export class AudioSource extends EventEmitter {
 
     this.analyser = new AudioAnalyser(this.sound, fftSize);
 
-    new AudioLoader().load(path, (buffer) => {
-      this.sound.setBuffer(buffer);
-      this.trigger("ready");
-      if (autoplay) this.play();
-    });
+    new AudioLoader().load(
+      path,
+      (buffer) => {
+        if (this.destroyed) return;
+
+        this.sound.setBuffer(buffer);
+        this.trigger("ready");
+        if (autoplay) this.requestPlay();
+      },
+      undefined,
+      (error) => {
+        if (this.destroyed) return;
+        this.trigger("error", [error]);
+      },
+    );
 
     if (autoplay) this.listenForGesture();
   }
 
-  // Browsers start the AudioContext suspended and only let a user gesture
-  // resume it, so playback is attempted from both the gesture and the load
-  // callback — whichever lands last is the one that actually starts it.
   listenForGesture() {
-    this.gestureHandler = () => this.play();
+    this.gestureHandler = () => this.requestPlay();
     this.canvas?.addEventListener("pointerdown", this.gestureHandler);
     window.addEventListener("keydown", this.gestureHandler);
   }
@@ -57,10 +65,14 @@ export class AudioSource extends EventEmitter {
     this.gestureHandler = null;
   }
 
+  requestPlay() {
+    this.play().catch(() => {});
+  }
+
   async play() {
     const { context } = this.listener;
     if (context.state === "suspended") await context.resume();
-    if (context.state !== "running") return;
+    if (this.destroyed || context.state !== "running") return;
     if (!this.sound.buffer || this.sound.isPlaying) return;
 
     this.sound.play();
@@ -80,9 +92,13 @@ export class AudioSource extends EventEmitter {
   }
 
   destroy() {
+    this.destroyed = true;
     this.stopListeningForGesture();
+
     if (this.sound.isPlaying) this.sound.stop();
     this.sound.disconnect();
+    this.analyser.analyser.disconnect();
+    this.listener.gain.disconnect();
     this.listener.removeFromParent();
   }
 }
