@@ -104,7 +104,7 @@ export class BaseExperience {
     this.stats?.begin();
     this.camera.update();
     this.renderer.update();
-    this.audio?.update();
+    this.audio?.update(this.time);
     if (this.world) {
       this.world.update(this.time);
     }

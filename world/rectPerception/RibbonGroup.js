@@ -9,7 +9,6 @@ import {
   buildSharedParams,
   buildWaveParams,
   computeRibbonXPos,
-  computeRedSweepIndex,
 } from "./utils/rectWorldHelpers";
 
 
@@ -28,7 +27,6 @@ export class RibbonGroup {
     this.setDebug();
 
     this.activeRedIndex = -1;
-    this.redSweepPeriod = this.groupParams.redSweepPeriod ?? 4;
   }
 
   buildRibbons() {
@@ -114,22 +112,16 @@ export class RibbonGroup {
     this.ribbons.forEach((ribbon) =>
       ribbon.update(time, speedMultiplier * waveMultiplier),
     );
+  }
 
-    if (this.ribbons.length > 0) {
-      const nextIndex = computeRedSweepIndex(
-        time.elapsedTime * 0.001,
-        this.redSweepPeriod,
-        this.ribbons.length,
-      );
+  stepRedSweep() {
+    if (this.ribbons.length === 0) return;
 
-      if (nextIndex !== this.activeRedIndex) {
-        const previous = this.ribbons[this.activeRedIndex];
-        if (previous) previous.setColour(previous.baseColour);
+    const previous = this.ribbons[this.activeRedIndex];
+    if (previous) previous.setColour(previous.baseColour);
 
-        this.ribbons[nextIndex].setColour("red");
-        this.activeRedIndex = nextIndex;
-      }
-    }
+    this.activeRedIndex = (this.activeRedIndex + 1) % this.ribbons.length;
+    this.ribbons[this.activeRedIndex].setColour("red");
   }
 
   destroy() {

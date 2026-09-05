@@ -1,11 +1,19 @@
 /**
  * AudioSource — loads a music file into a three Audio, taps it with an
  * analyser, and exposes a smoothed 0–1 `level` for scenes to drive visuals
- * with. Experiences opt in through BaseExperience's audioOptions() hook.
+ * with, plus named triggers that fire when a frequency band crosses a
+ * threshold. Experiences opt in through BaseExperience's audioOptions() hook.
  */
 import EventEmitter from "./EventEmitter";
 import { AudioListener, Audio, AudioAnalyser, AudioLoader } from "three";
-import { normalizeLevel, smoothLevel } from "./audioHelpers";
+import {
+  normalizeLevel,
+  smoothLevel,
+  binRangeForHz,
+  averageBand,
+  createTriggerState,
+  nextTriggerState,
+} from "./audioHelpers";
 
 export class AudioSource extends EventEmitter {
   constructor({
@@ -14,8 +22,10 @@ export class AudioSource extends EventEmitter {
     path,
     loop = true,
     volume = 0.5,
-    fftSize = 64,
+    fftSize = 512,
     smoothing = 0.15,
+    smoothingTimeConstant = 0.2,
+    triggers = {},
     autoplay = true,
   }) {
     super();
@@ -32,6 +42,17 @@ export class AudioSource extends EventEmitter {
     this.sound.setVolume(volume);
 
     this.analyser = new AudioAnalyser(this.sound, fftSize);
+
+    // three leaves this at the AnalyserNode default of 0.8, which lowpasses
+    // the spectrum hard enough to flatten the transients triggers fire on
+    this.analyser.analyser.smoothingTimeConstant = smoothingTimeConstant;
+
+    this.triggers = Object.fromEntries(
+      Object.entries(triggers).map(([name, options]) => [
+        name,
+        { ...options, ...createTriggerState(), level: 0, fired: false },
+      ]),
+    );
 
     new AudioLoader().load(
       path,
@@ -79,16 +100,44 @@ export class AudioSource extends EventEmitter {
     this.stopListeningForGesture();
   }
 
+  get isPlaying() {
+    return this.sound.isPlaying;
+  }
+
   pause() {
     if (this.sound.isPlaying) this.sound.pause();
   }
 
-  update() {
+  update(time) {
+    const data = this.analyser.getFrequencyData();
+
     this.level = smoothLevel(
       this.level,
-      normalizeLevel(this.analyser.getAverageFrequency()),
+      normalizeLevel(averageBand(data, 0, data.length)),
       this.smoothing,
     );
+
+    this.updateTriggers(data, time.elapsedTime);
+  }
+
+  updateTriggers(data, elapsedTime) {
+    const { sampleRate } = this.listener.context;
+
+    Object.values(this.triggers).forEach((trigger) => {
+      const { start, end } = binRangeForHz(trigger.band, sampleRate, data.length);
+      trigger.level = normalizeLevel(averageBand(data, start, end));
+
+      const { armed, lastFiredAt, fired } = nextTriggerState(
+        trigger,
+        trigger.level,
+        trigger,
+        elapsedTime,
+      );
+
+      trigger.armed = armed;
+      trigger.lastFiredAt = lastFiredAt;
+      trigger.fired = fired;
+    });
   }
 
   destroy() {

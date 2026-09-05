@@ -15,7 +15,14 @@ export class RectExperience extends BaseExperience {
   }
 
   audioOptions() {
-    return { path: "/static/audio/Principle.mp3", volume: 0.4, smoothing: 0.12 };
+    return {
+      path: "/static/audio/Principle.mp3",
+      volume: 0.4,
+      smoothing: 0.12,
+      triggers: {
+        beat: { band: [2000, 8000], threshold: 0.35, holdMs: 120 },
+      },
+    };
   }
 
   setupCamera() {

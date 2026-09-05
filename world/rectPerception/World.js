@@ -4,7 +4,15 @@
  */
 import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
-import { computeGroupOffsets, createGroupSpecs, buildRibbonGroupConfig } from "./utils/rectWorldHelpers";
+import {
+  computeGroupOffsets,
+  createGroupSpecs,
+  buildRibbonGroupConfig,
+  hasIntervalElapsed,
+} from "./utils/rectWorldHelpers";
+
+const SWEEP_TRIGGER = "beat";
+const FALLBACK_SWEEP_INTERVAL = 400;
 
 export class World {
   constructor(experience) {
@@ -13,6 +21,7 @@ export class World {
     this.scene = experience.scene;
 
     this.scene.background = new Color("white");
+    this.lastSweepAt = 0;
 
     // Ribbon Group Parameters
     const ribbonGroupCount = 40; // amount of groups
@@ -38,6 +47,26 @@ export class World {
 
   update(time) {
     this.ribbonGroups.forEach((group) => group.update(time));
+
+    if (this.consumeSweepStep(time)) {
+      this.ribbonGroups.forEach((group) => group.stepRedSweep());
+    }
+  }
+
+  consumeSweepStep(time) {
+    const audio = this.experience.audio;
+    const trigger = audio?.triggers?.[SWEEP_TRIGGER];
+
+    // audio only unlocks on a user gesture, so the timer covers the scene
+    // until the track is actually running
+    if (trigger && audio.isPlaying) return trigger.fired;
+
+    if (!hasIntervalElapsed(time.elapsedTime, this.lastSweepAt, FALLBACK_SWEEP_INTERVAL)) {
+      return false;
+    }
+
+    this.lastSweepAt = time.elapsedTime;
+    return true;
   }
 
   destroy() {
