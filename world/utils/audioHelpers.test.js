@@ -4,6 +4,7 @@ import {
   smoothLevel,
   binRangeForHz,
   averageBand,
+  buildBinGains,
   createTriggerState,
   nextTriggerState,
 } from "./audioHelpers";
@@ -96,6 +97,64 @@ describe("averageBand", () => {
 
   it("returns zero for an empty range", () => {
     expect(averageBand(data, 2, 2)).toBe(0);
+  });
+
+  it("weights each bin by the gain curve when one is given", () => {
+    const gains = new Float32Array([1, 0.5, 0.5, 1, 1]);
+    expect(averageBand(data, 1, 3, gains)).toBe(75);
+  });
+
+  it("lets a zero gain remove a bin's contribution without renormalising", () => {
+    const gains = new Float32Array([1, 0, 1, 1, 1]);
+    expect(averageBand(data, 1, 3, gains)).toBe(100);
+  });
+});
+
+describe("buildBinGains", () => {
+  const sampleRate = 44100;
+  const binCount = 256;
+
+  it("leaves every bin at unity when no bands are given", () => {
+    const gains = buildBinGains([], sampleRate, binCount);
+    expect(gains.length).toBe(binCount);
+    expect([...gains].every((gain) => gain === 1)).toBe(true);
+  });
+
+  it("applies a gain only across the band's bins", () => {
+    const gains = buildBinGains(
+      [{ band: [2000, 8000], gain: 0.5 }],
+      sampleRate,
+      binCount,
+    );
+    const { start, end } = binRangeForHz([2000, 8000], sampleRate, binCount);
+
+    expect(gains[start]).toBeCloseTo(0.5);
+    expect(gains[end - 1]).toBeCloseTo(0.5);
+    expect(gains[start - 1]).toBe(1);
+    expect(gains[end]).toBe(1);
+  });
+
+  it("compounds overlapping bands", () => {
+    const gains = buildBinGains(
+      [
+        { band: [2000, 8000], gain: 0.5 },
+        { band: [4000, 6000], gain: 0.5 },
+      ],
+      sampleRate,
+      binCount,
+    );
+    const { start } = binRangeForHz([4000, 6000], sampleRate, binCount);
+
+    expect(gains[start]).toBeCloseTo(0.25);
+  });
+
+  it("boosts as well as cuts", () => {
+    const gains = buildBinGains(
+      [{ band: [0, 200], gain: 1.5 }],
+      sampleRate,
+      binCount,
+    );
+    expect(gains[0]).toBeCloseTo(1.5);
   });
 });
 

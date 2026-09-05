@@ -1,8 +1,9 @@
 /**
  * audioHelpers — pure maths for turning an analyser reading into the 0–1
- * level scenes animate against, and for firing threshold triggers off a
- * frequency band. Exported as functions rather than methods so a scene can
- * compose its own level shape without subclassing AudioSource.
+ * level scenes animate against, for shaping that spectrum with an analysis-only
+ * EQ, and for firing threshold triggers off a frequency band. Exported as
+ * functions rather than methods so a scene can compose its own level shape
+ * without subclassing AudioSource.
  */
 
 /* AnalyserNode reports each bin as 0–255; scenes want a 0–1 multiplier. */
@@ -30,16 +31,35 @@ export function binRangeForHz([lowHz, highHz], sampleRate, binCount) {
   return { start, end };
 }
 
-/* Mean of the analyser bins in [start, end), still on the 0–255 byte scale. */
-export function averageBand(data, start, end) {
+/* Mean of the analyser bins in [start, end), still on the 0–255 byte scale.
+   An optional per-bin gain curve weights the reading without renormalising, so
+   a gain below 1 genuinely pulls the average down rather than redistributing
+   it — that is what lets an EQ band duck a frequency out of a trigger. */
+export function averageBand(data, start, end, gains) {
   if (end <= start) return 0;
 
   let total = 0;
   for (let i = start; i < end; i++) {
-    total += data[i];
+    total += gains ? data[i] * gains[i] : data[i];
   }
 
   return total / (end - start);
+}
+
+/* Builds the per-bin gain curve an EQ band list describes: a multiplier per
+   analyser bin, 1 where nothing applies. Overlapping bands compound, so two
+   0.5 cuts over the same bin leave it at 0.25. */
+export function buildBinGains(eqBands, sampleRate, binCount) {
+  const gains = new Float32Array(binCount).fill(1);
+
+  eqBands.forEach(({ band, gain }) => {
+    const { start, end } = binRangeForHz(band, sampleRate, binCount);
+    for (let i = start; i < end; i++) {
+      gains[i] *= gain;
+    }
+  });
+
+  return gains;
 }
 
 export function createTriggerState() {

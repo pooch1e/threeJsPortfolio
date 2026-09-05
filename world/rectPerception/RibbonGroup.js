@@ -1,7 +1,7 @@
 /**
  * RibbonGroup — a cluster of Ribbons sharing width/speed/height parameters,
- * scrolled together by a wave multiplier with a red highlight sweeping
- * through the group.
+ * scrolled together by a wave multiplier, with any number of independently
+ * stepped colour highlights sweeping through the group.
  */
 import { Ribbon } from "./Ribbon";
 import { wave } from "../utils/Wave";
@@ -9,6 +9,7 @@ import {
   buildSharedParams,
   buildWaveParams,
   computeRibbonXPos,
+  wrapIndex,
 } from "./utils/rectWorldHelpers";
 
 
@@ -26,7 +27,7 @@ export class RibbonGroup {
     this.buildRibbons();
     this.setDebug();
 
-    this.activeRedIndex = -1;
+    this.sweeps = {};
   }
 
   buildRibbons() {
@@ -114,14 +115,27 @@ export class RibbonGroup {
     );
   }
 
-  stepRedSweep() {
+  stepSweep(name, { colour, direction = 1 }) {
     if (this.ribbons.length === 0) return;
 
-    const previous = this.ribbons[this.activeRedIndex];
+    if (!this.sweeps[name]) this.sweeps[name] = { index: -1, colour };
+    const sweep = this.sweeps[name];
+
+    const previous = this.ribbons[sweep.index];
     if (previous) previous.setColour(previous.baseColour);
 
-    this.activeRedIndex = (this.activeRedIndex + 1) % this.ribbons.length;
-    this.ribbons[this.activeRedIndex].setColour("red");
+    sweep.index = wrapIndex(sweep.index + direction, this.ribbons.length);
+
+    // a sweep leaving a ribbon repaints it, which would wipe another sweep
+    // parked on the same one, so every sweep reasserts its colour after a step
+    this.repaintSweeps();
+  }
+
+  repaintSweeps() {
+    Object.values(this.sweeps).forEach(({ index, colour }) => {
+      const ribbon = this.ribbons[index];
+      if (ribbon) ribbon.setColour(colour);
+    });
   }
 
   destroy() {

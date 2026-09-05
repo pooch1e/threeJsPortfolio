@@ -199,7 +199,14 @@ export function computeRibbonXPos(groupXOffset, spacing, ribbonWidth, index) {
   return groupXOffset + (spacing + ribbonWidth) * index;
 }
 
-/* Drives the red sweep when there is no audio trigger to step it. */
+/* Drives a sweep when there is no audio trigger to step it. */
 export function hasIntervalElapsed(elapsedMs, lastStepAt, intervalMs) {
   return elapsedMs - lastStepAt >= intervalMs;
+}
+
+/* Wraps a sweep index into range in either direction — JS's % keeps the sign
+   of the dividend, so a backwards sweep would otherwise land on -1. */
+export function wrapIndex(index, length) {
+  if (length === 0) return 0;
+  return ((index % length) + length) % length;
 }

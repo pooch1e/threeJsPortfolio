@@ -11,8 +11,12 @@ import {
   hasIntervalElapsed,
 } from "./utils/rectWorldHelpers";
 
-const SWEEP_TRIGGER = "beat";
-const FALLBACK_SWEEP_INTERVAL = 400;
+/* Each sweep is an independent colour walking the ribbons, stepped by its own
+   audio trigger — so they run concurrently off different parts of the mix. */
+const SWEEPS = [
+  { name: "beat", colour: "red", direction: 1, fallbackInterval: 400 },
+  { name: "pulse", colour: "#1fbf6b", direction: -1, fallbackInterval: 900 },
+];
 
 export class World {
   constructor(experience) {
@@ -21,7 +25,7 @@ export class World {
     this.scene = experience.scene;
 
     this.scene.background = new Color("white");
-    this.lastSweepAt = 0;
+    this.lastSweepAt = Object.fromEntries(SWEEPS.map(({ name }) => [name, 0]));
 
     // Ribbon Group Parameters
     const ribbonGroupCount = 40; // amount of groups
@@ -48,24 +52,34 @@ export class World {
   update(time) {
     this.ribbonGroups.forEach((group) => group.update(time));
 
-    if (this.consumeSweepStep(time)) {
-      this.ribbonGroups.forEach((group) => group.stepRedSweep());
-    }
+    SWEEPS.forEach((sweep) => {
+      if (!this.consumeSweepStep(sweep, time)) return;
+
+      this.ribbonGroups.forEach((group) =>
+        group.stepSweep(sweep.name, sweep),
+      );
+    });
   }
 
-  consumeSweepStep(time) {
+  consumeSweepStep(sweep, time) {
     const audio = this.experience.audio;
-    const trigger = audio?.triggers?.[SWEEP_TRIGGER];
+    const trigger = audio?.triggers?.[sweep.name];
 
     // audio only unlocks on a user gesture, so the timer covers the scene
     // until the track is actually running
     if (trigger && audio.isPlaying) return trigger.fired;
 
-    if (!hasIntervalElapsed(time.elapsedTime, this.lastSweepAt, FALLBACK_SWEEP_INTERVAL)) {
+    if (
+      !hasIntervalElapsed(
+        time.elapsedTime,
+        this.lastSweepAt[sweep.name],
+        sweep.fallbackInterval,
+      )
+    ) {
       return false;
     }
 
-    this.lastSweepAt = time.elapsedTime;
+    this.lastSweepAt[sweep.name] = time.elapsedTime;
     return true;
   }
 

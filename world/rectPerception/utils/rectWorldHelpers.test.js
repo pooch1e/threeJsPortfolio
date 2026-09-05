@@ -6,6 +6,7 @@ import {
   buildWaveParams,
   computeRibbonXPos,
   hasIntervalElapsed,
+  wrapIndex,
   computeTileOffsets,
   buildPlaneStack,
   buildTiledPlanes,
@@ -126,6 +127,25 @@ describe('hasIntervalElapsed', () => {
   it('measures from the last step rather than from zero', () => {
     expect(hasIntervalElapsed(1000, 800, 400)).toBe(false);
     expect(hasIntervalElapsed(1200, 800, 400)).toBe(true);
+  });
+})
+
+describe('wrapIndex', () => {
+  it('leaves an in-range index alone', () => {
+    expect(wrapIndex(3, 10)).toBe(3);
+  });
+
+  it('wraps past the end back to the start', () => {
+    expect(wrapIndex(10, 10)).toBe(0);
+  });
+
+  it('wraps a backwards step onto the last entry rather than -1', () => {
+    expect(wrapIndex(-1, 10)).toBe(9);
+    expect(wrapIndex(-11, 10)).toBe(9);
+  });
+
+  it('returns zero for an empty collection', () => {
+    expect(wrapIndex(-1, 0)).toBe(0);
   });
 })
 
