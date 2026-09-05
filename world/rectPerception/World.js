@@ -26,6 +26,7 @@ export class World {
 
     this.scene.background = new Color("white");
     this.lastSweepAt = Object.fromEntries(SWEEPS.map(({ name }) => [name, 0]));
+    this.warnOnUntriggeredSweeps();
 
     // Ribbon Group Parameters
     const ribbonGroupCount = 40; // amount of groups
@@ -47,6 +48,22 @@ export class World {
         })
       })
     })
+  }
+
+  // a sweep whose name matches no trigger falls back to its timer and keeps
+  // running, so a typo here looks like working code that just ignores the music
+  warnOnUntriggeredSweeps() {
+    const audio = this.experience.audio;
+    if (!audio) return;
+
+    const missing = SWEEPS.filter(({ name }) => !audio.triggers[name]);
+    if (missing.length === 0) return;
+
+    console.warn(
+      `Ryoji sweeps with no matching audio trigger: ${missing
+        .map(({ name }) => name)
+        .join(", ")}`,
+    );
   }
 
   update(time) {

@@ -4,6 +4,8 @@
  * as a horizontal line and its current level as a bar. Tuning a band by ear
  * alone means guessing where a sound sits; this shows it.
  */
+import { binRangeForHz } from "./audioHelpers";
+
 const WIDTH = 260;
 const HEIGHT = 110;
 
@@ -33,7 +35,7 @@ export class AudioSpectrumDebug {
     this.drawGridLabels(sampleRate);
 
     Object.values(this.audio.triggers).forEach((trigger) =>
-      this.drawTrigger(trigger, sampleRate),
+      this.drawTrigger(trigger, data, sampleRate),
     );
   }
 
@@ -61,7 +63,7 @@ export class AudioSpectrumDebug {
     });
   }
 
-  drawTrigger(trigger, sampleRate) {
+  drawTrigger(trigger, data, sampleRate) {
     const ctx = this.context;
     const nyquist = sampleRate / 2;
     const toX = (hz) => Math.min(hz / nyquist, 1) * WIDTH;
@@ -75,8 +77,26 @@ export class AudioSpectrumDebug {
     ctx.fillRect(left, 0, width, HEIGHT);
     ctx.globalAlpha = 1;
 
+    this.drawWeightedBins(trigger, data, sampleRate);
+
+    ctx.fillStyle = trigger.colour;
     ctx.fillRect(left, HEIGHT - trigger.threshold * HEIGHT, width, 1);
     ctx.fillRect(left, HEIGHT - trigger.level * HEIGHT, width, 2);
+  }
+
+  // the grey bins are the raw spectrum, but a trigger reads its band through
+  // its own EQ — redrawing that slice weighted shows what it actually sees,
+  // so an EQ cut is visible while tuning rather than only felt in the level
+  drawWeightedBins(trigger, data, sampleRate) {
+    const ctx = this.context;
+    const barWidth = WIDTH / data.length;
+    const { start, end } = binRangeForHz(trigger.band, sampleRate, data.length);
+
+    ctx.fillStyle = trigger.colour;
+    for (let i = start; i < end; i++) {
+      const height = ((data[i] * trigger.gains[i]) / 255) * HEIGHT;
+      ctx.fillRect(i * barWidth, HEIGHT - height, barWidth, height);
+    }
   }
 
   destroy() {

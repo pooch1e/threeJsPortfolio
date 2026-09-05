@@ -3,6 +3,7 @@
  * scrolled together by a wave multiplier, with any number of independently
  * stepped colour highlights sweeping through the group.
  */
+import { Color } from "three";
 import { Ribbon } from "./Ribbon";
 import { wave } from "../utils/Wave";
 import {
@@ -118,7 +119,11 @@ export class RibbonGroup {
   stepSweep(name, { colour, direction = 1 }) {
     if (this.ribbons.length === 0) return;
 
-    if (!this.sweeps[name]) this.sweeps[name] = { index: -1, colour };
+    // resolved once, not per step: every group repaints on every fire, so a
+    // raw string here would reparse ~80 times a beat
+    if (!this.sweeps[name]) {
+      this.sweeps[name] = { index: -1, colour: new Color(colour) };
+    }
     const sweep = this.sweeps[name];
 
     const previous = this.ribbons[sweep.index];

@@ -17,6 +17,7 @@ For the broader project layout (React routing, p5.js sketches, tech stack), see 
 | [event-emitter.md](event-emitter.md) | The pub/sub base class and how `Time`/`Sizes`/`Mouse`/`Resources` use it to drive the render loop |
 | [resources.md](resources.md) | Asset manifest format and how scenes load GLTF/textures/HDRs |
 | [debug.md](debug.md) | The `lil-gui` wrapper and the convention for exposing tweakable params |
+| [audio.md](audio.md) | Driving visuals from music — the `level` signal, frequency-band triggers, analysis EQ and the spectrum tuning panel |
 
 Shared, non-scene-specific code lives in:
 

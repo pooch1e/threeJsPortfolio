@@ -73,6 +73,32 @@ dynamically routed via `/experience/:slug`:
 A debug panel (lil-gui) is available on any scene via `?debug=true` for
 live-tweaking uniforms and parameters.
 
+### Audio-reactive scenes
+
+Any scene can opt into a music track and drive its visuals from it. A scene
+declares what it wants in one hook — a smoothed `level` signal for visuals that
+should breathe with the music, plus named **triggers** that fire the frame a
+frequency band crosses a threshold, for visuals that should step in time with
+it. Triggers are independent, so several parts of a scene can react to
+different parts of the mix at once.
+
+```js
+audioOptions() {
+  return {
+    path: "/static/audio/Principle.mp3",
+    triggers: {
+      beat:  { band: [2000, 8000], threshold: 0.35, holdMs: 120 },
+      pulse: { band: [60, 250],    threshold: 0.55, holdMs: 300 },
+    },
+  };
+}
+```
+
+Bands are tuned live rather than guessed: `?debug=true` adds a spectrum canvas
+showing each trigger's band, threshold and level drawn over the running FFT.
+`world/rectPerception` uses two concurrent triggers to sweep colour through its
+ribbons. Full guide: [docs/world/audio.md](docs/world/audio.md).
+
 ---
 
 ## Backend (Go)
@@ -164,6 +190,7 @@ npm run lint
 | Doc | Contents |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Three.js + React frontend architecture |
+| [docs/world/audio.md](docs/world/audio.md) | Driving scene visuals from music — level, band triggers, analysis EQ, spectrum tuning panel |
 | [docs/backend-architecture.md](docs/backend-architecture.md) | Go backend reference |
 | [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel + Cloud Run + Supabase deployment runbook |
