@@ -4,7 +4,19 @@
  */
 import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
-import { computeGroupOffsets, createGroupSpecs, buildRibbonGroupConfig } from "./utils/rectWorldHelpers";
+import {
+  computeGroupOffsets,
+  createGroupSpecs,
+  buildRibbonGroupConfig,
+  hasIntervalElapsed,
+} from "./utils/rectWorldHelpers";
+
+/* Each sweep is an independent colour walking the ribbons, stepped by its own
+   audio trigger — so they run concurrently off different parts of the mix. */
+const SWEEPS = [
+  { name: "beat", colour: "red", direction: 1, fallbackInterval: 400 },
+  { name: "pulse", colour: "#1fbf6b", direction: -1, fallbackInterval: 900 },
+];
 
 export class World {
   constructor(experience) {
@@ -13,6 +25,8 @@ export class World {
     this.scene = experience.scene;
 
     this.scene.background = new Color("white");
+    this.lastSweepAt = Object.fromEntries(SWEEPS.map(({ name }) => [name, 0]));
+    this.warnOnUntriggeredSweeps();
 
     // Ribbon Group Parameters
     const ribbonGroupCount = 40; // amount of groups
@@ -36,8 +50,54 @@ export class World {
     })
   }
 
+  // a sweep whose name matches no trigger falls back to its timer and keeps
+  // running, so a typo here looks like working code that just ignores the music
+  warnOnUntriggeredSweeps() {
+    const audio = this.experience.audio;
+    if (!audio) return;
+
+    const missing = SWEEPS.filter(({ name }) => !audio.triggers[name]);
+    if (missing.length === 0) return;
+
+    console.warn(
+      `Ryoji sweeps with no matching audio trigger: ${missing
+        .map(({ name }) => name)
+        .join(", ")}`,
+    );
+  }
+
   update(time) {
     this.ribbonGroups.forEach((group) => group.update(time));
+
+    SWEEPS.forEach((sweep) => {
+      if (!this.consumeSweepStep(sweep, time)) return;
+
+      this.ribbonGroups.forEach((group) =>
+        group.stepSweep(sweep.name, sweep),
+      );
+    });
+  }
+
+  consumeSweepStep(sweep, time) {
+    const audio = this.experience.audio;
+    const trigger = audio?.triggers?.[sweep.name];
+
+    // audio only unlocks on a user gesture, so the timer covers the scene
+    // until the track is actually running
+    if (trigger && audio.isPlaying) return trigger.fired;
+
+    if (
+      !hasIntervalElapsed(
+        time.elapsedTime,
+        this.lastSweepAt[sweep.name],
+        sweep.fallbackInterval,
+      )
+    ) {
+      return false;
+    }
+
+    this.lastSweepAt[sweep.name] = time.elapsedTime;
+    return true;
   }
 
   destroy() {

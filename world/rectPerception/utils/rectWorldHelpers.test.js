@@ -5,7 +5,8 @@ import {
   buildSharedParams,
   buildWaveParams,
   computeRibbonXPos,
-  computeRedSweepIndex,
+  hasIntervalElapsed,
+  wrapIndex,
   computeTileOffsets,
   buildPlaneStack,
   buildTiledPlanes,
@@ -114,21 +115,37 @@ describe('computeRibbonXPos', () => {
   });
 });
 
-describe('computeRedSweepIndex', () => {
-  it('returns index 0 at the start of a sweep period', () => {
-    expect(computeRedSweepIndex(0, 4, 10)).toBe(0);
+describe('hasIntervalElapsed', () => {
+  it('holds until the interval has passed', () => {
+    expect(hasIntervalElapsed(300, 0, 400)).toBe(false);
   });
 
-  it('returns the last index just before wrapping', () => {
-    expect(computeRedSweepIndex(3.99, 4, 10)).toBe(9);
+  it('fires exactly on the interval boundary', () => {
+    expect(hasIntervalElapsed(400, 0, 400)).toBe(true);
   });
 
-  it('wraps back to the start of the ribbon list after a full period', () => {
-    expect(computeRedSweepIndex(4, 4, 10)).toBe(0);
+  it('measures from the last step rather than from zero', () => {
+    expect(hasIntervalElapsed(1000, 800, 400)).toBe(false);
+    expect(hasIntervalElapsed(1200, 800, 400)).toBe(true);
+  });
+})
+
+describe('wrapIndex', () => {
+  it('leaves an in-range index alone', () => {
+    expect(wrapIndex(3, 10)).toBe(3);
   });
 
-  it('scales with ribbonCount', () => {
-    expect(computeRedSweepIndex(2, 4, 10)).toBe(5);
+  it('wraps past the end back to the start', () => {
+    expect(wrapIndex(10, 10)).toBe(0);
+  });
+
+  it('wraps a backwards step onto the last entry rather than -1', () => {
+    expect(wrapIndex(-1, 10)).toBe(9);
+    expect(wrapIndex(-11, 10)).toBe(9);
+  });
+
+  it('returns zero for an empty collection', () => {
+    expect(wrapIndex(-1, 0)).toBe(0);
   });
 })
 

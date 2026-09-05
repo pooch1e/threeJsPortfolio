@@ -47,6 +47,7 @@ export class BaseExperience {
       this.audio = new AudioSource({
         camera: this.camera.perspectiveCamera,
         canvas: this.canvas,
+        debug: this.debug,
         ...audioOptions,
       });
     }
@@ -104,7 +105,7 @@ export class BaseExperience {
     this.stats?.begin();
     this.camera.update();
     this.renderer.update();
-    this.audio?.update();
+    this.audio?.update(this.time);
     if (this.world) {
       this.world.update(this.time);
     }

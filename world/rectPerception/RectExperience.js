@@ -1,6 +1,7 @@
 /**
  * RectExperience — the Ryoji scene: a fixed-camera row of scrolling ribbon
- * groups, with a music track loaded so the world can react to its level.
+ * groups, with a music track whose high-band clicks and low-end pulse each step
+ * their own colour sweep through the ribbons.
  */
 import { World } from "./World.js";
 import { BaseExperience } from "../BaseExperience.js";
@@ -15,7 +16,20 @@ export class RectExperience extends BaseExperience {
   }
 
   audioOptions() {
-    return { path: "/static/audio/Principle.mp3", volume: 0.4, smoothing: 0.12 };
+    return {
+      path: "/static/audio/Principle.mp3",
+      volume: 0.4,
+      smoothing: 0.12,
+      triggers: {
+        beat: {
+          band: [2000, 8000],
+          threshold: 0.35,
+          holdMs: 120,
+          eq: [{ band: [2000, 3000], gain: 0.6 }],
+        },
+        pulse: { band: [60, 250], threshold: 0.55, holdMs: 300 },
+      },
+    };
   }
 
   setupCamera() {
