@@ -7,6 +7,7 @@
  *   createResources() return a Resources instance; defaults to a bare emitter
  *   cameraOptions()   options object forwarded to Camera (fov, controls, ...)
  *   setupCamera()     position/aim the camera once it exists
+ *   audioOptions()    return an options object to opt into this.audio
  *   setupUtils()      per-scene extras assigned onto `this` (e.g. this.mouse)
  *   createWorld()     required — returns the scene's World
  *   initWorld()       override to defer world construction (e.g. until 'ready')
@@ -19,6 +20,7 @@ import { Camera } from "./objects/Camera.js";
 import { Renderer } from "./objects/Renderer.js";
 import EventEmitter from "./utils/EventEmitter.js";
 import { disposeScene } from "./utils/disposeScene.js";
+import { AudioSource } from "./utils/AudioSource.js";
 
 export class BaseExperience {
   constructor(canvas, options = {}) {
@@ -39,6 +41,15 @@ export class BaseExperience {
     });
 
     this.setupCamera();
+
+    const audioOptions = this.audioOptions();
+    if (audioOptions) {
+      this.audio = new AudioSource({
+        camera: this.camera.perspectiveCamera,
+        canvas: this.canvas,
+        ...audioOptions,
+      });
+    }
 
     this.renderer = new Renderer({
       canvas: this.canvas,
@@ -70,6 +81,10 @@ export class BaseExperience {
     return {};
   }
 
+  audioOptions() {
+    return null;
+  }
+
   setupUtils() {}
 
   createWorld() {
@@ -89,6 +104,7 @@ export class BaseExperience {
     this.stats?.begin();
     this.camera.update();
     this.renderer.update();
+    this.audio?.update();
     if (this.world) {
       this.world.update(this.time);
     }
@@ -103,6 +119,8 @@ export class BaseExperience {
     this.resources?.off?.("ready");
 
     if (this.mouse) this.mouse.destroy();
+
+    this.audio?.destroy();
 
     if (this.time.animationId) {
       cancelAnimationFrame(this.time.animationId);
