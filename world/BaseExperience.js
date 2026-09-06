@@ -46,7 +46,6 @@ export class BaseExperience {
     if (audioOptions) {
       this.audio = new AudioSource({
         camera: this.camera.perspectiveCamera,
-        canvas: this.canvas,
         debug: this.debug,
         ...audioOptions,
       });

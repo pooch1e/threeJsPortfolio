@@ -85,7 +85,7 @@ different parts of the mix at once.
 ```js
 audioOptions() {
   return {
-    path: "/static/audio/Principle.mp3",
+    path: "/static/audio/Principle.m4a",
     triggers: {
       beat:  { band: [2000, 8000], threshold: 0.35, holdMs: 120 },
       pulse: { band: [60, 250],    threshold: 0.55, holdMs: 300 },

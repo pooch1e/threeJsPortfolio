@@ -21,10 +21,11 @@ import {
 
 const TRIGGER_COLOURS = ["#ff4b4b", "#3ddc84", "#4b9bff", "#ffd23d"];
 
+const GESTURE_EVENTS = ["pointerdown", "keydown", "touchend"];
+
 export class AudioSource extends EventEmitter {
   constructor({
     camera,
-    canvas,
     path,
     loop = true,
     volume = 0.5,
@@ -36,7 +37,6 @@ export class AudioSource extends EventEmitter {
     debug,
   }) {
     super();
-    this.canvas = canvas;
     this.smoothing = smoothing;
     this.level = 0;
     this.destroyed = false;
@@ -90,6 +90,9 @@ export class AudioSource extends EventEmitter {
       undefined,
       (error) => {
         if (this.destroyed) return;
+        // nothing subscribes to "error" today, so without this a missing or
+        // unservable track is completely silent — the scene just never reacts
+        console.error(`AudioSource failed to load ${path}`, error);
         this.trigger("error", [error]);
       },
     );
@@ -108,16 +111,22 @@ export class AudioSource extends EventEmitter {
     );
   }
 
+  // listening on the window rather than the canvas: a visitor who clicks a nav
+  // link or anywhere else on the page has made a gesture the browser accepts,
+  // and requiring a canvas hit leaves the track locked for anyone who just
+  // watches the scene
   listenForGesture() {
     this.gestureHandler = () => this.requestPlay();
-    this.canvas?.addEventListener("pointerdown", this.gestureHandler);
-    window.addEventListener("keydown", this.gestureHandler);
+    GESTURE_EVENTS.forEach((event) =>
+      window.addEventListener(event, this.gestureHandler),
+    );
   }
 
   stopListeningForGesture() {
     if (!this.gestureHandler) return;
-    this.canvas?.removeEventListener("pointerdown", this.gestureHandler);
-    window.removeEventListener("keydown", this.gestureHandler);
+    GESTURE_EVENTS.forEach((event) =>
+      window.removeEventListener(event, this.gestureHandler),
+    );
     this.gestureHandler = null;
   }
 

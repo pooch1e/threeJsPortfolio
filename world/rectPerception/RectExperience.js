@@ -17,7 +17,7 @@ export class RectExperience extends BaseExperience {
 
   audioOptions() {
     return {
-      path: "/static/audio/Principle.mp3",
+      path: "/static/audio/Principle.m4a",
       volume: 0.4,
       smoothing: 0.12,
       triggers: {

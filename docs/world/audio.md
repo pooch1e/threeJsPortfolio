@@ -24,7 +24,7 @@ Add `audioOptions()` to your Experience. Returning anything non-null constructs 
 export class MyExperience extends BaseExperience {
   audioOptions() {
     return {
-      path: "/static/audio/Principle.mp3",
+      path: "/static/audio/Principle.m4a",
       volume: 0.4,
     };
   }
@@ -77,7 +77,7 @@ Triggers are for things that should happen *once*, on a beat or a hit. Declare t
 ```js
 audioOptions() {
   return {
-    path: "/static/audio/Principle.mp3",
+    path: "/static/audio/Principle.m4a",
     triggers: {
       beat:  { band: [2000, 8000], threshold: 0.35, holdMs: 120 },
       pulse: { band: [60, 250],    threshold: 0.55, holdMs: 300 },
@@ -167,13 +167,15 @@ Nothing in the panel is constructed when debug is off — `setDebug()` returns i
 
 Per frame the analysis is one FFT read plus a few hundred loop iterations — around 20k simple operations a second, which is nothing next to rendering the scene. Memory for the analysis is a couple of KB.
 
-**The decoded track dominates everything else.** `AudioLoader` fetches the whole file and decodes it to PCM in memory, so a 6-minute 320 kbps MP3 is a ~14 MB download and roughly **125 MB of resident memory** once decoded. If you add audio to a scene, that file is the thing to be careful about — 128 kbps mono at a shorter length costs a fraction of it. The analysis code is free by comparison.
+**The decoded track dominates everything else.** `AudioLoader` fetches the whole file and decodes it to PCM before a single note plays — there is no streaming. Download size is whatever the file is; resident memory is `duration × sampleRate × channels × 4 bytes`, regardless of how well the file compresses.
+
+The scene's 6-minute track went from 320 kbps stereo MP3 (14.4 MB, ~125 MB decoded) to mono AAC (3.2 MB, ~63 MB decoded). **Mono is the lever that matters** — it halves the decoded buffer, while the bitrate only affects the download. If you add audio to a scene, prefer mono and keep it short; the analysis code is free by comparison.
 
 ---
 
 ## Gotchas
 
-**Audio starts locked.** Browsers suspend the `AudioContext` until a user gesture. `AudioSource` listens for the first `pointerdown` or `keydown` and resumes then, but until that happens the analyser returns **all zeros** — `level` is 0 and no trigger fires. Design the scene to look right in that state, or give it a timed fallback:
+**Audio starts locked.** Browsers suspend the `AudioContext` until a user gesture. `AudioSource` listens on the **window** for the first `pointerdown`, `keydown` or `touchend` and resumes then, but until that happens the analyser returns **all zeros** — `level` is 0 and no trigger fires. Design the scene to look right in that state, or give it a timed fallback:
 
 ```js
 if (trigger && audio.isPlaying) return trigger.fired;
