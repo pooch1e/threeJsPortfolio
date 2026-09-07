@@ -39,9 +39,13 @@ export class World {
     const groupSpecs = createGroupSpecs(ribbonGroupCount, ribbonWidth, spacing)
     const centeredGroupOffsets = computeGroupOffsets(groupSpecs, groupGap)
 
+    this.setDebug();
+
     this.ribbonGroups = groupSpecs.map((spec, index) => {
       return new RibbonGroup({
-        experience, groupParams: buildRibbonGroupConfig({
+        experience,
+        parentFolder: this.debugFolder,
+        groupParams: buildRibbonGroupConfig({
           index,
           ribbonCount: spec.ribbonCount,
           groupXOffset: centeredGroupOffsets[index],
@@ -66,6 +70,15 @@ export class World {
       onStart: () => this.suspendSweeps(),
       onFinish: () => this.resumeSweeps(),
     });
+  }
+
+  // one collapsed parent for all forty group folders, so the panel opens on the
+  // scene-wide controls instead of a wall of per-group ones
+  setDebug() {
+    if (!this.debug.active) return;
+
+    this.debugFolder = this.debug.ui.addFolder("Ribbon Groups");
+    this.debugFolder.close();
   }
 
   // a sweep whose name matches no trigger falls back to its timer and keeps

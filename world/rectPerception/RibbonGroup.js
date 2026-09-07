@@ -15,9 +15,10 @@ import {
 
 
 export class RibbonGroup {
-  constructor({ experience, groupParams }) {
+  constructor({ experience, groupParams, parentFolder }) {
     this.experience = experience;
     this.debug = experience.debug;
+    this.parentFolder = parentFolder;
     this.groupParams = { ...groupParams };
 
     this.waveParams = buildWaveParams(groupParams.wave);
@@ -48,61 +49,60 @@ export class RibbonGroup {
   }
 
   setDebug() {
-    if (this.debug.active) {
-      this.debugFolder = this.debug.ui.addFolder(
-        this.groupParams.label ?? "Ribbons",
-      );
+    if (!this.debug.active) return;
 
-      const pushToRibbons = (key) => (value) => {
-        this.ribbons.forEach((ribbon) => ribbon.updateParams({ [key]: value }));
-      };
-      this.debugFolder
-        .add(this.sharedParams, "yGapScale", 0, 3, 0.05)
-        .name("Y Gap Scale")
-        .onChange(pushToRibbons("yGapScale"));
+    this.debugFolder = (this.parentFolder ?? this.debug.ui).addFolder(
+      this.groupParams.label ?? "Ribbons",
+    );
+    this.debugFolder.close();
 
-      this.debugFolder
-        .add(this.sharedParams, "planeCount", 1, 30, 1)
-        .name("Plane Count")
-        .onChange(pushToRibbons("planeCount"));
+    const pushToRibbons = (key) => (value) => {
+      this.ribbons.forEach((ribbon) => ribbon.updateParams({ [key]: value }));
+    };
+    this.debugFolder
+      .add(this.sharedParams, "yGapScale", 0, 3, 0.05)
+      .name("Y Gap Scale")
+      .onChange(pushToRibbons("yGapScale"));
 
-      this.debugFolder
-        .add(this.sharedParams, "ribbonWidth", 0.05, 2, 0.05)
-        .name("Ribbon Width")
-        .onChange(pushToRibbons("ribbonWidth"));
+    this.debugFolder
+      .add(this.sharedParams, "planeCount", 1, 30, 1)
+      .name("Plane Count")
+      .onChange(pushToRibbons("planeCount"));
 
-      this.debugFolder
-        .add(this.sharedParams, "heightMin", 0.1, 10, 0.1)
-        .name("Height Min")
-        .onChange(pushToRibbons("heightMin"));
+    this.debugFolder
+      .add(this.sharedParams, "ribbonWidth", 0.05, 2, 0.05)
+      .name("Ribbon Width")
+      .onChange(pushToRibbons("ribbonWidth"));
 
-      this.debugFolder
-        .add(this.sharedParams, "heightMax", 0.1, 20, 0.1)
-        .name("Height Max")
-        .onChange(pushToRibbons("heightMax"));
+    this.debugFolder
+      .add(this.sharedParams, "heightMin", 0.1, 10, 0.1)
+      .name("Height Min")
+      .onChange(pushToRibbons("heightMin"));
 
-      this.debugFolder
-        .add(this.groupParams, "groupXOffset", -10, 10, 0.1)
-        .name("Group X Offset")
-        .onChange(pushToRibbons("groupXOffset"));
+    this.debugFolder
+      .add(this.sharedParams, "heightMax", 0.1, 20, 0.1)
+      .name("Height Max")
+      .onChange(pushToRibbons("heightMax"));
 
-      const rerollSpeeds = () => {
-        const { speedMin, speedMax } = this.sharedParams;
-        this.ribbons.forEach((ribbon) =>
-          ribbon.setSpeedRange(speedMin, speedMax),
-        );
-      };
+    this.debugFolder
+      .add(this.groupParams, "groupXOffset", -10, 10, 0.1)
+      .name("Group X Offset")
+      .onChange(pushToRibbons("groupXOffset"));
 
-      this.debugFolder
-        .add(this.sharedParams, "speedMin", 0, 10, 0.1)
-        .name("Speed Min")
-        .onChange(rerollSpeeds);
+    const rerollSpeeds = () => {
+      const { speedMin, speedMax } = this.sharedParams;
+      this.ribbons.forEach((ribbon) => ribbon.setSpeedRange(speedMin, speedMax));
+    };
 
-      this.debugFolder
-        .add(this.sharedParams, "speedMax", 0, 10, 0.1)
-        .name("Speed Max")
-        .onChange(rerollSpeeds);
-    }
+    this.debugFolder
+      .add(this.sharedParams, "speedMin", 0, 10, 0.1)
+      .name("Speed Min")
+      .onChange(rerollSpeeds);
+
+    this.debugFolder
+      .add(this.sharedParams, "speedMax", 0, 10, 0.1)
+      .name("Speed Max")
+      .onChange(rerollSpeeds);
   }
 
   update(time, speedMultiplier = 1) {
