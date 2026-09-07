@@ -4,6 +4,7 @@
  */
 import { Color } from "three";
 import { RibbonGroup } from "./RibbonGroup";
+import { RibbonWipe } from "./RibbonWipe";
 import {
   computeGroupOffsets,
   createGroupSpecs,
@@ -15,7 +16,7 @@ import {
    audio trigger — so they run concurrently off different parts of the mix. */
 const SWEEPS = [
   { name: "beat", colour: "red", direction: 1, fallbackInterval: 400 },
-  { name: "pulse", colour: "#1fbf6b", direction: -1, fallbackInterval: 900 },
+  { name: "pulse", colour: "#DC2B2B", direction: -1, fallbackInterval: 900 },
 ];
 
 export class World {
@@ -25,6 +26,7 @@ export class World {
     this.scene = experience.scene;
 
     this.scene.background = new Color("white");
+    this.elapsedTime = 0;
     this.lastSweepAt = Object.fromEntries(SWEEPS.map(({ name }) => [name, 0]));
     this.warnOnUntriggeredSweeps();
 
@@ -48,6 +50,22 @@ export class World {
         })
       })
     })
+
+    // sweeps walk a per-group index, so a group of 2 and a group of 15 advance
+    // at different screen rates — the wipe crosses the scene as one line, which
+    // needs every ribbon in a single left-to-right address space instead
+    this.ribbonsByX = this.ribbonGroups
+      .flatMap((group) => group.ribbons)
+      .sort(
+        (a, b) => a.ribbonParams.ribbonXPos - b.ribbonParams.ribbonXPos,
+      );
+
+    this.ribbonWipe = new RibbonWipe({
+      ribbons: this.ribbonsByX,
+      debug: this.debug,
+      onStart: () => this.suspendSweeps(),
+      onFinish: () => this.resumeSweeps(),
+    });
   }
 
   // a sweep whose name matches no trigger falls back to its timer and keeps
@@ -66,8 +84,25 @@ export class World {
     );
   }
 
+  suspendSweeps() {
+    this.ribbonGroups.forEach((group) => group.clearSweeps());
+  }
+
+  // the fallback timers keep running while the wipe holds the scene, so without
+  // rearming them every suspended sweep steps once the instant it resumes
+  resumeSweeps() {
+    SWEEPS.forEach(({ name }) => {
+      this.lastSweepAt[name] = this.elapsedTime;
+    });
+    this.ribbonGroups.forEach((group) => group.repaintSweeps());
+  }
+
   update(time) {
+    this.elapsedTime = time.elapsedTime;
     this.ribbonGroups.forEach((group) => group.update(time));
+
+    this.ribbonWipe.update(time);
+    if (this.ribbonWipe.active) return;
 
     SWEEPS.forEach((sweep) => {
       if (!this.consumeSweepStep(sweep, time)) return;
@@ -101,6 +136,7 @@ export class World {
   }
 
   destroy() {
+    this.ribbonWipe.destroy();
     this.ribbonGroups.forEach((group) => group.destroy());
 
     if (this.debugFolder) {

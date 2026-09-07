@@ -210,3 +210,30 @@ export function wrapIndex(index, length) {
   if (length === 0) return 0;
   return ((index % length) + length) % length;
 }
+
+/* Steps the wipe's playhead along the scene's left-to-right ribbon list, one
+   ribbon per stepMs, carrying the remainder so the run keeps wall-clock time
+   rather than drifting with the frame rate.
+
+   The playhead moves at most one ribbon per call: the run exists to land on
+   every ribbon in turn, and a dropped frame would otherwise vault it over
+   several. That makes a stepMs below the frame interval simply run as fast as
+   the display allows instead of silently skipping ribbons. */
+export function advanceWipePlayhead(index, accumulator, deltaTime, stepMs) {
+  const pending = accumulator + deltaTime;
+  if (pending < stepMs) return { index, accumulator: pending };
+
+  return {
+    index: index + 1,
+    accumulator: Math.min(pending - stepMs, stepMs),
+  };
+}
+
+/* The single ribbon lit under the playhead, or null when it sits off either
+   end of the list. */
+export function wipeLitIndex(head, ribbonCount) {
+  const index = Math.floor(head);
+  if (index < 0 || index >= ribbonCount) return null;
+
+  return index;
+}

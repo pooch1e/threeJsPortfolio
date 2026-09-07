@@ -12,6 +12,8 @@ import {
   buildTiledPlanes,
   advanceScrollPhase,
   pickPresetIndex,
+  advanceWipePlayhead,
+  wipeLitIndex,
 } from "./rectWorldHelpers";
 
 describe('createGroupSpecs', () => {
@@ -255,3 +257,44 @@ describe('pickPresetIndex', () => {
     expect(new Set(indices)).toEqual(new Set([1]));
   });
 })
+
+describe('advanceWipePlayhead', () => {
+  it('holds the playhead until a full step has elapsed', () => {
+    expect(advanceWipePlayhead(3, 0, 10, 25)).toEqual({ index: 3, accumulator: 10 });
+  });
+
+  it('advances one ribbon once the step is reached', () => {
+    expect(advanceWipePlayhead(3, 20, 10, 25)).toEqual({ index: 4, accumulator: 5 });
+  });
+
+  it('carries the remainder so the run keeps wall-clock time', () => {
+    const { accumulator } = advanceWipePlayhead(0, 0, 40, 25);
+    expect(accumulator).toBe(15);
+  });
+
+  it('never skips a ribbon, however long the frame', () => {
+    expect(advanceWipePlayhead(3, 0, 5000, 25)).toEqual({ index: 4, accumulator: 25 });
+  });
+
+  it('advances every call when the step is under the frame interval', () => {
+    expect(advanceWipePlayhead(3, 0, 16, 5)).toEqual({ index: 4, accumulator: 5 });
+  });
+});
+
+describe('wipeLitIndex', () => {
+  it('lights the first ribbon at the start of the run', () => {
+    expect(wipeLitIndex(0, 100)).toBe(0);
+  });
+
+  it('lights the ribbon the playhead currently sits on', () => {
+    expect(wipeLitIndex(50, 100)).toBe(50);
+  });
+
+  it('returns null once the playhead runs off the end', () => {
+    expect(wipeLitIndex(100, 100)).toBeNull();
+  });
+
+  it('returns null when there are no ribbons', () => {
+    expect(wipeLitIndex(0, 0)).toBeNull();
+  });
+});

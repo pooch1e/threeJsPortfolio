@@ -143,6 +143,13 @@ export class RibbonGroup {
     });
   }
 
+  clearSweeps() {
+    Object.values(this.sweeps).forEach(({ index }) => {
+      const ribbon = this.ribbons[index];
+      if (ribbon) ribbon.setColour(ribbon.baseColour);
+    });
+  }
+
   destroy() {
     this.ribbons.forEach((ribbon) => ribbon.destroy());
   }
