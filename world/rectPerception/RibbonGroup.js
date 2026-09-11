@@ -143,6 +143,11 @@ export class RibbonGroup {
     });
   }
 
+  setBaseColour(colour) {
+    this.ribbons.forEach((ribbon) => ribbon.setBaseColour(colour));
+    this.repaintSweeps();
+  }
+
   clearSweeps() {
     Object.values(this.sweeps).forEach(({ index }) => {
       const ribbon = this.ribbons[index];

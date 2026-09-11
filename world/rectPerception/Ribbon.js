@@ -96,6 +96,13 @@ export class Ribbon {
     this.material.color.set(color);
   }
 
+  // mutated in place rather than replaced, because sweeps and the wipe hold a
+  // reference to this colour to restore the ribbon when they leave it
+  setBaseColour(colour) {
+    this.baseColour.set(colour);
+    this.setColour(this.baseColour);
+  }
+
   update(time, speedMultiplier = 1) {
     if (!time || !this.patternHeight) return;
 

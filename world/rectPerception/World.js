@@ -26,6 +26,7 @@ export class World {
     this.scene = experience.scene;
 
     this.scene.background = new Color("white");
+    this.ribbonParams = { baseColour: "#000000" };
     this.elapsedTime = 0;
     this.lastSweepAt = Object.fromEntries(SWEEPS.map(({ name }) => [name, 0]));
     this.warnOnUntriggeredSweeps();
@@ -79,6 +80,15 @@ export class World {
 
     this.debugFolder = this.debug.ui.addFolder("Ribbon Groups");
     this.debugFolder.close();
+
+    this.debugFolder
+      .addColor(this.ribbonParams, "baseColour")
+      .name("Base Colour")
+      .onChange((value) => this.setBaseColour(value));
+  }
+
+  setBaseColour(colour) {
+    this.ribbonGroups.forEach((group) => group.setBaseColour(colour));
   }
 
   // a sweep whose name matches no trigger falls back to its timer and keeps
