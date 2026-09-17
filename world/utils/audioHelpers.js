@@ -62,6 +62,42 @@ export function buildBinGains(eqBands, sampleRate, binCount) {
   return gains;
 }
 
+/* Splits the analyser's bins into bandCount contiguous bands and returns the
+   bin index each band starts at, plus a final closing edge.
+
+   Spaced logarithmically, not evenly: bins are linear in Hz, so an even split
+   gives the bass a couple of bins and spends most of the spectrum on the near
+   -silent top octave. A scene drawing those bands would show one twitching band
+   and a flat line. Log spacing gives each band a roughly musical interval.
+
+   Bin 0 is skipped by default — it carries the signal's DC offset rather than
+   audible content. */
+export function spectrumBandEdges(bandCount, binCount, minBin = 1) {
+  const maxBin = Math.max(minBin + 1, binCount);
+  const ratio = maxBin / minBin;
+  const edges = new Int32Array(bandCount + 1);
+
+  for (let i = 0; i <= bandCount; i++) {
+    const spaced = Math.round(minBin * Math.pow(ratio, i / bandCount));
+    // every band must be at least one bin wide, or the low bands collapse onto
+    // the same bin and read as a single flat step
+    const widened = i === 0 ? spaced : Math.max(spaced, edges[i - 1] + 1);
+    edges[i] = Math.min(widened, maxBin);
+  }
+
+  return edges;
+}
+
+/* Reads one 0–1 level per band into `out`, reusing the caller's array so a
+   per-frame sample allocates nothing. */
+export function sampleSpectrumBands(data, edges, out) {
+  for (let i = 0; i < out.length; i++) {
+    out[i] = normalizeLevel(averageBand(data, edges[i], edges[i + 1]));
+  }
+
+  return out;
+}
+
 export function createTriggerState() {
   return { armed: true, lastFiredAt: Number.NEGATIVE_INFINITY };
 }
