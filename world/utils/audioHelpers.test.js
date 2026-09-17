@@ -7,6 +7,8 @@ import {
   buildBinGains,
   createTriggerState,
   nextTriggerState,
+  spectrumBandEdges,
+  sampleSpectrumBands,
 } from "./audioHelpers";
 
 describe("normalizeLevel", () => {
@@ -208,5 +210,61 @@ describe("nextTriggerState", () => {
     const fired = nextTriggerState(createTriggerState(), 0.6, bare, 0);
     expect(nextTriggerState(fired, 0.45, bare, 10).armed).toBe(false);
     expect(nextTriggerState(fired, 0.2, bare, 10).armed).toBe(true);
+  });
+});
+
+describe("spectrumBandEdges", () => {
+  it("returns a closing edge as well as one per band", () => {
+    expect(spectrumBandEdges(8, 256)).toHaveLength(9);
+  });
+
+  it("spans from the first audible bin to the last", () => {
+    const edges = spectrumBandEdges(8, 256);
+
+    expect(edges[0]).toBe(1);
+    expect(edges[8]).toBe(256);
+  });
+
+  it("rises strictly, so no band is empty", () => {
+    const edges = spectrumBandEdges(32, 256);
+
+    for (let i = 1; i < edges.length; i++) {
+      expect(edges[i]).toBeGreaterThan(edges[i - 1]);
+    }
+  });
+
+  it("gives the low bands narrower bin ranges than the high ones", () => {
+    const edges = spectrumBandEdges(8, 256);
+
+    expect(edges[1] - edges[0]).toBeLessThan(edges[8] - edges[7]);
+  });
+
+  it("skips the DC bin unless told otherwise", () => {
+    expect(spectrumBandEdges(4, 256)[0]).toBe(1);
+    expect(spectrumBandEdges(4, 256, 4)[0]).toBe(4);
+  });
+});
+
+describe("sampleSpectrumBands", () => {
+  it("normalises each band onto 0-1", () => {
+    const data = new Uint8Array([0, 255, 255, 255, 255]);
+    const out = new Float32Array(2);
+
+    expect(Array.from(sampleSpectrumBands(data, [1, 3, 5], out))).toEqual([
+      1, 1,
+    ]);
+  });
+
+  it("averages the bins within a band", () => {
+    const data = new Uint8Array([0, 0, 255]);
+    const out = new Float32Array(1);
+
+    expect(sampleSpectrumBands(data, [1, 3], out)[0]).toBeCloseTo(0.5);
+  });
+
+  it("writes into the array it is given rather than allocating", () => {
+    const out = new Float32Array(2);
+
+    expect(sampleSpectrumBands(new Uint8Array(8), [1, 3, 5], out)).toBe(out);
   });
 });

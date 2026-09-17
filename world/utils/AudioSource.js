@@ -14,6 +14,8 @@ import {
   smoothLevel,
   binRangeForHz,
   averageBand,
+  spectrumBandEdges,
+  sampleSpectrumBands,
   buildBinGains,
   createTriggerState,
   nextTriggerState,
@@ -39,6 +41,7 @@ export class AudioSource extends EventEmitter {
     super();
     this.smoothing = smoothing;
     this.level = 0;
+    this.bands = null;
     this.destroyed = false;
     this.debug = debug;
 
@@ -144,6 +147,21 @@ export class AudioSource extends EventEmitter {
     this.stopListeningForGesture();
   }
 
+  /* Opts a scene into per-band spectrum readings, returning the array that is
+     refilled every frame. Held here rather than sampled by the scene so the
+     band layout and its buffers are allocated once, and so several objects can
+     share one reading. */
+  setBandCount(bandCount) {
+    this.bands = new Float32Array(bandCount);
+    this.bandSample = new Float32Array(bandCount);
+    this.bandEdges = spectrumBandEdges(
+      bandCount,
+      this.analyser.analyser.frequencyBinCount,
+    );
+
+    return this.bands;
+  }
+
   get isPlaying() {
     return this.sound.isPlaying;
   }
@@ -161,8 +179,23 @@ export class AudioSource extends EventEmitter {
       this.smoothing,
     );
 
+    this.updateBands(data);
     this.updateTriggers(data, time.elapsedTime);
     this.spectrumDebug?.draw(data, this.listener.context.sampleRate);
+  }
+
+  updateBands(data) {
+    if (!this.bands) return;
+
+    sampleSpectrumBands(data, this.bandEdges, this.bandSample);
+
+    for (let i = 0; i < this.bands.length; i++) {
+      this.bands[i] = smoothLevel(
+        this.bands[i],
+        this.bandSample[i],
+        this.smoothing,
+      );
+    }
   }
 
   updateTriggers(data, elapsedTime) {

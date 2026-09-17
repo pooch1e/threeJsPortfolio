@@ -1,70 +1,78 @@
 /**
- * Point — animated point cloud plus randomly connected line segments
- * between points, both tweakable through the debug panel.
+ * Point — animated point cloud plus line segments between randomly paired
+ * points. While the track plays, each point's height is driven by the spectrum
+ * band its x position falls in, so the cloud reads left-to-right as low-to-high
+ * frequency, and every beat rewires a burst of lines at once. Before audio
+ * unlocks it falls back to the sine ripple and a slow continuous rewire.
  */
-import { BufferGeometry, BufferAttribute, PointsMaterial, Points, LineBasicMaterial, LineSegments } from 'three';
-import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import {
+  BufferGeometry,
+  BufferAttribute,
+  PointsMaterial,
+  Points,
+  LineBasicMaterial,
+  LineSegments,
+} from "three";
+import { ImprovedNoise } from "three/addons/math/ImprovedNoise.js";
+import { buildPointBands, sineOffset } from "./utils/pointHelpers";
+
+const SPREAD = 10;
+
 export class Point {
   constructor(experience) {
     this.experience = experience;
     this.scene = experience.scene;
     this.debug = experience.debug;
+    this.audio = experience.audio;
 
     this.params = {
       count: 1000,
       size: 0.05,
       color: 0xffffff,
       scale: 0.01,
+      bandCount: 64,
+      audioGain: 3,
+      sineAmplitude: 0.5,
       connectionsPerPoint: 1,
       lineColor: 0xffffff,
       lineOpacity: 0.3,
       chanceToConnect: 0.5,
+      rewiresPerBeat: 40,
     };
+
+    this.bands = this.audio?.setBandCount(this.params.bandCount) ?? null;
 
     this.setGeometry();
     this.setDebug();
   }
 
-  setGeometry() {
-    this.geometry = new BufferGeometry();
-
-    const positions = new Float32Array(this.params.count * 3);
-
+  buildPositions() {
+    const { count, scale } = this.params;
+    const positions = new Float32Array(count * 3);
     const perlin = new ImprovedNoise();
 
-    for (let i = 0; i < this.params.count; i++) {
+    for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      const x = (Math.random() - 0.5) * 10;
-      const y = (Math.random() - 0.5) * 10;
-      const z = (Math.random() - 0.5) * 10;
+      const x = (Math.random() - 0.5) * SPREAD;
+      const y = (Math.random() - 0.5) * SPREAD;
+      const z = (Math.random() - 0.5) * SPREAD;
 
-      positions[i3] =
-        x +
-        perlin.noise(
-          x * this.params.scale,
-          y * this.params.scale,
-          z * this.params.scale
-        );
+      positions[i3] = x + perlin.noise(x * scale, y * scale, z * scale);
       positions[i3 + 1] =
-        y +
-        perlin.noise(
-          x * this.params.scale + 100,
-          y * this.params.scale,
-          z * this.params.scale
-        );
+        y + perlin.noise(x * scale + 100, y * scale, z * scale);
       positions[i3 + 2] =
-        z +
-        perlin.noise(
-          x * this.params.scale,
-          y * this.params.scale + 100,
-          z * this.params.scale
-        );
+        z + perlin.noise(x * scale, y * scale + 100, z * scale);
     }
 
-    this.geometry.setAttribute(
-      'position',
-      new BufferAttribute(positions, 3)
-    );
+    return positions;
+  }
+
+  setGeometry() {
+    this.geometry = new BufferGeometry();
+    const positions = this.buildPositions();
+
+    this.geometry.setAttribute("position", new BufferAttribute(positions, 3));
+    this.adoptPositions(positions);
 
     this.material = new PointsMaterial({
       size: this.params.size,
@@ -74,34 +82,37 @@ export class Point {
     this.points = new Points(this.geometry, this.material);
     this.scene.add(this.points);
 
-    this.setLines(positions);
+    this.setLines();
   }
 
-  setLines(positions) {
-    const lineGeometry = new BufferGeometry();
+  // the rest position every frame's displacement is measured from, plus the
+  // band lookup that displacement is read out of — both are invalidated by a
+  // rebuild, so they are always replaced together with the positions
+  adoptPositions(positions) {
+    this.originalPositions = new Float32Array(positions);
+    this.pointBands = buildPointBands(
+      positions,
+      this.params.count,
+      this.params.bandCount,
+    );
+  }
 
-    const linePositions = [];
+  setLines() {
+    const { count, connectionsPerPoint } = this.params;
 
-    for (let i = 0; i < this.params.count; i++) {
-      const i3 = i * 3;
-
-      for (let j = 0; j < this.params.connectionsPerPoint; j++) {
-        const randomIndex = Math.floor(Math.random() * this.params.count) * 3;
-
-        linePositions.push(
-          positions[i3],
-          positions[i3 + 1],
-          positions[i3 + 2],
-          positions[randomIndex],
-          positions[randomIndex + 1],
-          positions[randomIndex + 2]
-        );
-      }
+    // the pair behind each segment is kept rather than only its coordinates,
+    // so both ends can be rewritten from the live point buffer each frame —
+    // otherwise the lines stay behind at the positions the points have left
+    this.lineLinks = new Int32Array(count * connectionsPerPoint * 2);
+    for (let i = 0; i < count * connectionsPerPoint; i++) {
+      this.lineLinks[i * 2] = i % count;
+      this.lineLinks[i * 2 + 1] = Math.floor(Math.random() * count);
     }
 
+    const lineGeometry = new BufferGeometry();
     lineGeometry.setAttribute(
-      'position',
-      new BufferAttribute(new Float32Array(linePositions), 3)
+      "position",
+      new BufferAttribute(new Float32Array(this.lineLinks.length * 3), 3),
     );
 
     const lineMaterial = new LineBasicMaterial({
@@ -110,173 +121,178 @@ export class Point {
       opacity: this.params.lineOpacity,
     });
 
-
     this.lines = new LineSegments(lineGeometry, lineMaterial);
-
     this.scene.add(this.lines);
+
+    this.writeLinePositions();
+  }
+
+  writeLinePositions() {
+    if (!this.lines) return;
+
+    const linePositions = this.lines.geometry.attributes.position.array;
+    const pointPositions = this.points.geometry.attributes.position.array;
+
+    for (let i = 0; i < this.lineLinks.length; i++) {
+      const from = this.lineLinks[i] * 3;
+      const to = i * 3;
+
+      linePositions[to] = pointPositions[from];
+      linePositions[to + 1] = pointPositions[from + 1];
+      linePositions[to + 2] = pointPositions[from + 2];
+    }
+
+    this.lines.geometry.attributes.position.needsUpdate = true;
+  }
+
+  rewireLinks(amount) {
+    const segments = this.lineLinks.length / 2;
+
+    for (let i = 0; i < amount; i++) {
+      const segment = Math.floor(Math.random() * segments);
+      this.lineLinks[segment * 2 + 1] = Math.floor(
+        Math.random() * this.params.count,
+      );
+    }
   }
 
   updateGeometry() {
     this.points.geometry.dispose();
 
     const geometry = new BufferGeometry();
-    const positions = new Float32Array(this.params.count * 3);
+    const positions = this.buildPositions();
+    geometry.setAttribute("position", new BufferAttribute(positions, 3));
 
-    const perlin = new ImprovedNoise();
-
-    for (let i = 0; i < this.params.count; i++) {
-      const i3 = i * 3;
-      const x = (Math.random() - 0.5) * 10;
-      const y = (Math.random() - 0.5) * 10;
-      const z = (Math.random() - 0.5) * 10;
-
-      positions[i3] =
-        x +
-        perlin.noise(
-          x * this.params.scale,
-          y * this.params.scale,
-          z * this.params.scale
-        );
-      positions[i3 + 1] =
-        y +
-        perlin.noise(
-          x * this.params.scale + 100,
-          y * this.params.scale,
-          z * this.params.scale
-        );
-      positions[i3 + 2] =
-        z +
-        perlin.noise(
-          x * this.params.scale,
-          y * this.params.scale + 100,
-          z * this.params.scale
-        );
-    }
-
-    geometry.setAttribute('position', new BufferAttribute(positions, 3));
     this.points.geometry = geometry;
+    this.adoptPositions(positions);
 
-    if (this.lines) {
-      this.scene.remove(this.lines);
-      this.lines.geometry.dispose();
-      this.lines.material.dispose();
-    }
+    this.scene.remove(this.lines);
+    this.lines.geometry.dispose();
+    this.lines.material.dispose();
 
-    this.setLines(positions);
+    this.setLines();
+  }
+
+  rebuildBands() {
+    this.bands = this.audio?.setBandCount(this.params.bandCount) ?? null;
+
+    const positions = this.points.geometry.attributes.position.array;
+    this.pointBands = buildPointBands(
+      positions,
+      this.params.count,
+      this.params.bandCount,
+    );
   }
 
   setDebug() {
-    if (this.debug.active) {
-      this.debugFolder = this.debug.ui.addFolder('Points');
+    if (!this.debug.active) return;
 
-      this.debugFolder
-        .add(this.params, 'count')
-        .min(100)
-        .max(50000)
-        .step(100)
-        .name('Count')
-        .onChange(() => {
-          this.updateGeometry();
-        });
+    this.debugFolder = this.debug.ui.addFolder("Points");
 
-      this.debugFolder
-        .add(this.params, 'size')
-        .min(0.01)
-        .max(0.5)
-        .step(0.01)
-        .name('Size')
-        .onChange(() => {
-          this.material.size = this.params.size;
-        });
+    this.debugFolder
+      .add(this.params, "count", 100, 50000, 100)
+      .name("Count")
+      .onChange(() => this.updateGeometry());
 
-      this.debugFolder
-        .addColor(this.params, 'color')
-        .name('Color')
-        .onChange(() => {
-          this.material.color.set(this.params.color);
-        });
+    this.debugFolder
+      .add(this.params, "size", 0.01, 0.5, 0.01)
+      .name("Size")
+      .onChange(() => {
+        this.material.size = this.params.size;
+      });
 
-      this.debugFolder
-        .add(this.params, 'scale')
-        .min(0.01)
-        .max(2)
-        .step(0.01)
-        .name('Noise Scale')
-        .onChange(() => {
-          this.updateGeometry();
-        });
+    this.debugFolder
+      .addColor(this.params, "color")
+      .name("Color")
+      .onChange(() => this.material.color.set(this.params.color));
 
-      const linesFolder = this.debug.ui.addFolder('Lines');
+    this.debugFolder
+      .add(this.params, "scale", 0.01, 2, 0.01)
+      .name("Noise Scale")
+      .onChange(() => this.updateGeometry());
 
-      linesFolder
-        .add(this.params, 'connectionsPerPoint')
-        .min(0)
-        .max(10)
-        .step(1)
-        .name('Connections Per Point')
-        .onChange(() => {
-          // Need to regenerate all lines when connection count changes
-          this.updateGeometry();
-        });
+    const audioFolder = this.debug.ui.addFolder("Points Audio");
+    this.audioFolder = audioFolder;
 
-      linesFolder
-        .add(this.params, 'lineOpacity')
-        .min(0)
-        .max(1)
-        .step(0.01)
-        .name('Line Opacity')
-        .onChange(() => {
-          this.lines.material.opacity = this.params.lineOpacity;
-        });
+    audioFolder
+      .add(this.params, "bandCount", 4, 128, 1)
+      .name("Band Count")
+      .onChange(() => this.rebuildBands());
 
-      linesFolder
-        .addColor(this.params, 'lineColor')
-        .name('Line Color')
-        .onChange(() => {
-          this.lines.material.color.set(this.params.lineColor);
-        });
+    audioFolder.add(this.params, "audioGain", 0, 20, 0.1).name("Audio Gain");
 
-      linesFolder
-        .add(this.params, 'chanceToConnect')
-        .min(0)
-        .max(1)
-        .step(0.01)
-        .name('Reconnect Speed');
+    audioFolder
+      .add(this.params, "sineAmplitude", 0, 3, 0.05)
+      .name("Sine Amplitude");
+
+    audioFolder
+      .add(this.params, "rewiresPerBeat", 0, 500, 1)
+      .name("Rewires Per Beat");
+
+    const linesFolder = this.debug.ui.addFolder("Lines");
+    this.linesFolder = linesFolder;
+
+    linesFolder
+      .add(this.params, "connectionsPerPoint", 0, 10, 1)
+      .name("Connections Per Point")
+      .onChange(() => this.updateGeometry());
+
+    linesFolder
+      .add(this.params, "lineOpacity", 0, 1, 0.01)
+      .name("Line Opacity")
+      .onChange(() => {
+        this.lines.material.opacity = this.params.lineOpacity;
+      });
+
+    linesFolder
+      .addColor(this.params, "lineColor")
+      .name("Line Color")
+      .onChange(() => this.lines.material.color.set(this.params.lineColor));
+
+    linesFolder
+      .add(this.params, "chanceToConnect", 0, 1, 0.01)
+      .name("Reconnect Speed (No Audio)");
+  }
+
+  get isAudioDriven() {
+    return Boolean(this.bands && this.audio?.isPlaying);
+  }
+
+  displacePoints(time) {
+    const positions = this.points.geometry.attributes.position.array;
+    const { count, audioGain, sineAmplitude } = this.params;
+    const audioDriven = this.isAudioDriven;
+    const seconds = time.elapsedTime * 0.001;
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      const offset = audioDriven
+        ? this.bands[this.pointBands[i]] * audioGain
+        : sineOffset(seconds, i, sineAmplitude);
+
+      positions[i3 + 1] = this.originalPositions[i3 + 1] + offset;
+    }
+
+    this.points.geometry.attributes.position.needsUpdate = true;
+  }
+
+  updateLinks() {
+    if (!this.isAudioDriven) {
+      if (Math.random() < this.params.chanceToConnect) this.rewireLinks(1);
+      return;
+    }
+
+    if (this.audio.triggers.beat?.fired) {
+      this.rewireLinks(this.params.rewiresPerBeat);
     }
   }
 
   update(time) {
-    if (this.lines && Math.random() < this.params.chanceToConnect) {
-      const positions = this.lines.geometry.attributes.position.array;
-      const pointPositions = this.points.geometry.attributes.position.array;
+    if (!this.points || !time) return;
 
-      const lineIndex = Math.floor(Math.random() * (positions.length / 6)) * 6;
-      const randomPoint = Math.floor(Math.random() * this.params.count) * 3;
-
-      positions[lineIndex + 3] = pointPositions[randomPoint];
-      positions[lineIndex + 4] = pointPositions[randomPoint + 1];
-      positions[lineIndex + 5] = pointPositions[randomPoint + 2];
-
-      this.lines.geometry.attributes.position.needsUpdate = true;
-    }
-
-    if (this.points && time) {
-      const positions = this.points.geometry.attributes.position.array;
-      const t = time.elapsedTime * 0.001; // Convert ms to seconds
-
-      if (!this.originalPositions) {
-        this.originalPositions = new Float32Array(positions);
-      }
-
-      for (let i = 0; i < this.params.count; i++) {
-        const i3 = i * 3;
-
-        positions[i3 + 1] =
-          this.originalPositions[i3 + 1] + Math.sin(t + i * 0.1) * 0.5;
-      }
-
-      this.points.geometry.attributes.position.needsUpdate = true;
-    }
+    this.displacePoints(time);
+    this.updateLinks();
+    this.writeLinePositions();
   }
 
   destroy() {
@@ -292,10 +308,13 @@ export class Point {
       this.lines.material.dispose();
     }
 
-    if (this.debugFolder) {
-      this.debugFolder.destroy();
-    }
+    this.debugFolder?.destroy();
+    this.audioFolder?.destroy();
+    this.linesFolder?.destroy();
 
     this.originalPositions = null;
+    this.pointBands = null;
+    this.lineLinks = null;
+    this.bands = null;
   }
 }
