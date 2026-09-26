@@ -20,7 +20,7 @@ threejsPortfolio/
 │   ├── pointCloudWorld/    # 3D point cloud
 │   ├── rectPerception/     # Scrolling ribbon groups
 │   ├── flowerWorld/        # GPGPU particle flowers
-│   ├── forestWorld/        # Tiled flower grid
+│   ├── tileFieldWorld/     # Noise-gated sprite grid, cursor-reactive
 │   ├── portalWorld/        # Baked portal + fireflies
 │   ├── asciiWorld/         # ASCII character grid
 │   └── animalWorld/        # Animal model rendering
@@ -59,10 +59,10 @@ teardown. Subclasses do not reimplement the constructor — they override hooks:
 | Hook | Purpose | Overridden by |
 |------|---------|---------------|
 | `createWorld()` | **Required.** Returns the scene's World | all scenes |
-| `createResources()` | Returns a `Resources`; defaults to a bare emitter | Flower, Forest, Portal, Model, Shader |
-| `cameraOptions()` | Options forwarded to `Camera` (fov, controls, near/far) | Ascii, Forest |
-| `setupCamera()` | Position/aim the camera once it exists | Rect, Forest |
-| `setupUtils()` | Per-scene extras assigned onto `this` (e.g. `this.mouse`) | Ascii, Shader |
+| `createResources()` | Returns a `Resources`; defaults to a bare emitter | Flower, TileField, Portal, Model, Shader |
+| `cameraOptions()` | Options forwarded to `Camera` (fov, controls, near/far, type) | Ascii, TileField |
+| `setupCamera()` | Position/aim the camera once it exists | Rect |
+| `setupUtils()` | Per-scene extras assigned onto `this` (e.g. `this.mouse`) | Ascii, Shader, TileField |
 | `setupScene()` | Configure the scene itself (background, fog) | — |
 | `initWorld()` | Override to defer world construction | Flower |
 
@@ -86,7 +86,7 @@ export class RectExperience extends BaseExperience {
 | `ModelExperience` | GLTF model loading (Fox, Rat) |
 | `RectExperience` | Scrolling ribbon groups (Ryoji Ikeda-inspired) |
 | `FlowerExperience` | GPGPU particle flowers |
-| `ForestExperience` | Tiled flower grid, camera fitted to the grid |
+| `TileFieldExperience` | Noise-gated sprite grid that reorganises around the cursor |
 | `PortalExperience` | Baked portal model with firefly particles |
 | `AsciiExperience` | Mouse-reactive ASCII character grid |
 

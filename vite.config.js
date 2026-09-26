@@ -48,6 +48,11 @@ export default defineConfig({
             './world/sineWorld/SineWave.js',
             './world/sineWorld/SineExperience.js',
           ],
+          'world-tilefield': [
+            './world/tileFieldWorld/TileField.js',
+            './world/tileFieldWorld/World.js',
+            './world/tileFieldWorld/TileFieldExperience.js',
+          ],
           'world-ascii': [
             './world/asciiWorld/Ascii.js',
             './world/asciiWorld/AsciiExperience.js',

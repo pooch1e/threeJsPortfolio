@@ -54,9 +54,12 @@ export const experiences = [
   },
   {
     order: "009",
-    slug: "forest",
-    name: "Forest",
-    load: () => import("../../world/forestWorld/ForestExperience").then((m) => m.ForestExperience),
+    slug: "tiles",
+    name: "Tiles",
+    load: () =>
+      import("../../world/tileFieldWorld/TileFieldExperience").then(
+        (m) => m.TileFieldExperience,
+      ),
   },
 ];
 
