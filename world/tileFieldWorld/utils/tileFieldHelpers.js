@@ -28,17 +28,19 @@ export function computeGridDimensions({
   maxCols,
   maxRows,
 }) {
-  const cellSizePx =
+  const requestedCellSizePx =
     width < mobileBreakpoint ? mobileCellPx : width / cellDivisor;
   const aspect = width / height;
 
-  const visibleRows = height / cellSizePx;
+  const visibleRows = height / requestedCellSizePx;
   let frustumHeight = visibleRows;
   let rows = Math.ceil(visibleRows * bleed);
+  let capped = false;
 
   if (rows > maxRows) {
     rows = maxRows;
     frustumHeight = maxRows / bleed;
+    capped = true;
   }
 
   let frustumWidth = frustumHeight * aspect;
@@ -48,15 +50,18 @@ export function computeGridDimensions({
     cols = maxCols;
     frustumWidth = maxCols / bleed;
     frustumHeight = frustumWidth / aspect;
+    capped = true;
   }
 
   return {
-    cellSizePx,
+    // Derived from the frustum that was actually chosen, so a cap makes this
+    // the cell size on screen rather than the one that was asked for
+    cellSizePx: height / frustumHeight,
     cols,
     rows,
     frustumWidth,
     frustumHeight,
-    capped: rows === maxRows || cols === maxCols,
+    capped,
   };
 }
 

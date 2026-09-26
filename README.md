@@ -68,7 +68,7 @@ dynamically routed via `/experience/:slug`:
 - **`portalWorld`** — baked lighting, custom portal shader, Draco-compressed GLTF
 - **`shaderTestWorld`** — a suite of standalone shader demos: procedural terrain, GPU particle flow fields, fireworks, galaxy, coffee smoke, wobbly sphere, hologram, halftone, post-processing pipeline, and more
 - **`flowerWorld`** — GPU particle simulation driving a text/point-cloud effect
-- **`forestWorld`**, **`sineWorld`**, **`pointCloudWorld`**, **`asciiWorld`**, **`rectPerception`** — further shader and procedural-geometry experiments
+- **`tileFieldWorld`**, **`sineWorld`**, **`pointCloudWorld`**, **`asciiWorld`**, **`rectPerception`** — further shader and procedural-geometry experiments
 
 A debug panel (lil-gui) is available on any scene via `?debug=true` for
 live-tweaking uniforms and parameters.

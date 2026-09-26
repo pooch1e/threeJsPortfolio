@@ -93,6 +93,30 @@ describe("computeGridDimensions", () => {
     expect(rows).toBe(70);
     expect(rows).toBeGreaterThanOrEqual(frustumHeight);
   });
+
+  it("reports the cell size the frustum actually gives, not the one requested", () => {
+    const capped = computeGridDimensions({
+      ...desktop,
+      width: 900,
+      height: 3000,
+      maxRows: 70,
+    });
+
+    expect(capped.cellSizePx).toBeCloseTo(3000 / capped.frustumHeight);
+    expect(capped.cellSizePx).toBeGreaterThan(900 / 61);
+  });
+
+  it("does not claim a cap when the count merely lands on the ceiling", () => {
+    const { rows, capped } = computeGridDimensions({
+      ...desktop,
+      width: 1920,
+      height: 1080,
+      maxRows: Math.ceil((1080 / (1920 / 61)) * 1.12),
+    });
+
+    expect(capped).toBe(false);
+    expect(rows).toBe(Math.ceil((1080 / (1920 / 61)) * 1.12));
+  });
 });
 
 describe("cursorToGridSpace", () => {

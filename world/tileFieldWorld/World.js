@@ -99,7 +99,7 @@ export class World {
       fieldFolder
         .add(field, "zOffset", 0, 10, 0.05)
         .name("z offset")
-        .onChange(() => this.tileField?.resetFieldDrift());
+        .onChange(() => this.tileField?.resetFieldDrift(index));
     });
   }
 
@@ -132,7 +132,6 @@ export class World {
   copyParams() {
     const json = JSON.stringify(this.params, null, 2);
 
-    console.log(json);
     navigator.clipboard?.writeText(json).catch(() => {
       console.warn("Clipboard unavailable — params logged above instead.");
     });

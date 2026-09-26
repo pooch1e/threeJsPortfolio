@@ -35,7 +35,6 @@ import {
 
 const MAX_CELLS = MAX_COLS * MAX_ROWS;
 const CURSOR_AT_REST = 1e4;
-const RESIZE_DEBOUNCE_MS = 150;
 
 export class TileField {
   constructor(experience, params) {
@@ -56,6 +55,7 @@ export class TileField {
     this.frustumWidth = 1;
     this.frustumHeight = 1;
     this.lastStepAt = 0;
+    this.firstUpdateAt = null;
     this.holdComplete = false;
     this.cursorPresent = false;
     this.cursorNdc = new Vector2();
@@ -65,7 +65,7 @@ export class TileField {
     this.buildRules();
     this.rebuild();
 
-    this.sizes.on("resize.tileField", () => this.scheduleRebuild());
+    this.sizes.on("resize.tileField", () => this.rebuild());
     this.mouse?.on("move.tileField", (position) => {
       this.cursorNdc.copy(position);
       this.cursorPresent = true;
@@ -137,11 +137,10 @@ export class TileField {
     });
   }
 
-  scheduleRebuild() {
-    clearTimeout(this.resizeTimeout);
-    this.resizeTimeout = setTimeout(() => this.rebuild(), RESIZE_DEBOUNCE_MS);
-  }
-
+  /* Runs synchronously on resize rather than debounced: a debounce left the
+     camera's frustum updated while this object's copy of it was still stale, so
+     the cursor mapped against the old frame and the clearing sat away from the
+     pointer mid-drag. Rewriting a few thousand cells is not worth that. */
   rebuild() {
     const { cols, rows, frustumWidth, frustumHeight, capped } =
       computeGridDimensions({
@@ -181,12 +180,11 @@ export class TileField {
     this.applyParams();
   }
 
-  /* Drift accumulates onto the offset, so changing the offset has to restart
-     the accumulation rather than leave the old drift baked in. */
-  resetFieldDrift() {
-    this.fieldUniforms.forEach((uniforms, index) => {
-      uniforms.uFieldZ.value = this.params.fields[index].zOffset;
-    });
+  /* Drift accumulates onto the offset, so changing one field's offset has to
+     restart that field's accumulation — and only that field's, or nudging one
+     slider would discard the other's drift. */
+  resetFieldDrift(index) {
+    this.fieldUniforms[index].uFieldZ.value = this.params.fields[index].zOffset;
   }
 
   cursorGridPosition() {
@@ -243,8 +241,15 @@ export class TileField {
   }
 
   update(time) {
+    // Timed from the first frame this grid draws, not from the Experience's
+    // clock: the sprites load first, and on a cold cache that alone can outlast
+    // holdMs, skipping the static opening entirely
+    if (this.firstUpdateAt === null) {
+      this.firstUpdateAt = time.elapsedTime;
+    }
+
     if (!this.holdComplete) {
-      if (time.elapsedTime < this.params.holdMs) {
+      if (time.elapsedTime - this.firstUpdateAt < this.params.holdMs) {
         this.applyParams();
         return;
       }
@@ -266,7 +271,6 @@ export class TileField {
   }
 
   destroy() {
-    clearTimeout(this.resizeTimeout);
     this.sizes.off("resize.tileField");
     this.mouse?.off("move.tileField");
     this.mouse?.off("leave.tileField");
