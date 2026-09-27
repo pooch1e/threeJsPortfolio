@@ -1,3 +1,7 @@
+/**
+ * Mouse — normalised pointer position on a canvas, plus raycasting helpers.
+ * Emits 'move' (mouse or touch drag), 'click' and 'leave'.
+ */
 import { Vector2, Raycaster } from 'three';
 import EventEmitter from './EventEmitter';
 
@@ -27,11 +31,30 @@ export class Mouse extends EventEmitter {
       this.trigger('move', [this.position, event]);
     };
 
+    // mousemove does not fire during a touch drag, so touch feeds 'move' too
+    this.handleTouchMove = (event) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      this.updatePosition(touch);
+      this.trigger('move', [this.position, event]);
+    };
+
+    this.handleLeave = (event) => {
+      this.trigger('leave', [this.position, event]);
+    };
+
     // Click event
     this.canvas.addEventListener('click', this.handleClick);
 
     // Mouse move event
     this.canvas.addEventListener('mousemove', this.handleMove);
+
+    this.canvas.addEventListener('touchmove', this.handleTouchMove, {
+      passive: true,
+    });
+    this.canvas.addEventListener('pointerleave', this.handleLeave);
+    this.canvas.addEventListener('touchend', this.handleLeave);
   }
 
   updatePosition(event) {
@@ -70,6 +93,13 @@ export class Mouse extends EventEmitter {
     }
     if (this.handleMove) {
       this.canvas.removeEventListener('mousemove', this.handleMove);
+    }
+    if (this.handleTouchMove) {
+      this.canvas.removeEventListener('touchmove', this.handleTouchMove);
+    }
+    if (this.handleLeave) {
+      this.canvas.removeEventListener('pointerleave', this.handleLeave);
+      this.canvas.removeEventListener('touchend', this.handleLeave);
     }
   }
 }
