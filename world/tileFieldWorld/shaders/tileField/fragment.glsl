@@ -11,7 +11,6 @@ void main()
 
     gl_FragColor = sprite;
 
-    // No <tonemapping_fragment>: the renderer's Cineon curve lifts and
-    // desaturates flat sprite colour, and this scene is a 2D blit
+    // No tonemapping_fragment — see TileFieldExperience for why
     #include <colorspace_fragment>
 }

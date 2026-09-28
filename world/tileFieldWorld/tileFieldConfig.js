@@ -88,10 +88,7 @@ export const RULES = [
   },
 ];
 
-/* Both fields are sampled at the same cell coordinates, so without distinct
-   z offsets they agree exactly wherever the lattice lands on a whole number —
-   the two would visibly rhyme. The original separates them the same way, its
-   two drift accumulators starting at 0 and 0.25. */
+/* Distinct z offsets keep the two fields from rhyming (see README.md). */
 export const FIELDS = [
   { frequency: 0.1, zSpeed: 0.0005, zOffset: 0 },
   { frequency: 0.12, zSpeed: 0.0005, zOffset: 0.25 },
@@ -117,16 +114,12 @@ export const DEFAULTS = {
      [valueMin, 1] before any band is tested. */
   valueMin: 0.15,
 
-  /* Radii are fractions of the grid diagonal, which is how the original's
-     pixel distances behaved: both were measured from a corner inset to the
-     opposite corner, so the influence spans most of the screen and reads as a
-     broad gradient rather than a spotlight. */
+  /* Radii are fractions of the grid diagonal (see README.md). */
   jRadiusFactor: 0.81,
   jMagnitude: 0.1,
   lRadiusFactor: 0.74,
   lMagnitude: 0.05,
 
-  /* The original pins frameRate(15) and holds the first frame for 2.5s. */
   stepMs: 67,
   holdMs: 2500,
 

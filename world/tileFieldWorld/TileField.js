@@ -91,17 +91,17 @@ export class TileField {
 
   buildUniforms() {
     this.sharedUniforms = {
-      uGrid: new Uniform(new Vector2(1, 1)),
-      uCursor: new Uniform(new Vector2(CURSOR_AT_REST, CURSOR_AT_REST)),
-      uCursorRadius: new Uniform(new Vector2(1, 1)),
-      uCursorMagnitude: new Uniform(new Vector2(0, 0)),
-      uValueMin: new Uniform(this.params.valueMin),
-      uAlphaThreshold: new Uniform(this.params.alphaThreshold),
+      uGrid: new Uniform(new Vector2()),
+      uCursor: new Uniform(new Vector2()),
+      uCursorRadius: new Uniform(new Vector2()),
+      uCursorMagnitude: new Uniform(new Vector2()),
+      uValueMin: new Uniform(0),
+      uAlphaThreshold: new Uniform(0),
     };
 
-    this.fieldUniforms = this.params.fields.map((field) => ({
-      uFieldFrequency: new Uniform(field.frequency),
-      uFieldZ: new Uniform(field.zOffset),
+    this.fieldUniforms = this.params.fields.map(() => ({
+      uFieldFrequency: new Uniform(0),
+      uFieldZ: new Uniform(0),
     }));
   }
 
@@ -116,12 +116,12 @@ export class TileField {
         uniforms: {
           ...this.sharedUniforms,
           ...this.fieldUniforms[rule.field],
-          uBand: new Uniform(new Vector2(rule.band[0], rule.band[1])),
-          uJGain: new Uniform(new Vector2(rule.jGain[0], rule.jGain[1])),
-          uLGain: new Uniform(new Vector2(rule.lGain[0], rule.lGain[1])),
-          uOffset: new Uniform(rule.offset),
-          uSize: new Uniform(rule.size),
-          uTexture: new Uniform(this.textures[SPRITES[rule.sprite]] ?? null),
+          uBand: new Uniform(new Vector2()),
+          uJGain: new Uniform(new Vector2()),
+          uLGain: new Uniform(new Vector2()),
+          uOffset: new Uniform(0),
+          uSize: new Uniform(0),
+          uTexture: new Uniform(null),
         },
       });
 
@@ -137,10 +137,8 @@ export class TileField {
     });
   }
 
-  /* Runs synchronously on resize rather than debounced: a debounce left the
-     camera's frustum updated while this object's copy of it was still stale, so
-     the cursor mapped against the old frame and the clearing sat away from the
-     pointer mid-drag. Rewriting a few thousand cells is not worth that. */
+  /* Sync, not debounced: the cursor mapping reads this frustum, so a stale
+     copy mid-drag would offset the clearing from the pointer. */
   rebuild() {
     const { cols, rows, frustumWidth, frustumHeight, capped } =
       computeGridDimensions({
@@ -200,8 +198,8 @@ export class TileField {
     );
   }
 
-  /* The single place uniforms are written, so live debug edits and — later —
-     audio modulation both have one seam to go through. */
+  /* The single place uniforms are written, so live debug edits have one seam
+     to go through. */
   applyParams() {
     const diagonal = gridDiagonal(this.cols, this.rows);
     const cursor = this.cursorGridPosition();

@@ -1,4 +1,4 @@
-#include ../includes/perlinClassic3D.glsl
+#include ../../../shaders/includes/perlinClassic3D.glsl
 
 uniform vec2 uGrid;
 uniform vec2 uCursor;
@@ -19,13 +19,6 @@ attribute vec2 aCell;
 
 varying vec2 vUv;
 
-float cursorFalloff(float cursorDistance, float radius, float nearValue, float farValue)
-{
-    if (radius <= 0.0) return farValue;
-
-    return mix(nearValue, farValue, clamp(cursorDistance / radius, 0.0, 1.0));
-}
-
 void main()
 {
     vUv = uv;
@@ -39,9 +32,12 @@ void main()
         uGrid.y * 0.5 - (aCell.y + uOffset + uSize * 0.5)
     );
 
+    // radius <= 0 collapses t to 1: j reads as fully-near, l as fully-far,
+    // matching the two falloffs' opposite directions
     float cursorDistance = distance(centre, uCursor);
-    float j = cursorFalloff(cursorDistance, uCursorRadius.x, 0.0, uCursorMagnitude.x);
-    float l = cursorFalloff(cursorDistance, uCursorRadius.y, uCursorMagnitude.y, 0.0);
+    vec2 t = clamp(cursorDistance / max(uCursorRadius, vec2(1e-4)), 0.0, 1.0);
+    float j = uCursorMagnitude.x * t.x;
+    float l = uCursorMagnitude.y * (1.0 - t.y);
 
     float low = value - uJGain.x * j + uLGain.x * l;
     float high = value - uJGain.y * j + uLGain.y * l;

@@ -7,17 +7,12 @@
  * makes the cursor-to-cell mapping plain arithmetic. Cells are indexed
  * row-major with col running left to right and row running top to bottom
  * (screen order, matching the original sketch).
+ *
+ * computeGridDimensions ties the frustum to the bleed-inflated cell count
+ * (not the viewport-fit count) so overflow is framed rather than hidden, and
+ * caps the cell count so instance buffers can be allocated once — a cap
+ * shrinks the frustum to match rather than leaving the frame short.
  */
-
-/* The frustum spans the cells that FIT the viewport, while the grid is built
-   from a bleed-inflated count — that is what lets tiles run off every edge. Tie
-   the frustum to the inflated count instead and the overflow is framed rather
-   than hidden, shrinking cells until `cellDivisor` no longer means "cells
-   across the viewport".
-
-   Cell count is capped so instance buffers can be allocated once. A cap that
-   bites shrinks the frustum to match rather than leaving the grid short of the
-   frame, so an extreme window loses cell density instead of coverage. */
 export function computeGridDimensions({
   width,
   height,
