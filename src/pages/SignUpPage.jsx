@@ -7,8 +7,8 @@ import HomeStyle from "../layout/HomeStyle";
 
 const inputClass =
   "rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] " +
-  "text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
-  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear";
+  "text-base text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
+  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors";
 
 const labelClass =
   "font-offbit text-100 uppercase tracking-widest text-[var(--object-alt)]";
@@ -105,7 +105,7 @@ export default function SignUpPage() {
             </div>
             <button
               type="submit"
-              className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors ease-linear"
+              className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors"
             >
               Sign Up
             </button>
@@ -117,7 +117,7 @@ export default function SignUpPage() {
             </span>
             <button
               type="button"
-              className="w-full border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors ease-linear"
+              className="w-full border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors"
               onClick={() => navigate("/")}
             >
               Login

@@ -72,7 +72,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      {isFirstLoad && loading && <LoadingOverlay />}
+      <LoadingOverlay isLoading={isFirstLoad && loading} />
       <div className="max-w-5xl mx-auto px-[var(--admin-space-6)] py-[var(--admin-space-8)] flex flex-col gap-[var(--admin-space-6)]">
         <div className="flex items-center justify-between gap-[var(--admin-space-4)]">
           <h1 className="font-semibold text-[var(--admin-font-size-2xl)] text-[var(--admin-text-primary)]">
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter this page…"
-          className="rounded-[var(--admin-radius-sm)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] bg-[var(--admin-bg-tertiary)] border border-[var(--admin-border)] text-[var(--admin-text-primary)] text-[var(--admin-font-size-base)] placeholder:text-[var(--admin-text-tertiary)] focus:outline-none focus:border-[var(--admin-accent)] focus:shadow-[var(--admin-focus-ring)] transition-colors max-w-sm"
+          className="rounded-[var(--admin-radius-sm)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] bg-[var(--admin-bg-tertiary)] border border-[var(--admin-border)] text-[var(--admin-text-primary)] text-base sm:text-[length:var(--admin-font-size-base)] placeholder:text-[var(--admin-text-tertiary)] focus:outline-none focus:border-[var(--admin-accent)] focus:shadow-[var(--admin-focus-ring)] transition-colors max-w-sm"
         />
 
         <ErrorMessage error={error} type="api" />

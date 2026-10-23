@@ -1,3 +1,8 @@
+/**
+ * App.css — Tailwind layers, font faces, site design tokens, and shared
+ * motion primitives (press feedback, presence transitions, reduced-motion).
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -119,9 +124,106 @@
     --space-10: 2.5rem;
     --space-12: 3rem;
 
+    --color-accent: var(--text-primary);
+    --text-color-verydark: var(--text-color-dark);
+    --text-color-standard: var(--text-alt);
+
+    --shadow-soft: 0 1px 2px rgba(13, 22, 31, 0.08), 0 4px 12px rgba(13, 22, 31, 0.08);
+    --shadow-card: 0 1px 3px rgba(13, 22, 31, 0.12);
+    --shadow-focus: 0 0 0 2px var(--object-alt);
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --duration-press: 160ms;
+    --duration-popover: 150ms;
+    --duration-modal: 200ms;
+
     --size-card-w: 22rem;
     --size-card-h: 14rem;
     --size-content-w: 72rem;
     --size-hero-h: 60vh;
+  }
+}
+
+@layer base {
+  button,
+  [role="button"] {
+    transition: transform var(--duration-press) var(--ease-out);
+  }
+
+  button:not(:disabled):active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+}
+
+@layer components {
+  .presence {
+    opacity: 0;
+    transform: scale(0.95);
+    transition:
+      opacity 120ms var(--ease-out),
+      transform 120ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  .presence[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    transition-duration: var(--duration-popover);
+  }
+
+  .presence-modal[data-visible="true"] {
+    transition-duration: var(--duration-modal);
+  }
+
+  .presence-fade {
+    opacity: 0;
+    transition: opacity 120ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  .presence-fade[data-visible="true"] {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--duration-modal);
+  }
+
+  .pop-in {
+    animation: pop-in 240ms var(--ease-out) both;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presence,
+  .presence[data-visible="true"] {
+    transform: none;
+  }
+
+  .pop-in {
+    animation-name: pop-in-fade;
+  }
+
+  button:not(:disabled):active,
+  [role="button"]:active {
+    transform: none;
+  }
+
+  .animate-spin {
+    animation-duration: 2s;
+  }
+}
+
+@keyframes pop-in-fade {
+  from {
+    opacity: 0;
   }
 }

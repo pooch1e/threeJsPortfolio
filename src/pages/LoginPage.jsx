@@ -13,8 +13,8 @@ import HomeStyle from "../layout/HomeStyle";
 
 const inputClass =
   "rounded-md px-3 py-2 bg-[var(--color-bg)] border border-[var(--color-bg-light)] " +
-  "text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
-  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors ease-linear";
+  "text-base text-[var(--text-color-dark)] font-karrik focus:outline-none focus:ring-2 " +
+  "focus:ring-[var(--object-alt)] focus:border-transparent transition-colors";
 
 const labelClass =
   "font-offbit text-100 uppercase tracking-widest text-[var(--object-alt)]";
@@ -49,7 +49,7 @@ export default function Login() {
       setPending(false);
       setTimeout(() => {
         navigate("/homepage");
-      }, 1200);
+      }, 500);
     } catch (err) {
       setServerError(err.message);
     } finally {
@@ -72,7 +72,7 @@ export default function Login() {
       setPending(false);
       setTimeout(() => {
         navigate("/homepage");
-      }, 1200);
+      }, 500);
     } catch (err) {
       setServerError(err.message);
     } finally {
@@ -116,13 +116,13 @@ export default function Login() {
             </div>
             <button
               type="submit"
-              className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors ease-linear"
+              className="mt-2 bg-[var(--text-primary)] text-white rounded-md py-2 font-offbit uppercase tracking-widest hover:bg-[var(--text-secondary)] transition-colors"
             >
               Login
             </button>
-            {pending && <LoadingOverlay message="Signing in..." />}
+            <LoadingOverlay isLoading={pending} message="Signing in..." />
             {showSuccess && (
-              <span className="flex justify-center mt-2 animate-bounce">
+              <span className="flex justify-center mt-2 pop-in">
                 <svg
                   width="40"
                   height="40"
@@ -151,7 +151,7 @@ export default function Login() {
           <div className="flex flex-col items-center gap-3">
             <button
               type="button"
-              className="w-full border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors ease-linear"
+              className="w-full border border-[var(--object-alt)] text-[var(--object-alt)] rounded-md py-2 font-offbit uppercase tracking-widest hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors"
               onClick={() => navigate("/signup")}
             >
               Signup
@@ -163,7 +163,7 @@ export default function Login() {
             </div>
             <button
               type="button"
-              className="w-full border border-[var(--color-bg-light)] text-[var(--text-color-dark)] rounded-md py-2 font-offbit uppercase tracking-widest hover:border-[var(--object-alt)] hover:text-[var(--object-alt)] transition-colors ease-linear"
+              className="w-full border border-[var(--color-bg-light)] text-[var(--text-color-dark)] rounded-md py-2 font-offbit uppercase tracking-widest hover:border-[var(--object-alt)] hover:text-[var(--object-alt)] transition-colors"
               onClick={handleGuestLogin}
               disabled={pending}
             >

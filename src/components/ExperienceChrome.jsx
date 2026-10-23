@@ -1,3 +1,6 @@
+/**
+ * ExperienceChrome — floating back and debug-toggle buttons over an experience canvas.
+ */
 import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Bug } from "./icons";
 import { transitionStore } from "../store/transitionStore";
@@ -15,8 +18,8 @@ export default function ExperienceChrome({ debugDefault = false }) {
 
   const buttonClass =
     "fixed z-20 left-4 flex items-center justify-center w-10 h-10 rounded-full " +
-    "bg-[var(--color-bg)]/70 text-[var(--text-primary)] backdrop-blur " +
-    "border border-transparent hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors ease-linear focus:outline-none";
+    "bg-[var(--color-bg)]/80 text-[var(--text-primary)] " +
+    "border border-transparent hover:text-[var(--text-alt)] hover:border-[var(--text-alt)] transition-colors focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]";
 
   return (
     <>
@@ -28,7 +31,7 @@ export default function ExperienceChrome({ debugDefault = false }) {
         <ArrowLeft size={16} />
       </button>
       <button
-        className={`${buttonClass} top-16 ${debugMode ? "text-[var(--colour-bg-mid-light)] border-accent" : ""}`}
+        className={`${buttonClass} top-16 ${debugMode ? "text-[var(--text-alt)] border-accent" : ""}`}
         onClick={toggleDebug}
         title="Toggle debug"
         aria-label="Toggle debug">
