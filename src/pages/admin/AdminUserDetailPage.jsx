@@ -18,7 +18,7 @@ import { userLoginStore } from "../../store/user";
 const inputClass =
   "rounded-[var(--admin-radius-sm)] px-[var(--admin-space-3)] py-[var(--admin-space-2)] " +
   "bg-[var(--admin-bg-tertiary)] border border-[var(--admin-border)] " +
-  "text-[var(--admin-text-primary)] text-[var(--admin-font-size-base)] " +
+  "text-[var(--admin-text-primary)] text-base sm:text-[length:var(--admin-font-size-base)] " +
   "focus:outline-none focus:border-[var(--admin-accent)] focus:shadow-[var(--admin-focus-ring)] " +
   "transition-colors disabled:opacity-50";
 

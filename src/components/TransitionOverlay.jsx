@@ -32,7 +32,7 @@ export default function TransitionOverlay() {
     const uniform = worldRef.current.material.uniforms.uProgress;
     const tween = gsap.to(uniform, {
       value: 1,
-      duration: 0.6,
+      duration: 0.45,
       ease: "power2.inOut",
       onComplete: () => {
         navigate(targetPath);
@@ -53,7 +53,7 @@ export default function TransitionOverlay() {
     const uniform = worldRef.current.material.uniforms.uProgress;
     const tween = gsap.to(uniform, {
       value: 0,
-      duration: 0.6,
+      duration: 0.45,
       ease: "power2.inOut",
       onComplete: reset,
     });

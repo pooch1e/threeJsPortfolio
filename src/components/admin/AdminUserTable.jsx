@@ -17,12 +17,10 @@ export default function AdminUserTable({ users, loading, onDelete }) {
 
   return (
     <div className="overflow-x-auto rounded-[var(--admin-radius-md)] border border-[var(--admin-border)]">
-      {loading && (
-        <p className="text-[var(--admin-text-tertiary)] text-[var(--admin-font-size-sm)] px-[var(--admin-space-4)] py-[var(--admin-space-2)]">
-          Loading users…
-        </p>
-      )}
-      <table className="w-full text-left text-[var(--admin-font-size-base)]">
+      <table
+        aria-busy={loading}
+        className={`w-full text-left text-[var(--admin-font-size-base)] transition-opacity ${loading ? "opacity-60" : ""}`}
+      >
         <thead>
           <tr className="border-b border-[var(--admin-border)] text-[var(--admin-text-tertiary)] text-[var(--admin-font-size-xs)] font-medium">
             <th className="py-[var(--admin-space-2)] px-[var(--admin-space-4)]">ID</th>
@@ -43,8 +41,8 @@ export default function AdminUserTable({ users, loading, onDelete }) {
               <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] truncate max-w-[8rem] text-[var(--admin-text-tertiary)]">
                 {user.id}
               </td>
-              <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)]">{user.name}</td>
-              <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] text-[var(--admin-text-secondary)]">
+              <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] max-w-[12rem] truncate" title={user.name}>{user.name}</td>
+              <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] max-w-[16rem] truncate text-[var(--admin-text-secondary)]" title={user.email}>
                 {user.email}
               </td>
               <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)]">
