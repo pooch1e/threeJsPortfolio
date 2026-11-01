@@ -7,4 +7,11 @@
  *  - Variables: sql (postgres client from middleware/db.ts), userId (set by requireAuth)
  *  - AppEnv: { Bindings, Variables } passed as the generic to every `new Hono<AppEnv>()`
  */
-export {};
+import type postgres from "postgres";
+
+type Env = {
+  Bindings: { HYPERDRIVE: Hyperdrive, JWT_SECRET: string };
+  Variables: { db: ReturnType<typeof postgres> };
+}
+
+export { Env};

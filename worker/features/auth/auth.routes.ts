@@ -3,4 +3,6 @@
  * (not extracted) so Hono keeps request and param types.
  * Ports server/internal/handlers/{signup,login,logout}.go.
  */
+
+function signup()
 export {};
