@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@tailwindplus/elements": "^1.0.18",
+    "bcryptjs": "^3.0.3",
     "gsap": "^3.14.1",
     "hyperdrive": "^13.3.4",
     "lil-gui": "^0.21.0",
