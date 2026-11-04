@@ -7,10 +7,31 @@
  *  - findUserByEmail(sql, email)
  */
 
-import { Sql } from "postgres";
-import { createUserProps, SignUpProps } from "./auth.schemas";
+import postgres, { Sql } from "postgres";
+import { createUserProps } from "./auth.schemas";
 
-function createUser(sql :Sql, { username, email, passwordHash } : createUserProps) : string {
-  return 'test'
+export class DuplicateFoundError extends Error {
+  constructor(message:string) {
+    super(message);
+    this.name='DuplicateFoundError'
+    
+  }
 }
-export {};
+
+async function createUser(sql: Sql, { username, email, passwordHash }: createUserProps): Promise<string> {
+  try {
+    const [user] = await sql<{ id: string }[]>`
+      INSERT INTO users (username, email, password_hash)
+      VALUES (${username}, ${email}, ${passwordHash})
+      RETURNING id
+    `
+    return user.id
+  } catch (err) {
+    if (err instanceof postgres.PostgresError && err.code === '23505') {
+      throw new DuplicateFoundError('email already exists');
+    }
+    throw err;
+  }
+
+}
+export {createUser};

@@ -5,14 +5,11 @@
  */
 import bcrypt from 'bcryptjs'
 const SALT_ROUNDS = 10;
-export class HashFailederror extends Error {
-  constructor() {
-    super()
-    return {
-      name: 'HashFailedError',
-      message: 'An error has occured in hashing the password'
-    }
- }
+export class HashFailedError extends Error {
+  constructor(options?: ErrorOptions) {
+    super('An error has occurred in hashing the password', options)
+    this.name = 'HashFailedError'
+  }
 }
 async function hashPassword(password: string): Promise<string> {
   try {
@@ -20,7 +17,7 @@ async function hashPassword(password: string): Promise<string> {
     const hash = await bcrypt.hash(password, salt)
     return hash;
   } catch (err) {
-    throw new HashFailederror();
+    throw new HashFailedError({ cause: err });
   }
 }
 
