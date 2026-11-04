@@ -10,7 +10,7 @@ const app = new Hono<Env>();
 // db middleware
 // sets up db connection per client rather than once at start
 app.use("*", async (c, next) => {
-  const db = postgres(c.env.HYPERDRIVE.connectionString, { max: 1 });
+  const db = postgres(c.env.HYPERDRIVE.connectionString, { max: 1, transform: postgres.camel });
   c.set("db", db);
   await next();
   c.executionCtx.waitUntil(db.end());

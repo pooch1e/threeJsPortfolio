@@ -1,0 +1,28 @@
+# Postgres for the worker. One container, two databases: threejs_database (dev, seeded
+# with the guest account) and threejs_test (schema only, wiped by tests).
+# Init scripts only run when the volume is first created; use `npm run db:reset` to rebuild.
+name: threejs-worker
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: threejs_user
+      POSTGRES_PASSWORD: threejs_password
+      POSTGRES_DB: threejs_database
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./schema.sql:/db/schema.sql:ro
+      - ./seed.sql:/db/seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U threejs_user -d threejs_database"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres_data:

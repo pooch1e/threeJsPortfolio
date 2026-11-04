@@ -1,4 +1,4 @@
--- Connect to the database
+u-- Connect to the database
 \c threejs_database;
 
 -- create extension for uuid
