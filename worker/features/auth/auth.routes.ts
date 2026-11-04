@@ -5,7 +5,6 @@
 import { Hono } from "hono";
 import { Env } from "../../types";
 import { hashPassword } from "../../lib/password";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { signUpSchema, type SignUpProps } from "./auth.schemas";
 const app = new Hono<Env>();
