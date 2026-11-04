@@ -1,7 +1,5 @@
 /**
- * Auth routes — POST /signup, /login, /logout. Handlers are written inline
- * (not extracted) so Hono keeps request and param types.
- * Ports server/internal/handlers/{signup,login,logout}.go.
+ * Auth routes — POST /signup, /login, /logout. Handlers are  written inline
  */
 
 type SignUpProps = {
@@ -20,7 +18,8 @@ app.post('/signup', async (c) => {
     const { username, email, password }: SignUpProps = await c.req.json()
     // need to validate with zod schema from auth.schemas
     const passwordHash = await hashPassword(password);
-    //insert into db
+    //1 insert into db
+    //2 if db !== error
     return c.json({ ok: true }, 201);
     
   } catch (err) {
