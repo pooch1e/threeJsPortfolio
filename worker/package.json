@@ -5,7 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -18,8 +20,10 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.5.1",
     "@cloudflare/workers-types": "^5.20261030.1",
     "typescript": "^7.0.2",
+    "vitest": "^4.1.12",
     "wrangler": "^4.156.0"
   }
 }
