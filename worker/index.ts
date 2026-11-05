@@ -5,7 +5,10 @@
 import { Env } from "./types";
 import { Hono } from "hono";
 import postgres from "postgres";
+import authRoutes from "./features/auth/auth.routes";
 const app = new Hono<Env>();
+
+
 
 // db middleware
 // sets up db connection per client rather than once at start
@@ -25,7 +28,10 @@ app.get("/health", async (c) => {
   }
 });
 
-// signup + login
+// Sign up
+app.route('/auth', authRoutes)
+
+
 // unprotected
 
 export default app;

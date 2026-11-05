@@ -14,18 +14,22 @@ export class DuplicateFoundError extends Error {
   constructor(message:string) {
     super(message);
     this.name='DuplicateFoundError'
-    
   }
 }
 
-async function createUser(sql: Sql, { username, email, passwordHash }: createUserProps): Promise<string> {
+type userResponse = {
+  userId: string;
+  status: string;
+}
+
+async function createUser(sql: Sql, { username, email, passwordHash }: createUserProps): Promise<userResponse> {
   try {
     const [user] = await sql<{ id: string }[]>`
       INSERT INTO users (username, email, password_hash)
       VALUES (${username}, ${email}, ${passwordHash})
       RETURNING id
     `
-    return user.id
+    return {userId: user.id, status: 'ok'}
   } catch (err) {
     if (err instanceof postgres.PostgresError && err.code === '23505') {
       throw new DuplicateFoundError('email already exists');

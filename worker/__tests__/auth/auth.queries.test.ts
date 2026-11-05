@@ -25,8 +25,16 @@ describe("auth sql queries", () => {
         email,
         passwordHash: "asjkdjaksjd",
       });
-      expect(typeof result).toBe("string");
+      expect(typeof result.userId).toBe("string");
     });
+    it("returns an ok status on success", async () => {
+      const result = await createUser(sql, {
+        username: "test",
+        email,
+        passwordHash: "asjkdjaksjd",
+      });
+      expect(result.status).toBe("ok");
+    })
     it("rejects duplicate usernames with an error", async () => {
       const user = { username: "test", email, passwordHash: "asjkdjaksjd" };
     

@@ -6,20 +6,30 @@ import { Hono } from "hono";
 import { Env } from "../../types";
 import { hashPassword } from "../../lib/password";
 import { zValidator } from "@hono/zod-validator";
-import { signUpSchema, type SignUpProps } from "./auth.schemas";
+import { signUpSchema } from "./auth.schemas";
+import { createUser, DuplicateFoundError } from "./auth.queries";
+
 const app = new Hono<Env>();
 
 app.post("/signup", zValidator("json", signUpSchema), async (c) => {
-  const { username, email, password }: SignUpProps = await c.req.json();
-  
+  const { username, email, password } = c.req.valid("json");
+  const sql = c.get("db");
+
   try {
     const passwordHash = await hashPassword(password);
-    //1 insert into db
-    //2 if db !== error
+    const insertedUser = await createUser(sql, { username, email, passwordHash });
+
+    if (insertedUser.status !== "ok") {
+      return c.json({ error: "error creating user" }, 500);
+    }
+
     return c.json({ ok: true }, 201);
   } catch (err) {
-    console.log(err);
-    // return error
+    if (err instanceof DuplicateFoundError) {
+      return c.json({ error: err.message }, 409);
+    }
+    console.error(err);
+    return c.json({ error: "internal server error" }, 500);
   }
 });
 
