@@ -29,8 +29,16 @@ type createUserResponse = {
 type FindUserResponse = {
   userId: string;
   username: string;
+  passwordHash: string;
+  isAdmin: boolean;
   status: string;
-  
+}
+
+type UserRow = {
+  id: string;
+  username: string;
+  passwordHash: string;
+  isAdmin: boolean;
 }
 
 async function createUser(sql: Sql, { username, email, passwordHash }: createUserProps): Promise<createUserResponse> {
@@ -51,13 +59,25 @@ async function createUser(sql: Sql, { username, email, passwordHash }: createUse
 
 async function findUserByUsername(sql: Sql, username: string) : Promise<FindUserResponse> {
   try {
-    const [user] = await sql<{ id: string, username: string }[]>`SELECT id, name, email password_hash, is_admin, created_at, updated_at FROM users WHERE name = ${username}`
-    console.log(user)
-    return { userId: user.id, username: user.username, status: 'ok' }
+    const [user] = await sql<UserRow[]>`SELECT id, username, password_hash, is_admin FROM users WHERE username = ${username}`;
+    if (!user) {
+      throw new UserNotFoundError('user not found')
+    }
+    return {
+      userId: user.id,
+      username: user.username,
+      passwordHash: user.passwordHash,
+      isAdmin: user.isAdmin,
+      status: 'ok',
+    }
   } catch (err) {
-    console.log(err)
+    if (err instanceof postgres.PostgresError && err.code === '23505') {
+      throw new DuplicateFoundError('user already exists');
+    }
+    if (err instanceof postgres.PostgresError && err.code === '23503') {
+      throw new UserNotFoundError('user violates fk');
+    }
       throw err;
   }
-
 }
 export {createUser, findUserByUsername};

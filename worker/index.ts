@@ -6,7 +6,6 @@ import { Env } from "./types";
 import { Hono } from "hono";
 import postgres from "postgres";
 import authRoutes from "./features/auth/auth.routes";
-import 
 const app = new Hono<Env>();
 
 

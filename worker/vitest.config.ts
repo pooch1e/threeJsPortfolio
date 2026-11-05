@@ -15,6 +15,7 @@ export default defineConfig({
 	plugins: [
 		cloudflareTest({
 			wrangler: { configPath: "./wrangler.toml" },
+			miniflare: { bindings: { JWT_SECRET: "test-jwt-secret-at-least-32-characters" } },
 		}),
 	],
 });
