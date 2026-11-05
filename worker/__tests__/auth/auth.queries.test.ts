@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { env } from "cloudflare:workers";
 import postgres from "postgres";
-import { createUser } from "../../features/auth/auth.queries";
+import { createUser, DuplicateFoundError } from "../../features/auth/auth.queries";
 
 describe("auth sql queries", () => {
   const sql = postgres(env.HYPERDRIVE.connectionString, {
@@ -28,17 +28,11 @@ describe("auth sql queries", () => {
       expect(typeof result).toBe("string");
     });
     it("rejects duplicate usernames with an error", async () => {
-      await createUser(sql, {
-        username: "test",
-        email,
-        passwordHash: "asjkdjaksjd",
-      });
-      const result2 = await createUser(sql, {
-        username: "test",
-        email,
-        passwordHash: "asjkdjaksjd",
-      });
-      expect(result2).toContain('email already exists');
+      const user = { username: "test", email, passwordHash: "asjkdjaksjd" };
+    
+      await createUser(sql, user);
+    
+      await expect(createUser(sql, user)).rejects.toThrow(DuplicateFoundError);
     });
   });
 });
