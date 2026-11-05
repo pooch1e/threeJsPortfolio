@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { env } from "cloudflare:workers";
 import postgres from "postgres";
-import { createUser, DuplicateFoundError } from "../../features/auth/auth.queries";
+import { createUser, DuplicateFoundError, findUserByUsername } from "../../features/auth/auth.queries";
 
 describe("auth sql queries", () => {
   const sql = postgres(env.HYPERDRIVE.connectionString, {
@@ -9,6 +9,7 @@ describe("auth sql queries", () => {
     transform: postgres.camel,
   });
   const email = "test128@example.com";
+  const username = "testName123"
 
   beforeEach(async () => {
     await sql`TRUNCATE users`;
@@ -43,4 +44,18 @@ describe("auth sql queries", () => {
       await expect(createUser(sql, user)).rejects.toThrow(DuplicateFoundError);
     });
   });
+  describe("findUserByUsername", () => {
+    it("finds user by username", async () => {
+        const makeUser = await createUser(sql, {
+        username,
+        email,
+        passwordHash: "asjkdjaksjd",
+        });
+      console.log(makeUser)
+      const user = await findUserByUsername(sql, username)
+      console.log(user)
+      })
+    })
 });
+
+

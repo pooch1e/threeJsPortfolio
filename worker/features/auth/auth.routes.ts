@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { Env } from "../../types";
 import { hashPassword } from "../../lib/password";
 import { zValidator } from "@hono/zod-validator";
-import { signUpSchema } from "./auth.schemas";
+import { loginSchema, signUpSchema } from "./auth.schemas";
 import { createUser, DuplicateFoundError } from "./auth.queries";
 
 const app = new Hono<Env>();
@@ -32,5 +32,16 @@ app.post("/signup", zValidator("json", signUpSchema), async (c) => {
     return c.json({ error: "internal server error" }, 500);
   }
 });
+
+app.post('/login', zValidator("json", loginSchema), async (c) => {
+  const { username, password } = c.req.valid('json');
+  const sql = c.get('db');
+
+  try {
+    // const user = findUserByUsername(sql, username);
+  } catch (err) {
+    
+  }
+})
 
 export default app;

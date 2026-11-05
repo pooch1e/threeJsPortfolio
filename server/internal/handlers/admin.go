@@ -21,14 +21,14 @@ type updatePasswordRequest struct {
 }
 
 type paginationMeta struct {
-	Page int`json:"page"`
-	Limit int`json:"limit"`
-	Total int`json:"total"`
-	TotalPages int`json:"total_pages"`
+	Page       int `json:"page"`
+	Limit      int `json:"limit"`
+	Total      int `json:"total"`
+	TotalPages int `json:"total_pages"`
 }
 
 type listUsersResponse struct {
-	Users []models.User `json:"users"`
+	Users      []models.User  `json:"users"`
 	Pagination paginationMeta `json:"pagination"`
 }
 
@@ -69,19 +69,17 @@ func ListUsersHandler(repo repos.UserRepository) http.HandlerFunc {
 		if usersList == nil {
 			usersList = []models.User{}
 		}
-		totalPages := int(math.Ceil(float64(userCount)/float64(limitInt)))
+		totalPages := int(math.Ceil(float64(userCount) / float64(limitInt)))
 		// build meta payload
 		meta := paginationMeta{
-			Page: pageInt,
-			Limit: limitInt,
-			Total: userCount,
+			Page:       pageInt,
+			Limit:      limitInt,
+			Total:      userCount,
 			TotalPages: totalPages,
-
 		}
 
-
 		json.WriteJson(w, http.StatusOK, listUsersResponse{
-			Users: usersList,
+			Users:      usersList,
 			Pagination: meta,
 		})
 	}
