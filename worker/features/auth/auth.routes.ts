@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { Env } from "../../types";
-import { hashPassword } from "../../lib/password";
+import { comparePassword, hashPassword } from "../../lib/password";
 import { zValidator } from "@hono/zod-validator";
 import { loginSchema, signUpSchema } from "./auth.schemas";
 import { createUser, DuplicateFoundError, UserNotFoundError } from "./auth.queries";
@@ -39,11 +39,18 @@ app.post('/login', zValidator("json", loginSchema), async (c) => {
   const sql = c.get('db');
 
   try {
+    // check user exists with username
     const user = await findUserByUsername(sql, username);
     if (user.status !== 'ok') {
       return c.json({ error: 'error logging in' }, 400);
     }
-    
+    // check password
+    const isPasswordCorrect = await comparePassword(password, user.passwordHash);
+    if (isPasswordCorrect !== true) {
+      return c.json({ error: 'incorrect password' }, 400);
+    }
+
+    // return signed cookie etc
     if (user && user !== null && user !== undefined && user.status === 'ok') {
       return c.json({ ok: true }, 200);
     }
