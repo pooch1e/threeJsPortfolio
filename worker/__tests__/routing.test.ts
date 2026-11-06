@@ -2,15 +2,13 @@
  * Routing tests — checks which /api routes are public, which need a session, and which
  * need an admin, using the real app from index.ts.
  */
-import { describe, it, expect, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { sign } from "hono/jwt";
-import postgres from "postgres";
 import app from "../index";
 import { createUser } from "../features/auth/auth.queries";
-
-const sql = postgres(env.HYPERDRIVE.connectionString, { max: 1, transform: postgres.camel });
+import { db, clearUsers, makeAdmin } from "./setup/db";
 
 async function request(path: string, init: RequestInit = {}, cookie?: string) {
   const ctx = createExecutionContext();
@@ -21,18 +19,14 @@ async function request(path: string, init: RequestInit = {}, cookie?: string) {
 }
 
 async function sessionFor(username: string, isAdmin = false) {
-  const { userId } = await createUser(sql, { username, email: `${username}@example.com`, passwordHash: "hash" });
-  if (isAdmin) await sql`UPDATE users SET is_admin = true WHERE id = ${userId}`;
+  const { userId } = await createUser(db, { username, email: `${username}@example.com`, passwordHash: "hash" });
+  if (isAdmin) await makeAdmin(userId);
   const iat = Math.floor(Date.now() / 1000);
   return `session=${await sign({ sub: userId, iat, exp: iat + 3600 }, env.JWT_SECRET, "HS256")}`;
 }
 
 beforeEach(async () => {
-  await sql`TRUNCATE users`;
-});
-
-afterAll(async () => {
-  await sql.end();
+  await clearUsers();
 });
 
 describe("public routes", () => {

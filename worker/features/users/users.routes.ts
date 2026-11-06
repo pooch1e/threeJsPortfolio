@@ -50,7 +50,7 @@ function positiveInt(value: string | undefined, fallback: number) {
 export const meRoutes = new Hono<Env>();
 
 meRoutes.get("/me", async (c) => {
-  const user = await findUserById(c.get("db"), c.get("userId"));
+  const user = await findUserById(c.env.DB, c.get("userId"));
   return c.json({ id: user.userId, username: user.username, isAdmin: user.isAdmin });
 });
 
@@ -61,7 +61,7 @@ adminRoutes.get("/users", validate("query", listUsersQuerySchema), async (c) => 
   const query = c.req.valid("query");
   const page = positiveInt(query.page, 1);
   const limit = Math.min(positiveInt(query.limit, DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
-  const db = c.get("db");
+  const db = c.env.DB;
 
   const [users, total] = await Promise.all([
     listUsers(db, limit, (page - 1) * limit),
@@ -76,7 +76,7 @@ adminRoutes.get("/users", validate("query", listUsersQuerySchema), async (c) => 
 
 adminRoutes.get("/users/:id", validate("param", userIdParamSchema), async (c) => {
   const { id } = c.req.valid("param");
-  return c.json(serializeUser(await findUserById(c.get("db"), id)));
+  return c.json(serializeUser(await findUserById(c.env.DB, id)));
 });
 
 adminRoutes.put(
@@ -86,14 +86,14 @@ adminRoutes.put(
   async (c) => {
     const { id } = c.req.valid("param");
     const { name, email, isAdmin } = c.req.valid("json");
-    const user = await updateUser(c.get("db"), id, { name, email, isAdmin });
+    const user = await updateUser(c.env.DB, id, { name, email, isAdmin });
     return c.json(serializeUser(user));
   },
 );
 
 adminRoutes.delete("/users/:id", validate("param", userIdParamSchema), async (c) => {
   const { id } = c.req.valid("param");
-  await deleteUser(c.get("db"), id);
+  await deleteUser(c.env.DB, id);
   return c.json({ message: "Successfully deleted user" });
 });
 
@@ -104,7 +104,7 @@ adminRoutes.post(
   async (c) => {
     const { id } = c.req.valid("param");
     const { password } = c.req.valid("json");
-    await setPasswordHash(c.get("db"), id, await hashPassword(password));
+    await setPasswordHash(c.env.DB, id, await hashPassword(password));
     return c.json({ message: "Successfully updated password" });
   },
 );

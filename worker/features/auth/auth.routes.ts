@@ -20,14 +20,14 @@ export const publicAuthRoutes = new Hono<Env>()
   const { username, email, password } = c.req.valid("json");
 
   const passwordHash = await hashPassword(password);
-  await createUser(c.get("db"), { username, email, passwordHash });
+  await createUser(c.env.DB, { username, email, passwordHash });
 
   return c.json({ ok: true }, 201);
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
   const { username, password } = c.req.valid("json");
 
-  const user = await findUserByUsername(c.get("db"), username).catch((err) => {
+  const user = await findUserByUsername(c.env.DB, username).catch((err) => {
     throw err instanceof UserNotFoundError ? new InvalidCredentialsError() : err;
   });
 

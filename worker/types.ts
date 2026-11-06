@@ -2,17 +2,13 @@
  * Shared Hono environment types — Cloudflare bindings and per-request context
  * variables used by every route and middleware.
  *
- * Define:
- *  - Bindings: HYPERDRIVE, JWT_SECRET, FRONTEND_URL, APP_ENV
- *  - Variables: sql (postgres client from middleware/db.ts), userId (set by requireAuth)
- *  - AppEnv: { Bindings, Variables } passed as the generic to every `new Hono<AppEnv>()`
+ *  - Bindings: DB (D1), JWT_SECRET, APP_ENV
+ *  - Variables: userId (set by requireAuth)
  */
-import type postgres from "postgres";
-
 type Env = {
-  Bindings: { HYPERDRIVE: Hyperdrive; JWT_SECRET: string; APP_ENV?: string };
+  Bindings: { DB: D1Database; JWT_SECRET: string; APP_ENV?: string };
 
-  Variables: { db: ReturnType<typeof postgres>, userId: string };
+  Variables: { userId: string };
 };
 
 export { Env };

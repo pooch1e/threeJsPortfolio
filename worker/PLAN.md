@@ -4,9 +4,9 @@ Port the Go REST API (`server/`) to Hono on Cloudflare Workers. Exercise: the fi
 
 ## Decisions
 
-- **Structure:** feature folders. Each feature has `*.routes.ts` (the "controller", handlers inline so Hono infers path params), `*.queries.ts` (the "model", plain functions taking `sql`), `*.schemas.ts` (zod).
-- **No repository interface, no controller functions.** Hono loses path-param types when handlers are extracted from the route. Testability comes from queries taking `sql` as an argument.
-- **DB:** `postgres` driver, one client per request, pooled by Cloudflare Hyperdrive. No module-level pool on Workers.
+- **Structure:** feature folders. Each feature has `*.routes.ts` (the "controller", handlers inline so Hono infers path params), `*.queries.ts` (the "model", plain functions taking the D1 database `db`), `*.schemas.ts` (zod).
+- **No repository interface, no controller functions.** Hono loses path-param types when handlers are extracted from the route. Testability comes from queries taking `db` as an argument.
+- **DB:** Cloudflare D1 (SQLite), bound as `DB` and read from `c.env.DB`. No driver, pool or per-request client. Schema lives in `migrations/` and is applied with `wrangler d1 migrations`. Moved off Postgres/Supabase + Hyperdrive so the whole API runs on Cloudflare.
 - **Auth:** same contract as Go — HS256 JWT, 1hr, HttpOnly cookie named `session`, `SameSite=None; Secure` in production.
 - **Errors:** always JSON `{ "error": "..." }`. Use `app.onError` plus `HTTPException`.
 - **Validation:** `zod` + `@hono/zod-validator`.
@@ -17,13 +17,15 @@ Port the Go REST API (`server/`) to Hono on Cloudflare Workers. Exercise: the fi
 worker/
   index.ts                  app, global middleware, route mounting
   types.ts                  Env bindings + context variables
+  migrations/               D1 schema migrations (0001_create_users.sql, ...)
+  db/                       local seed SQL (guest account, dev fixtures)
   middleware/
-    db.ts                   per-request sql client from Hyperdrive
     auth.ts                 requireAuth — verify JWT cookie, set userId
     admin.ts                requireAdmin — load user, check role
   lib/
     jwt.ts                  sign/verify session token
     password.ts             hash/compare
+    db.ts                   SQL_NOW, unique-violation detection
   features/
     auth/
       auth.schemas.ts       signup + login zod schemas
@@ -100,17 +102,19 @@ Test with `curl -c cookies.txt` / `-b cookies.txt`: `/me` is 401 without the coo
 
 ### Phase 7 — Tests
 
-Vitest with `@cloudflare/vitest-pool-workers`, or call query functions directly against Docker Postgres (they take `sql`, so no mocks are needed). Port cases from the `*_test.go` files.
+Vitest with `@cloudflare/vitest-plugin` against an in-memory D1 with `migrations/` applied (see `__tests__/README.md`). Query functions take `db`, so no mocks are needed. Port cases from the `*_test.go` files.
 
 ### Phase 8 — Deploy and cutover
 
 1. `npx wrangler login`.
-2. `npx wrangler hyperdrive create portfolio-db --connection-string="<Supabase connection string>"` and put the printed `id` in `wrangler.toml`.
+2. `npx wrangler d1 create threejs-portfolio`, put the printed `database_id` in `wrangler.toml`, then `npm run db:migrate:remote`. To seed the guest account remotely: `npx wrangler d1 execute DB --remote --file=db/seed.sql`.
 3. `npx wrangler secret put JWT_SECRET`; set `FRONTEND_URL` and `APP_ENV=production` under `[vars]`.
 4. `npx wrangler deploy`.
 5. Point the frontend's `VITE_API_URL` at the Worker, update `docs/DEPLOYMENT.md`, delete `server/` when satisfied.
 
 ## Worked example — signup
+
+> Written before the move to D1: the code below uses the `postgres` driver and Hyperdrive. The shape (schema → query → route → `onError`) still holds; see `features/auth/` for the D1 version.
 
 Request flow: `POST /api/signup` → db middleware puts `sql` on the context → `zValidator` parses and validates the body → handler hashes the password → `createUser` inserts → `201` with the new user. Any thrown `HTTPException` is turned into `{ "error": "..." }` by `app.onError`.
 
@@ -287,5 +291,5 @@ Expect `201` with `{id, username, email}`; repeating it returns `409`. Requires 
 
 - **Password hashing:** existing hashes are from Go. If bcrypt, `bcryptjs` verifies them as-is. If migrating, Web Crypto PBKDF2 is native but needs a rehash-on-login step.
 - **Secrets:** `JWT_SECRET` and `FRONTEND_URL` go in `.dev.vars` locally and `wrangler secret put` / `[vars]` in prod.
-- **Schema/migrations:** Go side owns them today. Decide whether the Worker adopts them or they stay in `server/db`.
+- **Schema/migrations:** decided — the Worker owns its schema in `migrations/` (D1). `server/db` stays with the Go server, which cannot reach D1.
 - **Typed RPC:** export `AppType` from `index.ts` and use `hc<AppType>` in the React app once routes are chained.

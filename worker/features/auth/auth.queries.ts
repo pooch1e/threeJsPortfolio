@@ -1,57 +1,68 @@
 /**
  * Auth queries — SQL for creating and looking up users during signup/login.
- * Plain functions taking `sql` as the first argument; no classes.
- *
+ * Plain functions taking the D1 database as the first argument; no classes.
  */
 
-import postgres, { Sql } from "postgres";
 import { createUserProps } from "./auth.schemas";
 import { DuplicateFoundError, UserNotFoundError } from "../../lib/errors";
+import { uniqueViolationColumn } from "../../lib/db";
 
 type createUserResponse = {
   userId: string;
-}
+};
 
 type FindUserResponse = {
   userId: string;
   username: string;
   passwordHash: string;
   isAdmin: boolean;
-}
+};
 
 type UserRow = {
   id: string;
   username: string;
-  passwordHash: string;
-  isAdmin: boolean;
-}
+  password_hash: string;
+  is_admin: number;
+};
 
-async function createUser(sql: Sql, { username, email, passwordHash }: createUserProps): Promise<createUserResponse> {
+const DUPLICATE_MESSAGES: Record<string, string> = {
+  email: "An account with this email already exists",
+  username: "An account with this username already exists",
+};
+
+async function createUser(
+  db: D1Database,
+  { username, email, passwordHash }: createUserProps,
+): Promise<createUserResponse> {
+  const userId = crypto.randomUUID();
   try {
-    const [user] = await sql<{ id: string }[]>`
-      INSERT INTO users (username, email, password_hash)
-      VALUES (${username}, ${email}, ${passwordHash})
-      RETURNING id
-    `
-    return { userId: user.id }
+    await db
+      .prepare("INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)")
+      .bind(userId, username, email, passwordHash)
+      .run();
+    return { userId };
   } catch (err) {
-    if (err instanceof postgres.PostgresError && err.code === '23505') {
-      throw new DuplicateFoundError('An account with this email already exists');
+    const column = uniqueViolationColumn(err);
+    if (column) {
+      throw new DuplicateFoundError(DUPLICATE_MESSAGES[column]);
     }
     throw err;
   }
 }
 
-async function findUserByUsername(sql: Sql, username: string): Promise<FindUserResponse> {
-  const [user] = await sql<UserRow[]>`SELECT id, username, password_hash, is_admin FROM users WHERE username = ${username}`;
+async function findUserByUsername(db: D1Database, username: string): Promise<FindUserResponse> {
+  const user = await db
+    .prepare("SELECT id, username, password_hash, is_admin FROM users WHERE username = ?")
+    .bind(username)
+    .first<UserRow>();
   if (!user) {
     throw new UserNotFoundError();
   }
   return {
     userId: user.id,
     username: user.username,
-    passwordHash: user.passwordHash,
-    isAdmin: user.isAdmin,
+    passwordHash: user.password_hash,
+    isAdmin: user.is_admin === 1,
   };
 }
 

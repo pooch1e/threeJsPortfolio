@@ -1,11 +1,12 @@
 /**
  * Types `env` from `cloudflare:workers` (used in tests) with the bindings declared in
- * wrangler.toml. Keep in sync with Bindings in types.ts.
+ * wrangler.toml and vitest.config.ts. Keep in sync with Bindings in types.ts.
  */
 declare namespace Cloudflare {
   interface Env {
-    HYPERDRIVE: Hyperdrive;
+    DB: D1Database;
     JWT_SECRET: string;
     APP_ENV?: string;
+    TEST_MIGRATIONS: import("cloudflare:test").D1Migration[];
   }
 }

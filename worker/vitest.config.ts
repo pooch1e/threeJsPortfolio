@@ -1,23 +1,28 @@
 /**
- * Vitest config — runs tests inside workerd and points the Hyperdrive binding at the
- * threejs_test database so no entry point (npm test, npx vitest, single file) can hit dev data.
+ * Vitest config — runs tests inside workerd with a local, in-memory D1 database. The SQL
+ * files in ./migrations are read here (in Node) and handed to the tests as the
+ * TEST_MIGRATIONS binding, which __tests__/setup/applyMigrations.ts applies before each file.
  */
-import { cloudflareTest } from "@cloudflare/vitest-plugin";
+import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
 import { defineConfig } from "vitest/config";
 
-process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE ??=
-	"postgres://threejs_user:threejs_password@localhost:5433/threejs_test";
+const migrations = await readD1Migrations("./migrations");
 
 export default defineConfig({
 	test: {
-		setupFiles: ["./__tests__/setup/assertTestDb.ts"],
-		// every file TRUNCATEs the one shared test database, so files must not run concurrently
+		setupFiles: ["./__tests__/setup/applyMigrations.ts"],
+		// test files share one D1 instance and each clears users in beforeEach
 		fileParallelism: false,
 	},
 	plugins: [
 		cloudflareTest({
 			wrangler: { configPath: "./wrangler.toml" },
-			miniflare: { bindings: { JWT_SECRET: "test-jwt-secret-at-least-32-characters" } },
+			miniflare: {
+				bindings: {
+					JWT_SECRET: "test-jwt-secret-at-least-32-characters",
+					TEST_MIGRATIONS: migrations,
+				},
+			},
 		}),
 	],
 });

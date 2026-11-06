@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest'
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test'
 import app from '../index'
 import { env } from 'cloudflare:workers'
+import { failingDb } from "./setup/db";
 
 describe('GET /health', () => {
   it('returns a 200 for healthy request', async () => {
@@ -19,7 +20,7 @@ describe('GET /health', () => {
   it('returns a 503 for unhealthy response', async () => {
     const brokenEnv = {
       ...env,
-      HYPERDRIVE: { connectionString: 'postgres://nobody:nope@127.0.0.1:1/none' } as Hyperdrive,
+      DB: failingDb(),
     }
     const ctx = createExecutionContext()
     const res = await app.request('/health', {}, brokenEnv, ctx)

@@ -8,13 +8,13 @@
     "deploy": "wrangler deploy",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:up": "docker compose -f db/docker-compose.yml up -d --wait",
-    "db:down": "docker compose -f db/docker-compose.yml down",
-    "db:reset": "docker compose -f db/docker-compose.yml down -v && docker compose -f db/docker-compose.yml up -d --wait",
-    "db:psql": "docker compose -f db/docker-compose.yml exec db psql -U threejs_user -d threejs_database",
-    "pretest": "npm run db:up",
-    "db:seed:test": "docker compose -f db/docker-compose.yml exec -T db psql -v ON_ERROR_STOP=1 -U threejs_user -d threejs_test < db/seed.test.sql",
-    "db:ping": "docker compose -f db/docker-compose.yml exec -T db pg_isready -U threejs_user -d threejs_database"
+    "db:migrate": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:migration:new": "wrangler d1 migrations create DB",
+    "db:seed": "wrangler d1 execute DB --local --file=db/seed.sql",
+    "db:seed:fixtures": "wrangler d1 execute DB --local --file=db/seed.fixtures.sql",
+    "db:query": "wrangler d1 execute DB --local --command",
+    "db:reset": "rm -rf .wrangler/state/v3/d1 && npm run db:migrate && npm run db:seed"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +24,6 @@
     "@hono/zod-validator": "^0.9.1",
     "bcryptjs": "^3.0.3",
     "hono": "^4.13.14",
-    "postgres": "^4.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

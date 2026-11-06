@@ -3,14 +3,14 @@
  * test database. Checks for an HS256 JWT (sub, iat, exp = iat + 1h) delivered in an
  * HttpOnly `session` cookie, and an identical 401 for unknown user and wrong password.
  */
-import { describe, it, expect, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { verify } from "hono/jwt";
-import postgres from "postgres";
 import app from "../../index";
 import { createUser } from "../../features/auth/auth.queries";
 import { hashPassword } from "../../lib/password";
+import { db, clearUsers, failingDb } from "../setup/db";
 
 const credentials = { username: "testName123", password: "password123" };
 const email = "login@example.com";
@@ -41,21 +41,17 @@ function sessionToken(res: Response) {
 }
 
 describe("POST /api/login", () => {
-  const sql = postgres(env.HYPERDRIVE.connectionString, { max: 1, transform: postgres.camel });
+
   let userId: string;
 
   beforeEach(async () => {
-    await sql`TRUNCATE users`;
-    const created = await createUser(sql, {
+    await clearUsers();
+    const created = await createUser(db, {
       username: credentials.username,
       email,
       passwordHash: await hashPassword(credentials.password),
     });
     userId = created.userId;
-  });
-
-  afterAll(async () => {
-    await sql.end();
   });
 
   describe("success", () => {
@@ -203,7 +199,7 @@ describe("POST /api/login", () => {
     it("returns 500 when the database is unreachable", async () => {
       const brokenEnv = {
         ...env,
-        HYPERDRIVE: { connectionString: "postgres://nobody:nope@127.0.0.1:1/none" } as Hyperdrive,
+        DB: failingDb(),
       };
 
       const res = await postLogin(credentials, brokenEnv);

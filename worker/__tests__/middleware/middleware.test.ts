@@ -2,25 +2,19 @@
  * Middleware tests — requireAuth and requireAdmin mounted on a minimal Hono app so the
  * 401 and 403 contracts are checked independent of how index.ts wires its routes.
  */
-import { describe, it, expect, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import postgres from "postgres";
 import { requireAuth } from "../../middleware/auth";
 import { requireAdmin } from "../../middleware/admin";
 import { createUser } from "../../features/auth/auth.queries";
 import { AppError } from "../../lib/errors";
 import type { Env } from "../../types";
-
-const sql = postgres(env.HYPERDRIVE.connectionString, { max: 1, transform: postgres.camel });
+import { db, clearUsers, makeAdmin } from "../setup/db";
 
 const app = new Hono<Env>();
-app.use("*", async (c, next) => {
-  c.set("db", sql);
-  await next();
-});
 app.onError((err, c) => {
   if (err instanceof AppError) return c.json({ error: err.message }, err.status);
   throw err;
@@ -41,21 +35,17 @@ async function tokenFor(sub: unknown, { secret = env.JWT_SECRET, expiresIn = 360
 }
 
 async function makeUser(username: string, isAdmin = false) {
-  const { userId } = await createUser(sql, {
+  const { userId } = await createUser(db, {
     username,
     email: `${username}@example.com`,
     passwordHash: "hash",
   });
-  if (isAdmin) await sql`UPDATE users SET is_admin = true WHERE id = ${userId}`;
+  if (isAdmin) await makeAdmin(userId);
   return userId;
 }
 
 beforeEach(async () => {
-  await sql`TRUNCATE users`;
-});
-
-afterAll(async () => {
-  await sql.end();
+  await clearUsers();
 });
 
 describe("requireAuth", () => {

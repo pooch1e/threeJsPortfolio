@@ -8,7 +8,7 @@ import { findUserById } from "../features/users/users.queries";
 import type { Env } from "../types";
 
 export const requireAdmin = createMiddleware<Env>(async (c, next) => {
-  const user = await findUserById(c.get("db"), c.get("userId")).catch((err) => {
+  const user = await findUserById(c.env.DB, c.get("userId")).catch((err) => {
     throw err instanceof UserNotFoundError ? new AppError("Unauthorized", 401) : err;
   });
 
