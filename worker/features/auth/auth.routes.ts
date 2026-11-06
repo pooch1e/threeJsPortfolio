@@ -2,9 +2,9 @@
  * Auth routes — POST /signup, /login, /logout. Handlers are  written inline
  */
 
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { sign } from "hono/jwt";
-import { setCookie } from "hono/cookie";
+import { setCookie, deleteCookie } from "hono/cookie";
 import { zValidator } from "@hono/zod-validator";
 import { Env } from "../../types";
 import { comparePassword, hashPassword } from "../../lib/password";
@@ -15,6 +15,15 @@ import { createUser, findUserByUsername } from "./auth.queries";
 const SESSION_SECONDS = 60 * 60;
 
 const app = new Hono<Env>();
+
+function sessionCookieFlags(c: Context<Env>) {
+  const isProduction = c.env.APP_ENV === "production";
+  return {
+    path: "/",
+    secure: isProduction,
+    sameSite: isProduction ? ("None" as const) : ("Lax" as const),
+  };
+}
 
 app.post("/signup", zValidator("json", signUpSchema), async (c) => {
   const { username, email, password } = c.req.valid("json");
@@ -43,16 +52,18 @@ app.post("/login", zValidator("json", loginSchema), async (c) => {
     "HS256",
   );
 
-  const isProduction = c.env.APP_ENV === "production";
   setCookie(c, "session", token, {
+    ...sessionCookieFlags(c),
     httpOnly: true,
-    path: "/",
     maxAge: SESSION_SECONDS,
-    sameSite: isProduction ? "None" : "Lax",
-    secure: isProduction,
   });
 
   return c.json({ id: user.userId, username: user.username, isAdmin: user.isAdmin }, 200);
+});
+
+app.post("/logout", (c) => {
+  deleteCookie(c, "session", sessionCookieFlags(c));
+  return c.json({ message: "logged out" }, 200);
 });
 
 export default app;
