@@ -11,6 +11,8 @@ process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE ??=
 export default defineConfig({
 	test: {
 		setupFiles: ["./__tests__/setup/assertTestDb.ts"],
+		// every file TRUNCATEs the one shared test database, so files must not run concurrently
+		fileParallelism: false,
 	},
 	plugins: [
 		cloudflareTest({

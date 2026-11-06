@@ -67,7 +67,7 @@ describe("POST /auth/login", () => {
       expect(await res.json()).toEqual({
         id: userId,
         username: credentials.username,
-        is_admin: false,
+        isAdmin: false,
       });
     });
 
@@ -210,7 +210,7 @@ describe("POST /auth/login", () => {
       const res = await postLogin(credentials, brokenEnv);
 
       expect(res.status).toBe(500);
-      expect(await res.json()).toEqual({ error: "internal server error" });
+      expect(await res.json()).toEqual({ error: "Internal server error" });
       expect(sessionCookie(res)).toBeUndefined();
     });
   });

@@ -54,7 +54,7 @@ describe("POST /auth/signup", () => {
     await postSignup(validBody);
     const res = await postSignup(validBody);
     expect(res.status).toBe(409);
-    expect(await res.json()).toEqual({ error: "email already exists" });
+    expect(await res.json()).toEqual({ error: "An account with this email already exists" });
   });
 
   it.each([
@@ -73,6 +73,6 @@ describe("POST /auth/signup", () => {
     };
     const res = await postSignup(validBody, brokenEnv);
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "internal server error" });
+    expect(await res.json()).toEqual({ error: "Internal server error" });
   });
 });

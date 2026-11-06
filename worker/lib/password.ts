@@ -1,7 +1,5 @@
 /**
- * Define:
- *  - hashPassword(plain): Promise<string>
- *  - comparePassword(plain, hash): Promise<boolean>
+ * Password helpers
  */
 import bcrypt from 'bcryptjs'
 const SALT_ROUNDS = 10;
@@ -26,7 +24,7 @@ async function comparePassword(password: string, hash: string): Promise<boolean>
     const result = await bcrypt.compare(password, hash)
     return result;
   } catch (err) {
-    throw new Error('passwords do not match')
+    throw new Error('An error has occurred in comparing the password', { cause: err })
   }
 }
 

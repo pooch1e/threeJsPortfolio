@@ -3,63 +3,56 @@
  */
 
 import { Hono } from "hono";
+import { sign } from "hono/jwt";
+import { setCookie } from "hono/cookie";
+import { zValidator } from "@hono/zod-validator";
 import { Env } from "../../types";
 import { comparePassword, hashPassword } from "../../lib/password";
-import { zValidator } from "@hono/zod-validator";
+import { InvalidCredentialsError, UserNotFoundError } from "../../lib/errors";
 import { loginSchema, signUpSchema } from "./auth.schemas";
-import { createUser, DuplicateFoundError, UserNotFoundError } from "./auth.queries";
-import { findUserByUsername } from "./auth.queries";
+import { createUser, findUserByUsername } from "./auth.queries";
+
+const SESSION_SECONDS = 60 * 60;
 
 const app = new Hono<Env>();
 
 app.post("/signup", zValidator("json", signUpSchema), async (c) => {
   const { username, email, password } = c.req.valid("json");
-  const sql = c.get("db");
 
-  try {
-    const passwordHash = await hashPassword(password);
-    const insertedUser = await createUser(sql, { username, email, passwordHash });
+  const passwordHash = await hashPassword(password);
+  await createUser(c.get("db"), { username, email, passwordHash });
 
-    if (insertedUser.status !== "ok") {
-      return c.json({ error: "error creating user" }, 500);
-    }
-
-    return c.json({ ok: true }, 201);
-  } catch (err) {
-    if (err instanceof DuplicateFoundError) {
-      return c.json({ error: err.message }, 409);
-    }
-    console.error(err);
-    return c.json({ error: "internal server error" }, 500);
-  }
+  return c.json({ ok: true }, 201);
 });
 
-app.post('/login', zValidator("json", loginSchema), async (c) => {
-  const { username, password } = c.req.valid('json');
-  const sql = c.get('db');
+app.post("/login", zValidator("json", loginSchema), async (c) => {
+  const { username, password } = c.req.valid("json");
 
-  try {
-    // check user exists with username
-    const user = await findUserByUsername(sql, username);
-    if (user.status !== 'ok') {
-      return c.json({ error: 'error logging in' }, 400);
-    }
-    // check password
-    const isPasswordCorrect = await comparePassword(password, user.passwordHash);
-    if (isPasswordCorrect !== true) {
-      return c.json({ error: 'incorrect password' }, 400);
-    }
+  const user = await findUserByUsername(c.get("db"), username).catch((err) => {
+    throw err instanceof UserNotFoundError ? new InvalidCredentialsError() : err;
+  });
 
-    // return signed cookie etc
-    if (user && user !== null && user !== undefined && user.status === 'ok') {
-      return c.json({ ok: true }, 200);
-    }
-  } catch (err) {
-    if (err instanceof UserNotFoundError) {
-      return c.json({ error: err.message }, 400);
-    }
-    return c.json({ error: 'internal server error'}, 500);
+  if (!(await comparePassword(password, user.passwordHash))) {
+    throw new InvalidCredentialsError();
   }
-})
+
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const token = await sign(
+    { sub: user.userId, iat: issuedAt, exp: issuedAt + SESSION_SECONDS },
+    c.env.JWT_SECRET,
+    "HS256",
+  );
+
+  const isProduction = c.env.APP_ENV === "production";
+  setCookie(c, "session", token, {
+    httpOnly: true,
+    path: "/",
+    maxAge: SESSION_SECONDS,
+    sameSite: isProduction ? "None" : "Lax",
+    secure: isProduction,
+  });
+
+  return c.json({ id: user.userId, username: user.username, isAdmin: user.isAdmin }, 200);
+});
 
 export default app;

@@ -6,5 +6,6 @@ declare namespace Cloudflare {
   interface Env {
     HYPERDRIVE: Hyperdrive;
     JWT_SECRET: string;
+    APP_ENV?: string;
   }
 }

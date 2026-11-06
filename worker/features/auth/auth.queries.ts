@@ -6,24 +6,10 @@
 
 import postgres, { Sql } from "postgres";
 import { createUserProps } from "./auth.schemas";
-
-export class DuplicateFoundError extends Error {
-  constructor(message:string) {
-    super(message);
-    this.name='DuplicateFoundError'
-  }
-}
-
-export class UserNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'UserNotFoundError'
-  }
-}
+import { DuplicateFoundError, UserNotFoundError } from "../../lib/errors";
 
 type createUserResponse = {
   userId: string;
-  status: string;
 }
 
 type FindUserResponse = {
@@ -31,7 +17,6 @@ type FindUserResponse = {
   username: string;
   passwordHash: string;
   isAdmin: boolean;
-  status: string;
 }
 
 type UserRow = {
@@ -48,36 +33,26 @@ async function createUser(sql: Sql, { username, email, passwordHash }: createUse
       VALUES (${username}, ${email}, ${passwordHash})
       RETURNING id
     `
-    return {userId: user.id, status: 'ok'}
+    return { userId: user.id }
   } catch (err) {
     if (err instanceof postgres.PostgresError && err.code === '23505') {
-      throw new DuplicateFoundError('email already exists');
+      throw new DuplicateFoundError('An account with this email already exists');
     }
     throw err;
   }
 }
 
-async function findUserByUsername(sql: Sql, username: string) : Promise<FindUserResponse> {
-  try {
-    const [user] = await sql<UserRow[]>`SELECT id, username, password_hash, is_admin FROM users WHERE username = ${username}`;
-    if (!user) {
-      throw new UserNotFoundError('user not found')
-    }
-    return {
-      userId: user.id,
-      username: user.username,
-      passwordHash: user.passwordHash,
-      isAdmin: user.isAdmin,
-      status: 'ok',
-    }
-  } catch (err) {
-    if (err instanceof postgres.PostgresError && err.code === '23505') {
-      throw new DuplicateFoundError('user already exists');
-    }
-    if (err instanceof postgres.PostgresError && err.code === '23503') {
-      throw new UserNotFoundError('user violates fk');
-    }
-      throw err;
+async function findUserByUsername(sql: Sql, username: string): Promise<FindUserResponse> {
+  const [user] = await sql<UserRow[]>`SELECT id, username, password_hash, is_admin FROM users WHERE username = ${username}`;
+  if (!user) {
+    throw new UserNotFoundError();
   }
+  return {
+    userId: user.id,
+    username: user.username,
+    passwordHash: user.passwordHash,
+    isAdmin: user.isAdmin,
+  };
 }
-export {createUser, findUserByUsername};
+
+export { createUser, findUserByUsername };
