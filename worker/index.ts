@@ -5,13 +5,18 @@
 import { Env } from "./types";
 import { Hono } from "hono";
 import postgres from "postgres";
-import authRoutes from "./features/auth/auth.routes";
-import { jwt } from "hono/jwt";
-import { JwtVariables } from "hono/jwt";
+import publicAuthRoutes from "./features/auth/auth.routes";
+import sessionRoutes from "./features/auth/auth.session.routes";
+import { meRoutes, adminRoutes } from "./features/users/users.routes";
+import { requireAuth } from "./middleware/auth";
 import { HTTPException } from "hono/http-exception";
 import { AppError } from "./lib/errors";
+import {cors} from 'hono/cors'
 
 const app = new Hono<Env>();
+
+// enable cors in local dev, will need actual url when deployed
+app.use("*", cors({ origin: "http://localhost:5173", credentials: true }));
 
 // db middleware
 // sets up db connection per client rather than once at start
@@ -29,6 +34,7 @@ app.onError((err, c) => {
   return c.json({ error: "Internal server error" }, 500);
 });
 
+// Unauthenticated
 app.get("/health", async (c) => {
   try {
     await c.get("db")`select 1`;
@@ -38,18 +44,17 @@ app.get("/health", async (c) => {
   }
 });
 
-app.use('/admin/*', (c, next) => {
-  const jwtMiddleware = jwt({
-    secret: c.env.JWT_SECRET,
-    alg: 'HS256',
-  })
-  return jwtMiddleware(c, next)
-})
+const api = new Hono<Env>();
 
-// Auth routes
-// Sign up
-app.route('/auth', authRoutes)
+// Public: registered before requireAuth, so they respond without ever reaching it
+api.route("/", publicAuthRoutes);
+api.route("/", sessionRoutes);
 
-// unprotected
+// Protected: everything registered below this line requires a valid session
+api.use("*", requireAuth);
+api.route("/", meRoutes);
+api.route("/admin", adminRoutes);
+
+app.route("/api", api);
 
 export default app;

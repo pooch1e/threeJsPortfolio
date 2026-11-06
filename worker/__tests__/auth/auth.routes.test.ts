@@ -13,7 +13,7 @@ const validBody = { username: "test", email: "test@example.com", password: "pass
 async function postSignup(body: unknown, testEnv = env) {
   const ctx = createExecutionContext();
   const res = await app.request(
-    "/auth/signup",
+    "/api/signup",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -26,7 +26,7 @@ async function postSignup(body: unknown, testEnv = env) {
   return res;
 }
 
-describe("POST /auth/signup", () => {
+describe("POST /api/signup", () => {
   const sql = postgres(env.HYPERDRIVE.connectionString, { max: 1 });
 
   beforeEach(async () => {

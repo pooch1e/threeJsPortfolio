@@ -33,12 +33,13 @@ describe("shared errors", () => {
 });
 
 describe("app.onError", () => {
-  it("passes through the 401 from the jwt middleware instead of turning it into a 500", async () => {
+  it("maps the AppError thrown by requireAuth to a JSON 401 instead of a 500", async () => {
     const ctx = createExecutionContext();
 
-    const res = await app.request("/admin/anything", {}, env, ctx);
+    const res = await app.request("/api/admin/anything", {}, env, ctx);
     await waitOnExecutionContext(ctx);
 
     expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "Unauthorized" });
   });
 });

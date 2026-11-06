@@ -1,8 +1,7 @@
 /**
- * Login route tests — exercises POST /auth/login through the full Hono app against the
- * test database. Mirrors the Go contract in server/internal/handlers/login.go: an HS256
- * JWT (sub, iat, exp = iat + 1h) delivered in an HttpOnly `session` cookie, and an
- * identical 401 for unknown user and wrong password.
+ * Login route tests — exercises POST /api/login through the full Hono app against the
+ * test database. Checks for an HS256 JWT (sub, iat, exp = iat + 1h) delivered in an
+ * HttpOnly `session` cookie, and an identical 401 for unknown user and wrong password.
  */
 import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
@@ -20,7 +19,7 @@ const ONE_HOUR_SECONDS = 3600;
 async function postLogin(body: unknown, testEnv: object = env) {
   const ctx = createExecutionContext();
   const res = await app.request(
-    "/auth/login",
+    "/api/login",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -41,7 +40,7 @@ function sessionToken(res: Response) {
   return sessionCookie(res)!.split(";")[0].slice("session=".length);
 }
 
-describe("POST /auth/login", () => {
+describe("POST /api/login", () => {
   const sql = postgres(env.HYPERDRIVE.connectionString, { max: 1, transform: postgres.camel });
   let userId: string;
 

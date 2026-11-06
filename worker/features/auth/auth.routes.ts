@@ -11,19 +11,13 @@ import { comparePassword, hashPassword } from "../../lib/password";
 import { InvalidCredentialsError, UserNotFoundError } from "../../lib/errors";
 import { loginSchema, signUpSchema } from "./auth.schemas";
 import { createUser, findUserByUsername } from "./auth.queries";
+import { sessionCookieFlags } from "./utils";
 
 const SESSION_SECONDS = 60 * 60;
 
 const app = new Hono<Env>();
 
-function sessionCookieFlags(c: Context<Env>) {
-  const isProduction = c.env.APP_ENV === "production";
-  return {
-    path: "/",
-    secure: isProduction,
-    sameSite: isProduction ? ("None" as const) : ("Lax" as const),
-  };
-}
+
 
 app.post("/signup", zValidator("json", signUpSchema), async (c) => {
   const { username, email, password } = c.req.valid("json");
@@ -61,9 +55,6 @@ app.post("/login", zValidator("json", loginSchema), async (c) => {
   return c.json({ id: user.userId, username: user.username, isAdmin: user.isAdmin }, 200);
 });
 
-app.post("/logout", (c) => {
-  deleteCookie(c, "session", sessionCookieFlags(c));
-  return c.json({ message: "logged out" }, 200);
-});
+
 
 export default app;

@@ -1,5 +1,5 @@
 /**
- * Logout route tests — exercises POST /auth/logout through the full Hono app. The session cookie is overwritten with an expired
+ * Logout route tests — exercises POST /api/logout through the full Hono app. The session cookie is overwritten with an expired
  * one carrying the same Path/Secure/SameSite flags login used, so browsers actually drop it.
  */
 import { describe, it, expect } from "vitest";
@@ -9,7 +9,7 @@ import app from "../../index";
 
 async function postLogout(testEnv: object = env, headers: Record<string, string> = {}) {
   const ctx = createExecutionContext();
-  const res = await app.request("/auth/logout", { method: "POST", headers }, testEnv, ctx);
+  const res = await app.request("/api/logout", { method: "POST", headers }, testEnv, ctx);
   await waitOnExecutionContext(ctx);
   return res;
 }
@@ -18,7 +18,7 @@ function sessionCookie(res: Response) {
   return res.headers.getSetCookie().find((cookie) => cookie.startsWith("session="));
 }
 
-describe("POST /auth/logout", () => {
+describe("POST /api/logout", () => {
   it("returns 200 with a logged out message", async () => {
     const res = await postLogout();
 

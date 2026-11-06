@@ -12,7 +12,7 @@ import type postgres from "postgres";
 type Env = {
   Bindings: { HYPERDRIVE: Hyperdrive; JWT_SECRET: string; APP_ENV?: string };
 
-  Variables: { db: ReturnType<typeof postgres> };
+  Variables: { db: ReturnType<typeof postgres>, userId: string };
 };
 
 export { Env };
