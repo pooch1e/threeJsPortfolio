@@ -13,7 +13,8 @@
     "db:reset": "docker compose -f db/docker-compose.yml down -v && docker compose -f db/docker-compose.yml up -d --wait",
     "db:psql": "docker compose -f db/docker-compose.yml exec db psql -U threejs_user -d threejs_database",
     "pretest": "npm run db:up",
-    "db:seed:test": "docker compose -f db/docker-compose.yml exec -T db psql -v ON_ERROR_STOP=1 -U threejs_user -d threejs_test < db/seed.test.sql"
+    "db:seed:test": "docker compose -f db/docker-compose.yml exec -T db psql -v ON_ERROR_STOP=1 -U threejs_user -d threejs_test < db/seed.test.sql",
+    "db:ping": "docker compose -f db/docker-compose.yml exec -T db pg_isready -U threejs_user -d threejs_database"
   },
   "keywords": [],
   "author": "",
