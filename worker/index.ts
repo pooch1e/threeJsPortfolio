@@ -5,8 +5,8 @@
 import { Env } from "./types";
 import { Hono } from "hono";
 import postgres from "postgres";
-import publicAuthRoutes from "./features/auth/auth.routes";
-import sessionRoutes from "./features/auth/auth.session.routes";
+import {publicAuthRoutes} from "./features/auth/auth.routes";
+import {sessionRoutes} from "./features/auth/auth.session.routes";
 import { meRoutes, adminRoutes } from "./features/users/users.routes";
 import { requireAuth } from "./middleware/auth";
 import { HTTPException } from "hono/http-exception";

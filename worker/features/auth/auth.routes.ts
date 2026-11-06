@@ -15,20 +15,16 @@ import { sessionCookieFlags } from "./utils";
 
 const SESSION_SECONDS = 60 * 60;
 
-const app = new Hono<Env>();
-
-
-
-app.post("/signup", zValidator("json", signUpSchema), async (c) => {
+export const publicAuthRoutes = new Hono<Env>()
+  .post("/signup", zValidator("json", signUpSchema), async (c) => {
   const { username, email, password } = c.req.valid("json");
 
   const passwordHash = await hashPassword(password);
   await createUser(c.get("db"), { username, email, passwordHash });
 
   return c.json({ ok: true }, 201);
-});
-
-app.post("/login", zValidator("json", loginSchema), async (c) => {
+  })
+  .post("/login", zValidator("json", loginSchema), async (c) => {
   const { username, password } = c.req.valid("json");
 
   const user = await findUserByUsername(c.get("db"), username).catch((err) => {
@@ -54,7 +50,3 @@ app.post("/login", zValidator("json", loginSchema), async (c) => {
 
   return c.json({ id: user.userId, username: user.username, isAdmin: user.isAdmin }, 200);
 });
-
-
-
-export default app;
