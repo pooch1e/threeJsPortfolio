@@ -1,0 +1,17 @@
+# Frontend Worker — serves the Vite build (dist/) as static assets at arczpng.com.
+# Assets only, no Worker script. The API is a separate Worker in worker/ (api.arczpng.com).
+# Keep this file TOML: wrangler prefers wrangler.json(c) in any parent directory over
+# wrangler.toml, so a JSON config here would hijack every wrangler command run in worker/.
+name = "threejs-portfolio-web"
+compatibility_date = "2026-10-30"
+
+[assets]
+directory = "./dist"
+# React Router owns paths like /admin/users/:id, so unknown paths must load index.html
+not_found_handling = "single-page-application"
+
+# www is attached so it has a proxied DNS record for the www → apex Redirect Rule to act on
+routes = [
+  { pattern = "arczpng.com", custom_domain = true },
+  { pattern = "www.arczpng.com", custom_domain = true },
+]

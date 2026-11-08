@@ -46,7 +46,7 @@ export default function AdminUserDetailPage() {
     getUser(id)
       .then((res) => {
         setUser(res);
-        editForm.reset({ name: res.name, email: res.email, is_admin: res.is_admin });
+        editForm.reset({ name: res.name, email: res.email, isAdmin: res.isAdmin });
       })
       .catch((err) => setLoadError(err.message))
       .finally(() => setLoading(false));
@@ -62,7 +62,7 @@ export default function AdminUserDetailPage() {
       const updated = await updateUser(id, {
         name: data.name,
         email: data.email,
-        is_admin: isSelf ? user.is_admin : data.is_admin,
+        isAdmin: isSelf ? user.isAdmin : data.isAdmin,
       });
       setUser(updated);
       setSaveSuccess(true);
@@ -140,7 +140,7 @@ export default function AdminUserDetailPage() {
                 <input
                   type="checkbox"
                   disabled={isSelf}
-                  {...editForm.register("is_admin")}
+                  {...editForm.register("isAdmin")}
                 />
                 Admin
                 {isSelf && (

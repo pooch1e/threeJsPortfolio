@@ -1,5 +1,11 @@
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
+/**
+ * API client — fetch wrapper for the Worker API at api.arczpng.com in production and
+ * localhost:8787 in dev (override with VITE_API_BASE_URL). Sends the session cookie
+ * on every request and turns `{ error }` bodies into thrown errors.
+ */
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.PROD ? 'https://api.arczpng.com' : 'http://localhost:8787');
 
 /**
  * Makes an authenticated API request

@@ -1,254 +1,188 @@
-# Deployment Plan: Vercel + Cloud Run + Supabase
+# Deployment: Cloudflare Workers (frontend + API) and D1
 
-## Stack Overview
+## Stack
 
-| Layer | Service | Reason |
+| Layer | Service | Notes |
 |---|---|---|
-| Frontend | Vercel | User-managed — auto-deploys from GitHub, zero config for Vite |
-| Backend (Go) | Google Cloud Run | Always-free tier (2M requests, 180k vCPU-s, 360k GB-s/month), scale-to-zero, Docker native |
-| Database | Supabase | Free managed Postgres, no 90-day expiry (unlike Render) |
+| Frontend | Cloudflare Workers static assets (repo root), `arczpng.com` | Workers Builds on push to `main`; config in root `wrangler.toml` |
+| API | Cloudflare Workers (`worker/`), `api.arczpng.com` | Hono app, deployed by Workers Builds on push to `main` |
+| Database | Cloudflare D1 | SQLite, bound to the Worker as `DB` |
 
-Fly.io was the original plan but its free tier ended for new accounts
-in Oct 2024 (now pay-as-you-go, ~$8-25/mo for a small always-on app).
-Cloud Run's always-free tier is still genuinely free at this app's
-traffic level. Tradeoff: Cloud Run scales to zero by default, so the
-first request after idle pays a cold start — typically well under 1s
-for a small Go binary, plus DB connection time to Supabase. If that's
-ever a problem, `--min-instances=1` eliminates cold starts entirely at
-the cost of running 24/7 (a few dollars/month, since it exceeds the
-free vCPU/memory quota).
-
-Frontend deployment is handled directly by the project owner in the
-Vercel dashboard — this doc only covers the backend/DB and the two env
-vars that connect the three services.
+The previous stack (Go on Google Cloud Run, Postgres on Supabase) is being
+retired. See [Teardown](#teardown-of-the-old-stack).
 
 ---
 
-## Pre-Deployment Fixes (status)
+## Domains
 
-- ~~`apiClient` usage bugs in `postSignup.js`/`validateSession.js`~~ —
-  **fixed**. `apiClient` (`src/utils/api.js`) throws on non-2xx and
-  returns the already-parsed body (JSON/text/`null`), never a `Response`;
-  both files now just `return apiClient(...)` / `return await apiClient(...)`
-  directly instead of calling `.ok`/`.json()`/`.text()` on the result.
-  (`postLogout.js` never had this bug.)
-- ~~`godotenv.Load` unconditional relative path in `server/cmd/main.go`~~ —
-  **fixed**. Now guarded with `os.Stat("../.env.local")` so it's inert
-  inside the Fly.io container.
-- ~~`SameSite=None; Secure` cookie flags for cross-origin auth~~ —
-  **already implemented**. `sessionCookieFlags()` in
-  `server/internal/handlers/login.go` returns `SameSiteNoneMode, true`
-  when `APP_ENV=production`, shared by both the login and logout
-  handlers so they stay in sync.
-- `JWT_SECRET` — generate a fresh one for the Secret Manager secret (see
-  below); the empty value in local `.env.local` doesn't block
-  deployment since production never reads that file.
+`arczpng.com` is registered with Cloudflare, so its DNS is already on Cloudflare.
 
----
-
-## Step-by-Step Implementation
-
-### Phase 1 — Dockerfile for Go Backend
-
-`server/Dockerfile` (already created):
-
-```dockerfile
-FROM golang:1.25-alpine AS builder
-WORKDIR /build
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o /app/server ./cmd/
-
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /app
-COPY --from=builder /app/server .
-EXPOSE 8080
-ENTRYPOINT ["/app/server"]
-```
-
-Notes:
-- No `.env.local` is copied into the image — all config comes from Cloud Run env vars/secrets
-- `ca-certificates` is required for Supabase's TLS connection
-- Cloud Run injects `PORT` automatically (defaults to 8080, matching this Dockerfile's `EXPOSE`), so it doesn't need to be set explicitly as a secret/env var
-
----
-
-### Phase 2 — Cloud Run Setup (Go Backend)
-
-#### Install gcloud CLI
-
-```bash
-brew install --cask google-cloud-sdk
-gcloud auth login
-gcloud config set project <your-gcp-project-id>
-```
-
-#### Enable required APIs (one-time per project)
-
-```bash
-gcloud services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
-```
-
-#### Create secrets
-
-```bash
-printf '%s' "$(openssl rand -base64 32)" | gcloud secrets create JWT_SECRET --data-file=-
-printf '%s' "<supabase connection string — see Phase 3>" | gcloud secrets create DATABASE_URL --data-file=-
-```
-
-To rotate either later: `gcloud secrets versions add JWT_SECRET --data-file=-` (and update `--set-secrets` to `:latest`, already the default below).
-
-#### Deploy
-
-Run from inside the `server/` directory — `--source .` builds the
-existing Dockerfile via Cloud Build, no separate `docker build`/`push`
-step needed:
-
-```bash
-gcloud run deploy threejs-portfolio-api \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --port 8080 \
-  --set-env-vars APP_ENV=production,FRONTEND_URL="https://<your-vercel-domain>" \
-  --set-secrets JWT_SECRET=JWT_SECRET:latest,DATABASE_URL=DATABASE_URL:latest \
-  --cpu-boost
-```
-
-`--allow-unauthenticated` is required since this is a public API;
-`--cpu-boost` speeds up (but doesn't eliminate) cold starts on the
-free scale-to-zero tier. Add `--min-instances=1` instead/also if
-cold starts ever become a problem — that keeps one instance warm
-24/7, which exceeds the free tier and costs a few dollars/month.
-
-Verify: `https://<service-url>.run.app/health` should return `{"status":"ok"}`. The service URL is printed at the end of `gcloud run deploy`, and can be re-fetched with:
-
-```bash
-gcloud run services describe threejs-portfolio-api --region us-central1 --format 'value(status.url)'
-```
-
----
-
-### Phase 3 — Supabase (PostgreSQL)
-
-1. Create a new project at [supabase.com](https://supabase.com) (free tier)
-2. In the Supabase SQL editor, run the contents of `server/db/seed/seed.sql` to create the schema — there's no migration tool in this repo (no golang-migrate/goose), schema is applied via this flat SQL file
-3. Go to **Project Settings → Database → Connection string → URI**
-4. Copy the **Session mode** connection string (port 5432)
-5. Append `?sslmode=require` — the local string uses `?sslmode=disable` which Supabase rejects
-
-Example format:
-```
-postgres://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
-```
-
-Use this as the `DATABASE_URL` secret in Cloud Run Secret Manager.
-
-Note: `openDb()` in `server/cmd/api.go` opens the connection with no pool
-tuning (`SetMaxOpenConns`/`SetMaxIdleConns`/`SetConnMaxLifetime` are never
-called) — fine at this scale, revisit if connections get exhausted.
-
----
-
-### Phase 4 — Vercel (React/Vite Frontend)
-
-Handled directly by the project owner. Coordination points only:
-
-1. In the Vercel project's environment variables, set:
-
-| Variable | Value |
-|---|---|
-| `VITE_API_BASE_URL` | `https://<service-name>-<hash>.<region>.run.app` |
-
-This is already wired in `src/utils/api.js` — no code changes needed.
-
-2. Once the Vercel domain is known, set it as `FRONTEND_URL` on the Cloud
-   Run service (Phase 2, via `gcloud run services update ... --set-env-vars`
-   or by redeploying) — CORS (`server/cmd/api.go`) allows exactly one
-   origin, no wildcards, and it must match exactly.
-
----
-
-### Phase 5 — GitHub OAuth (when ready to implement)
-
-1. Register a new OAuth App at [github.com/settings/developers](https://github.com/settings/developers):
-   - **Homepage URL:** `https://<your-vercel-domain>`
-   - **Authorization callback URL:** `https://<your-cloud-run-service-url>/api/auth/github/callback`
-2. Add secrets and wire them into the service:
-
-```bash
-printf '%s' "<client id>" | gcloud secrets create GITHUB_CLIENT_ID --data-file=-
-printf '%s' "<client secret>" | gcloud secrets create GITHUB_CLIENT_SECRET --data-file=-
-
-gcloud run services update threejs-portfolio-api \
-  --region us-central1 \
-  --update-secrets GITHUB_CLIENT_ID=GITHUB_CLIENT_ID:latest,GITHUB_CLIENT_SECRET=GITHUB_CLIENT_SECRET:latest
-```
-
-3. Implement the OAuth flow in the Go backend (callback handler, token exchange, user upsert)
-
----
-
-## Environment Variables Reference
-
-### Cloud Run — Go Backend
-
-`APP_ENV` and `FRONTEND_URL` are plain env vars (`--set-env-vars`);
-`JWT_SECRET` and `DATABASE_URL` are Secret Manager secrets
-(`--set-secrets`). Never committed to the repo. `PORT` is injected
-automatically by Cloud Run.
-
-| Variable | Description |
-|---|---|
-| `APP_ENV` | `production` |
-| `JWT_SECRET` | Random 32+ char string — used to sign/verify JWTs (Secret Manager) |
-| `DATABASE_URL` | Supabase Postgres connection string with `?sslmode=require` (Secret Manager) |
-| `FRONTEND_URL` | Vercel domain — used for CORS allowed origin |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID (when OAuth implemented, Secret Manager) |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret (when OAuth implemented, Secret Manager) |
-
-### Vercel — Vite Frontend
-
-Set in the Vercel project dashboard under Settings → Environment Variables.
-
-| Variable | Description |
-|---|---|
-| `VITE_API_BASE_URL` | Full URL of the Cloud Run backend e.g. `https://threejs-portfolio-api-xyz.us-central1.run.app` |
-
----
-
-## Files to Create / Modify
-
-| File | Action | Notes |
+| Host | Serves | Set up by |
 |---|---|---|
-| `server/Dockerfile` | Created | Multi-stage Go build — see Phase 1, used as-is by Cloud Run's `--source` build |
-| `server/cmd/main.go` | Modified | `godotenv.Load` now conditional on file existence |
-| `src/utils/postSignup.js` | Fixed | Removed invalid `res.ok` / `res.text()` calls |
-| `src/utils/validateSession.js` | Fixed | Removed invalid `res.ok` / `res.json()` calls |
+| `arczpng.com` | React app (frontend Worker) | `routes` in root `wrangler.toml` (`custom_domain = true`) |
+| `www.arczpng.com` | redirect to `arczpng.com` | attached to the frontend Worker, plus Cloudflare Rules → Redirect Rules → "Redirect from WWW to root" |
+| `api.arczpng.com` | Worker API | `routes` in `worker/wrangler.toml` (`custom_domain = true`); Cloudflare creates the DNS record and certificate on deploy |
+
+Both hosts share the registrable domain `arczpng.com`, so the `session` cookie is
+first-party and Safari keeps it. They are still different origins, so the Worker
+sends CORS headers for exactly `FRONTEND_URL` (`https://arczpng.com`), with credentials.
+`www.arczpng.com` is not allowed by CORS, which is why it redirects to the apex.
 
 ---
 
-## Open Questions
+## Deploy the Worker (Workers Builds, from Git)
 
-Decisions to make before or during implementation:
+Already done: D1 database created (`database_id` in `wrangler.toml`) and
+`0001_create_users.sql` applied remotely.
 
-1. **Cloud Run service name and region** — the name/region combination forms part of the auto-generated `*.run.app` URL. Choose before first `gcloud run deploy`; the region also affects free-tier network egress eligibility (North America only).
+1. Merge the Worker branch into `main` and push.
+2. Cloudflare dashboard → Workers & Pages → Create → Import a repository:
 
-2. **Custom domain** — attach a custom domain to Vercel and/or Cloud Run (via `gcloud run domain-mappings create`), or use default `*.vercel.app` / `*.run.app` subdomains for now?
+   | Setting | Value |
+   |---|---|
+   | Project name | `threejs-portfolio-api` (must match `name` in `wrangler.toml`) |
+   | Production branch | `main` |
+   | Root directory | `worker` |
+   | Build command | `npm test` |
+   | Deploy command | `npx wrangler deploy` |
 
-3. **Cold starts vs. cost** — stay on scale-to-zero (free, occasional ~1s cold start) or set `--min-instances=1` (no cold starts, a few dollars/month since it exceeds the free vCPU/memory quota)?
+3. After the first build: Worker → Settings → Variables and Secrets → add
+   `JWT_SECRET` as a **Secret** (`openssl rand -base64 32`). Login returns 500 until
+   it is set. Plain variables (`APP_ENV`, `FRONTEND_URL`) come from `[vars]` in
+   `wrangler.toml` and are overwritten on every deploy, so change them there.
+4. Verify: `curl https://api.arczpng.com/health` returns `{"check":"ok"}`.
+
+Every push to `main` then builds, tests and deploys. Builds does not run D1
+migrations: for a schema change, `npm run db:migration:new -- <name>`, edit the
+file in `migrations/`, run `npm run db:migrate:remote`, then push the code that
+needs it.
 
 ---
 
-## Local Development (unchanged)
+## Deploy the frontend (Workers Builds, from Git)
 
-The existing workflow is unaffected by this deployment setup:
+The repo root holds a second Worker, `threejs-portfolio-web`, that only serves
+`dist/` (root `wrangler.toml`). `not_found_handling = "single-page-application"`
+makes deep links like `/admin/users/:id` load `index.html`.
+
+Both config files must stay `wrangler.toml`. Wrangler prefers a
+`wrangler.json`/`wrangler.jsonc` in any parent directory over a `wrangler.toml`
+in the current one, so a JSON config at the root would make `worker/` deploy
+the frontend.
+
+1. If `arczpng.com` already has DNS records pointing at Vercel (Cloudflare
+   dashboard → `arczpng.com` → DNS), delete the `@` and `www` records first.
+   Custom domains can't be attached while another record holds the name.
+2. Cloudflare dashboard → Workers & Pages → Create → Import a repository (same repo):
+
+   | Setting | Value |
+   |---|---|
+   | Project name | `threejs-portfolio-web` (must match `name` in the root `wrangler.toml`) |
+   | Production branch | `main` |
+   | Root directory | `/` |
+   | Build command | `npm run build` |
+   | Deploy command | `npx wrangler@4 deploy` |
+
+   Builds installs the root `package.json` dependencies itself. Wrangler is not
+   a root dependency, so the deploy command names a major version.
+3. Add the Redirect Rule for `www` (see [Domains](#domains)).
+4. Verify `https://arczpng.com` and a deep link such as `https://arczpng.com/homepage`.
+
+Production builds call `https://api.arczpng.com` (`src/utils/api.js`). Set
+`VITE_API_BASE_URL` as a build variable only to point somewhere else.
+
+---
+
+## Create an admin
+
+D1 starts empty and signup always creates non-admin users. Sign up on the site,
+then from `worker/`:
 
 ```bash
-npm run full-stack        # start Docker (Postgres) + Go server + Vite dev server
-npm run full-stack-down   # stop everything
+npx wrangler d1 execute DB --remote --command "UPDATE users SET is_admin = 1 WHERE username = '<you>'"
 ```
 
-All production config is isolated to Cloud Run env vars/secrets and Vercel env vars — `.env.local` continues to serve local development only.
+---
+
+## Cutover checklist
+
+1. Worker deployed, `/health` is OK.
+2. `https://arczpng.com` loads from the frontend Worker and `https://www.arczpng.com` redirects to it.
+3. In a browser: sign up, log in, reload (session persists), open the admin
+   dashboard with an admin account, log out.
+4. Existing users: password hashes were bcrypt in Postgres and still verify
+   (`bcryptjs`), but D1 starts empty. Export the Postgres `users` table before
+   Supabase is deleted if you want to keep those accounts, and import them
+   into D1 with `wrangler d1 execute`. Skip if only the seeded guest matters.
+5. Only after steps 1-4 pass, tear down the old stack.
+
+---
+
+## Teardown of the old stack
+
+### Vercel
+
+After the cutover checklist passes on Cloudflare: Vercel dashboard → the
+project → Settings → Advanced → Delete Project. Also remove `arczpng.com` from
+Vercel's Domains list if you added it there.
+
+Destructive and not reversible. Do these after the cutover checklist passes,
+and run them yourself. Check the project and region first.
+
+### Google Cloud (Cloud Run service, secrets, built images)
+
+```bash
+gcloud config get-value project
+gcloud run services list
+
+gcloud run services delete threejs-portfolio-api --region us-central1
+gcloud secrets delete JWT_SECRET
+gcloud secrets delete DATABASE_URL
+
+gcloud artifacts repositories list
+gcloud artifacts repositories delete cloud-run-source-deploy --location us-central1
+gcloud storage buckets list
+```
+
+`gcloud run deploy --source` created an Artifact Registry repository
+(`cloud-run-source-deploy`) and a Cloud Build staging bucket
+(`run-sources-<project>-<region>`). Those keep costing storage after the
+service is gone, so delete them too after confirming nothing else uses them.
+
+If the GCP project was created only for this app, deleting the whole project
+removes everything at once and is the simplest option:
+
+```bash
+gcloud projects delete <project-id>
+```
+
+### Supabase
+
+Back up first if you need the data:
+
+```bash
+pg_dump "<supabase connection string>" --table=users --data-only > users-backup.sql
+```
+
+Then in the Supabase dashboard: Project Settings, General, Delete project.
+
+### Repository cleanup
+
+- Delete `server/` (Go code, Dockerfile, docker-compose).
+- Remove `DATABASE_URL`, `POSTGRES_DB` and the unused GitHub and session
+  entries from the root `.env.local`.
+- Delete `docs/backend-architecture.md` and `docs/phase2-backend.md`, or leave
+  them marked historical.
+
+---
+
+## Learnings from the migration
+
+- Cloud Run needed a Dockerfile, Secret Manager, Cloud Build and Artifact
+  Registry, and left storage behind after the service was deleted. A Worker is
+  one config file and one command.
+- Free-tier scale-to-zero meant cold starts plus a Postgres connection on
+  first request. Workers have no cold-start container and D1 is a binding, not
+  a connection.
+- Cross-site cookies are the main deployment risk with a split frontend and
+  API. Put both on one registrable domain.

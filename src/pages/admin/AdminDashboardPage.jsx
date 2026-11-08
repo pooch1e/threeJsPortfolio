@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, total_pages: 1 });
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +33,7 @@ export default function AdminDashboardPage() {
     listUsers(page, LIMIT)
       .then((res) => {
         setUsers(res.users || []);
-        setPagination(res.pagination || { page, total_pages: 1 });
+        setPagination(res.pagination || { page, totalPages: 1 });
       })
       .catch((err) => setError(err.message))
       .finally(() => {

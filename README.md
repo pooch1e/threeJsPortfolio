@@ -2,11 +2,11 @@
 
 A full-stack creative portfolio: a React + Three.js frontend hosting a
 collection of interactive WebGL scenes and shader experiments, backed by
-a Go REST API for authentication and an admin dashboard. Built as a
+a Cloudflare Workers REST API (Hono + D1) for authentication and an admin dashboard. Built as a
 demonstration piece spanning real-time 3D graphics, full-stack web
 architecture, and cloud deployment.
 
-**Live:** [three-js-portfolio](https://playgroundtest.fyi)
+**Live:** [arczpng.com](https://arczpng.com) · API at `api.arczpng.com`
 
 ---
 
@@ -16,18 +16,18 @@ architecture, and cloud deployment.
 |---|---|
 | **3D / WebGL graphics** | Custom Three.js scenes, GLSL shaders, GPU particle systems, post-processing, procedural geometry — see [Scenes](#scenes) |
 | **Frontend architecture** | Layered `Experience → World → Objects` pattern for managing many independent Three.js scenes inside one React app without them fighting over the render loop, GPU resources, or lifecycle |
-| **Full-stack application design** | Go REST API with a clean handler/repository split, stateless JWT auth, PostgreSQL — see [Backend](#backend-go) |
+| **Full-stack application design** | Hono REST API on Cloudflare Workers with a feature-folder layout (routes / queries / schemas), stateless JWT auth, D1 (SQLite) — see [Backend](#backend-cloudflare-worker) |
 | **State & auth flows** | Protected/public/admin route guards in React Router, HttpOnly cookie sessions, role-based access (admin dashboard) |
-| **Cloud deployment** | Three independently deployed services (Vercel, Google Cloud Run, Supabase) wired together via environment configuration, CORS, and TLS — see [Deployment](#deployment--infrastructure) |
-| **Testing** | Go unit + Docker-backed integration tests for the backend; Vitest for frontend logic |
+| **Cloud deployment** | Two Cloudflare Workers from one repo — static frontend at `arczpng.com`, API + D1 at `api.arczpng.com` — wired together via CORS and same-site cookies, deployed from Git — see [Deployment](#deployment--infrastructure) |
+| **Testing** | Vitest inside the real Workers runtime (workerd) against an in-memory D1 for the backend, no mocks and no Docker; Vitest for frontend logic |
 
 ---
 
 ## Architecture
 
 ```
-React (Vite)  →  world/*  (Three.js scenes)  →  Go REST API  →  PostgreSQL (Supabase)
-   Vercel              client-side               Cloud Run        managed Postgres
+React (Vite)  →  world/*  (Three.js scenes)  →  Hono API  →  D1 (SQLite)
+   Cloudflare Workers  client-side              Cloudflare Workers
 ```
 
 **Frontend:** `src/main.jsx` → `App.jsx` (routes, auth guards) → page →
@@ -46,16 +46,18 @@ Scenes extend `BaseExperience`, customising it through hooks
 another object — so what a file needs is visible in the first few lines
 of its constructor.
 
-**Backend:** Go 1.25 + Chi router, no ORM (raw `database/sql`).
-Handlers use a closure/dependency-injection pattern — an outer function
-captures its dependencies (a `UserRepository` interface, never a raw
-`*sql.DB`) and returns an `http.HandlerFunc`. Auth is stateless JWT
-(HS256, 1hr) carried in an HttpOnly cookie, with `SameSite=None; Secure`
-in production for cross-origin auth between the Vercel frontend and the
-Cloud Run API.
+**Backend:** Hono on Cloudflare Workers, code in `worker/`. Each feature
+(`auth`, `users`) is a folder of routes, query functions and zod schemas.
+Query functions take the D1 binding as an argument and run raw SQL — no ORM
+and no classes — so tests call them directly against a real database. Auth
+is stateless JWT (HS256, 1hr) carried in an HttpOnly cookie, with
+`SameSite=None; Secure` in production for cross-origin auth between the
+frontend (`arczpng.com`) and the API (`api.arczpng.com`).
 
-Full write-ups: [docs/architecture.md](docs/architecture.md) (frontend)
-and [docs/backend-architecture.md](docs/backend-architecture.md) (backend).
+Full write-up: [docs/architecture.md](docs/architecture.md) (frontend). The
+backend plan and build order live in [worker/PLAN.md](worker/PLAN.md); the
+Go-era reference in [docs/backend-architecture.md](docs/backend-architecture.md)
+is historical.
 
 ---
 
@@ -101,71 +103,72 @@ ribbons. Full guide: [docs/world/audio.md](docs/world/audio.md).
 
 ---
 
-## Backend (Go)
+## Backend (Cloudflare Worker)
 
-- Go 1.25, Chi v5 router, PostgreSQL 16
-- Stateless JWT sessions, HttpOnly + `Secure` cookies
-- Handlers depend on interfaces (`UserRepository`), not concrete DB types — enables the Docker-backed integration test suite to run against a real Postgres without mocking the DB
-- Consistent JSON error envelope (`{"error": "..."}`), sentinel errors (`ErrNotFound`) checked via `errors.Is`
-- Admin endpoints (list/update/delete users, password reset) gated behind an `is_admin` claim, surfaced in a React-admin-style dashboard on the frontend
+- Hono 4 on Cloudflare Workers, TypeScript, D1 (SQLite) via the `DB` binding
+- Stateless JWT sessions, HttpOnly cookie named `session`, `SameSite=None; Secure` when `APP_ENV=production`
+- `bcryptjs` for password hashing, so hashes created by the old Go server still verify
+- Routes: `/health`, `/api/signup`, `/api/login`, `/api/logout`, `/api/me`, and `/api/admin/users…` (list, get, update, delete, password reset) gated by an `is_admin` check
+- Consistent JSON error envelope (`{"error": "..."}`) produced by one `app.onError`, using an `AppError` class with an HTTP status
+- Schema lives in `worker/migrations/` and is applied identically to local dev, tests and production
 
-See [docs/backend-architecture.md](docs/backend-architecture.md) and
-[docs/phase2-backend.md](docs/phase2-backend.md) (auth flow walkthrough).
+### History: Go + Cloud Run + Supabase
+
+The API started as a Go (Chi, `database/sql`) service on Google Cloud Run
+with Postgres on Supabase. It was rewritten as a Worker to cut the number of
+moving parts from three services to two, remove cold starts, and keep the
+whole stack in one language. The Go code in `server/` is kept only until the
+cutover is verified, then deleted.
 
 ---
 
 ## Deployment & infrastructure
 
-Three independently managed services, each doing one job:
-
 | Layer | Service | Why |
 |---|---|---|
-| Frontend | **Vercel** | Auto-deploys on push to `main`, zero-config Vite build |
-| Backend | **Google Cloud Run** | Scale-to-zero, Docker-native, free tier at this traffic level |
-| Database | **Supabase** | Managed Postgres, free tier with no expiry |
+| Frontend | **Cloudflare Workers (static assets)** | `dist/` served at `arczpng.com`, SPA fallback for React Router; root `wrangler.toml` |
+| API + database | **Cloudflare Workers + D1** | Hono at `api.arczpng.com`, no cold starts, free tier is ample at this traffic; `worker/wrangler.toml` |
 
-The backend ships as a multi-stage Docker build
-([`server/Dockerfile`](server/Dockerfile)), built and deployed straight
-from source via Cloud Build (`gcloud run deploy --source .`) — no manual
-image push step. Secrets (`JWT_SECRET`, `DATABASE_URL`) live in Google
-Secret Manager, never in the image or the repo. CORS on the API is
-locked to a single exact origin (the Vercel domain) — no wildcards,
-required for cookie-based cross-origin auth.
+Both Workers deploy through Workers Builds on every push to `main`: the frontend
+from the repo root (`npm run build`), the API from `worker/` (`npm test`, then
+`wrangler deploy`). CORS is locked to one exact origin, `https://arczpng.com`
+(no wildcards, required for cookie auth). Both hosts share the `arczpng.com`
+registrable domain, so the session cookie stays first-party.
 
-Deploys are triggered by pushing to `main` (Vercel) or by an explicit
-`gcloud run deploy` (Cloud Run) — there's no GitHub Actions pipeline
-gating either on the test suite yet; that's the next piece to add if
-this were taken further toward a "real" CI/CD setup.
+The API build runs the Worker test suite and stops the deploy if it fails.
 
-Full runbook: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Full runbook, including teardown of the old GCP and Supabase resources:
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ---
 
 ## Local development
 
 ```bash
-npm run dev                              # frontend only (port 5173)
-cd server && make docker-up && make dev  # backend only (port 8080, local Postgres via Docker)
-npm run full-stack                       # everything together
-npm run full-stack-down                  # stop everything
+npm run dev                          # frontend (port 5173)
+cd worker && npm install
+npm run db:migrate && npm run db:seed  # create and seed the local D1 database
+npm run dev                          # API on port 8787
 ```
 
-`.env.local` at the repo root holds local config (not committed):
+`worker/.dev.vars` (gitignored) holds local Worker config:
 
 ```
-PORT=8080
-DATABASE_URL=postgres://threejs_user:threejs_password@localhost:5433/threejs_database?sslmode=disable
 JWT_SECRET=<any string, local only>
+APP_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
+
+The frontend calls `http://localhost:8787` in dev and `https://api.arczpng.com` in production builds. Set `VITE_API_BASE_URL` to override either. The Worker only accepts cross-origin requests from `FRONTEND_URL`.
 
 ## Testing
 
 ```bash
-npm run test                                    # Vitest — frontend
-cd server && go test ./...                      # Go unit tests
-cd server && go test -tags integration ./cmd/    # integration tests (requires Docker)
+npm run test               # Vitest — frontend
+cd worker && npm test      # Worker tests, run inside workerd against in-memory D1
 ```
+
+Worker test details: [worker/__tests__/README.md](worker/__tests__/README.md).
 
 ## Linting
 
@@ -179,9 +182,9 @@ npm run lint
 
 **Frontend:** React 19, React Router 7, Vite 7, Tailwind CSS 3.4, Three.js 0.180, GSAP, Zustand, GLSL (via `vite-plugin-glsl`) — no TypeScript, pure JSX.
 
-**Backend:** Go 1.25, Chi v5, PostgreSQL 16, `lib/pq`, `golang-jwt`.
+**Backend:** Hono 4, Cloudflare Workers, D1 (SQLite), zod, `bcryptjs`, Vitest + `@cloudflare/vitest-plugin`, TypeScript.
 
-**Infra:** Vercel, Google Cloud Run, Google Secret Manager, Supabase.
+**Infra:** Cloudflare Workers (frontend + API), Cloudflare D1.
 
 ---
 
@@ -191,10 +194,21 @@ npm run lint
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Three.js + React frontend architecture |
 | [docs/world/audio.md](docs/world/audio.md) | Driving scene visuals from music — level, band triggers, analysis EQ, spectrum tuning panel |
-| [docs/backend-architecture.md](docs/backend-architecture.md) | Go backend reference |
-| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel + Cloud Run + Supabase deployment runbook |
-| [docs/admin-plan.md](docs/admin-plan.md) | Admin dashboard plan (react-admin + Go endpoints) |
+| [worker/PLAN.md](worker/PLAN.md) | Worker backend build order |
+| [worker/__tests__/README.md](worker/__tests__/README.md) | How the Worker tests run |
+| [docs/backend-architecture.md](docs/backend-architecture.md) | Historical Go backend reference |
+| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough (Go-era) |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Workers deployment (frontend + API) and old-stack teardown |
+| [docs/admin-plan.md](docs/admin-plan.md) | Admin dashboard plan (react-admin + API endpoints) |
 
+---
 
-superficial edit - need to add better gcloud config instructions to understand deployment flow
+## Learnings
+
+- **Match the platform to the size of the app.** Cloud Run + Supabase meant a Dockerfile, Secret Manager, Cloud Build and a separate database vendor for a handful of tables. A Worker with D1 is one config file and one deploy command.
+- **SQLite has fewer types, so the app owns more.** IDs are UUID text generated by `crypto.randomUUID`, booleans are `0/1` integers, timestamps are ISO-8601 text. `updated_at` is set explicitly in each UPDATE instead of by a trigger, because `RETURNING` does not see values an AFTER trigger writes.
+- **Test against the real runtime.** Running Vitest inside workerd with an in-memory D1 and the real migrations catches schema and binding mistakes that mocks would hide, and needs no Docker.
+- **Generic types on SQL don't check the SQL.** `sql<{ username: string }[]>` compiled while the query selected a different column set, and a lookup filtering on `name` while signup wrote `username` returned no rows. Assert on results in tests, don't just log them.
+- **Cross-origin cookies need `SameSite=None; Secure`, and CORS needs an exact origin.** With `credentials: true` a wildcard origin is rejected.
+- **Third-party cookie rules are the next risk.** Safari and some Chrome configurations block cookies when the API is on a different site (`*.workers.dev`) than the frontend. Serving the API from a subdomain of the frontend's domain makes it same-site.
+- **A dangling `import` is a syntax error.** One half-typed line in `index.ts` produced a build warning that looked unrelated to the failing test.

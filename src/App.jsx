@@ -32,7 +32,7 @@ function App() {
         if (res && (res.name || res.username)) {
           setUsername(res.name || res.username);
           setUserId(res.id);
-          setIsAdmin(res.is_admin);
+          setIsAdmin(res.isAdmin);
         } else {
           logout();
         }

@@ -44,7 +44,7 @@ export default function Login() {
       const username = data.name || data.username;
       setUserName(username || "");
       setUserId(data.id);
-      setIsAdmin(data.is_admin);
+      setIsAdmin(data.isAdmin);
       setShowSuccess(true);
       setPending(false);
       setTimeout(() => {
@@ -67,7 +67,7 @@ export default function Login() {
 
       setUserName(username || "");
       setUserId(data.id);
-      setIsAdmin(data.is_admin);
+      setIsAdmin(data.isAdmin);
       setShowSuccess(true);
       setPending(false);
       setTimeout(() => {

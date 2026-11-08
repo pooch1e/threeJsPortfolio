@@ -46,14 +46,14 @@ export default function AdminUserTable({ users, loading, onDelete }) {
                 {user.email}
               </td>
               <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)]">
-                {user.is_admin ? (
+                {user.isAdmin ? (
                   <span className="text-[var(--admin-success)]">Yes</span>
                 ) : (
                   <span className="text-[var(--admin-text-tertiary)]">No</span>
                 )}
               </td>
               <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] text-[var(--admin-text-secondary)]">
-                {user.created_at ? new Date(user.created_at).toLocaleDateString() : ""}
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ""}
               </td>
               <td className="py-[var(--admin-space-2)] px-[var(--admin-space-4)] text-right">
                 <button
