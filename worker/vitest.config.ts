@@ -20,6 +20,7 @@ export default defineConfig({
 			miniflare: {
 				bindings: {
 					JWT_SECRET: "test-jwt-secret-at-least-32-characters",
+					FRONTEND_URL: "http://localhost:5173",
 					TEST_MIGRATIONS: migrations,
 				},
 			},

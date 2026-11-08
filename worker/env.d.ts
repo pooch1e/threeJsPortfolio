@@ -7,6 +7,7 @@ declare namespace Cloudflare {
     DB: D1Database;
     JWT_SECRET: string;
     APP_ENV?: string;
+    FRONTEND_URL: string;
     TEST_MIGRATIONS: import("cloudflare:test").D1Migration[];
   }
 }

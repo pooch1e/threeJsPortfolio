@@ -14,8 +14,15 @@ import {cors} from 'hono/cors'
 
 const app = new Hono<Env>();
 
-// enable cors in local dev, will need actual url when deployed
-app.use("*", cors({ origin: "http://localhost:5173", credentials: true }));
+// The frontend (arczpng.com) and API (api.arczpng.com) are different origins, so the browser
+// needs CORS. The origin must be exact rather than "*" because credentials are allowed.
+app.use(
+  "*",
+  cors({
+    origin: (origin, c) => (origin === c.env.FRONTEND_URL ? origin : null),
+    credentials: true,
+  }),
+);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) return err.getResponse();

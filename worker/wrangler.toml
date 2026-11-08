@@ -6,7 +6,11 @@ compatibility_flags=["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "threejs-portfolio"
-# Replace with the id printed by `npx wrangler d1 create threejs-portfolio` before deploying;
-# local dev and tests never read it.
-database_id = "placeholder"
+database_id = "884c9b20-a418-4cf2-9099-994ada6056e8"
 migrations_dir = "migrations"
+
+[vars]
+APP_ENV = "production"
+FRONTEND_URL = "https://arczpng.com"
+
+routes = [{ pattern = "api.arczpng.com", custom_domain = true }]
