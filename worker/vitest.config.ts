@@ -19,7 +19,9 @@ export default defineConfig({
 			wrangler: { configPath: "./wrangler.toml" },
 			miniflare: {
 				bindings: {
+					// pinned here because wrangler.toml [vars] holds production values and CI has no .dev.vars
 					JWT_SECRET: "test-jwt-secret-at-least-32-characters",
+					APP_ENV: "development",
 					FRONTEND_URL: "http://localhost:5173",
 					TEST_MIGRATIONS: migrations,
 				},
