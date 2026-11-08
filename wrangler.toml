@@ -5,13 +5,14 @@
 name = "threejs-portfolio-web"
 compatibility_date = "2026-10-30"
 
-[assets]
-directory = "./dist"
-# React Router owns paths like /admin/users/:id, so unknown paths must load index.html
-not_found_handling = "single-page-application"
-
+# Top-level keys must come before the first [table] header, or TOML puts them inside that table
 # www is attached so it has a proxied DNS record for the www → apex Redirect Rule to act on
 routes = [
   { pattern = "arczpng.com", custom_domain = true },
   { pattern = "www.arczpng.com", custom_domain = true },
 ]
+
+[assets]
+directory = "./dist"
+# React Router owns paths like /admin/users/:id, so unknown paths must load index.html
+not_found_handling = "single-page-application"

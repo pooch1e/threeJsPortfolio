@@ -3,6 +3,9 @@ main = "index.ts"
 compatibility_date = "2026-10-30"
 compatibility_flags=["nodejs_compat"]
 
+# Top-level keys must come before the first [table] header, or TOML puts them inside that table
+routes = [{ pattern = "api.arczpng.com", custom_domain = true }]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "threejs-portfolio"
@@ -12,5 +15,3 @@ migrations_dir = "migrations"
 [vars]
 APP_ENV = "production"
 FRONTEND_URL = "https://arczpng.com"
-
-routes = [{ pattern = "api.arczpng.com", custom_domain = true }]
