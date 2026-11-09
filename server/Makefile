@@ -1,19 +1,23 @@
+# DEPRECATED: Go server dev tasks (historical). Postgres credentials come from ../.env.local, never hardcoded.
 .PHONY: db-create db-tables db-users dev docker-up docker-down
 
+COMPOSE = docker compose --env-file ../.env.local
+PSQL = $(COMPOSE) exec -T db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" $(1)'
+
 docker-up:
-	docker compose up -d --wait
+	$(COMPOSE) up -d --wait
 
 docker-down:
-	docker compose down
+	$(COMPOSE) down
 
 db-create:
-	docker compose exec -T db psql -U threejs_user -d threejs_database -f /docker-entrypoint-initdb.d/seed.sql
+	$(call PSQL,-f /docker-entrypoint-initdb.d/seed.sql)
 
 db-tables:
-	docker compose exec -T db psql -U threejs_user -d threejs_database -c "\dt"
+	$(call PSQL,-c "\dt")
 
 db-users:
-	docker compose exec -T db psql -U threejs_user -d threejs_database -c "SELECT id, name, email, is_admin, created_at FROM users ORDER BY created_at;"
+	$(call PSQL,-c "SELECT id, name, email, is_admin, created_at FROM users ORDER BY created_at;")
 
 dev:
 	APP_ENV=development go run ./cmd/

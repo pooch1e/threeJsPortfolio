@@ -112,13 +112,14 @@ ribbons. Full guide: [docs/world/audio.md](docs/world/audio.md).
 - Consistent JSON error envelope (`{"error": "..."}`) produced by one `app.onError`, using an `AppError` class with an HTTP status
 - Schema lives in `worker/migrations/` and is applied identically to local dev, tests and production
 
-### History: Go + Cloud Run + Supabase
+### History: Go + Cloud Run + Supabase (deprecated)
 
-The API started as a Go (Chi, `database/sql`) service on Google Cloud Run
-with Postgres on Supabase. It was rewritten as a Worker to cut the number of
-moving parts from three services to two, remove cold starts, and keep the
-whole stack in one language. The Go code in `server/` is kept only until the
-cutover is verified, then deleted.
+The API started as a Go (Chi, `database/sql`) service on Google Cloud Run with
+Postgres on Supabase, built to learn Go and practise a real deployment. It was
+replaced by a Worker so DNS, frontend, API and database live under one vendor
+and one dashboard, with less deploy machinery and no cold starts. The Go code in
+`server/` is kept as a historical learning reference and is no longer deployed.
+Full reasoning: [docs/adr/0002-move-to-cloudflare.md](docs/adr/0002-move-to-cloudflare.md).
 
 ---
 
@@ -137,7 +138,7 @@ registrable domain, so the session cookie stays first-party.
 
 The API build runs the Worker test suite and stops the deploy if it fails.
 
-Full runbook, including teardown of the old GCP and Supabase resources:
+Full runbook:
 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ---
@@ -196,9 +197,10 @@ npm run lint
 | [docs/world/audio.md](docs/world/audio.md) | Driving scene visuals from music — level, band triggers, analysis EQ, spectrum tuning panel |
 | [worker/PLAN.md](worker/PLAN.md) | Worker backend build order |
 | [worker/__tests__/README.md](worker/__tests__/README.md) | How the Worker tests run |
-| [docs/backend-architecture.md](docs/backend-architecture.md) | Historical Go backend reference |
-| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough (Go-era) |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Workers deployment (frontend + API) and old-stack teardown |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Workers deployment (frontend + API) |
+| [docs/adr/0002-move-to-cloudflare.md](docs/adr/0002-move-to-cloudflare.md) | Why the Go/Cloud Run backend was replaced |
+| [docs/backend-architecture.md](docs/backend-architecture.md) | Go backend reference (deprecated, historical) |
+| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough (Go, deprecated, historical) |
 | [docs/admin-plan.md](docs/admin-plan.md) | Admin dashboard plan (react-admin + API endpoints) |
 
 ---

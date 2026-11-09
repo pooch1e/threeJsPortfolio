@@ -1,3 +1,4 @@
+# DEPRECATED: Go server dev database (historical). Credentials come from ../.env.local via `docker compose --env-file`; nothing is hardcoded.
 # Compose derives its project name from the directory name, which is "server" here —
 # a name shared with other projects, causing them to collide on the same volume.
 name: threejs-portfolio
@@ -7,16 +8,16 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: threejs_user
-      POSTGRES_PASSWORD: threejs_password
-      POSTGRES_DB: threejs_database
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env.local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.local}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env.local}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/seed/seed.sql:/docker-entrypoint-initdb.d/seed.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U threejs_user -d threejs_database"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 1s
       timeout: 3s
       retries: 30

@@ -137,13 +137,10 @@ type application struct {
 }
 
 type config struct {
-	adr                string
-	db                 dbConfig
-	githubClientID     string
-	gitHubClientSecret string
-	frontendURL        string
-	sessionSecret      string
-	jwtSecret          string
+	adr         string
+	db          dbConfig
+	frontendURL string
+	jwtSecret   string
 }
 
 type dbConfig struct {

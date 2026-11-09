@@ -1,5 +1,7 @@
 # Backend — Go REST API
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](../../../docs/adr/0002-move-to-cloudflare.md).
+
 A stateless-JWT auth API serving the portfolio frontend, backed by PostgreSQL. Deployed separately from the frontend.
 
 ## Language

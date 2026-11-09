@@ -1,5 +1,7 @@
 # TODO: `GET /api/admin/users` — Steps 2 & 3
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](../../../docs/adr/0002-move-to-cloudflare.md).
+
 Step 1 (repo functions) is already done in `internal/repos/user.go`.
 
 ---

@@ -1,5 +1,7 @@
 # Backend Architecture
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](adr/0002-move-to-cloudflare.md).
+
 A Go REST API serving the ThreeJS Portfolio frontend. It handles user auth via HttpOnly JWT cookies, backed by PostgreSQL running in Docker.
 
 ---
@@ -331,7 +333,7 @@ Scenarios covered: health check, signup, duplicate email rejection, login, wrong
 | Variable | Example | Description |
 |----------|---------|-------------|
 | `PORT` | `8080` | Server listen port |
-| `DATABASE_URL` | `postgres://threejs_user:threejs_password@localhost:5433/threejs_database?sslmode=disable` | PostgreSQL DSN |
+| `DATABASE_URL` | `postgres://<user>:<password>@localhost:5433/<db>?sslmode=disable` | PostgreSQL DSN |
 | `JWT_SECRET` | _(long random string)_ | HMAC signing secret |
 | `FRONTEND_URL` | `http://localhost:5173` | Exact CORS allowed origin |
 | `APP_ENV` | `production` | Set to enable `SameSite=None; Secure` cookies |

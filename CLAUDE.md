@@ -1,23 +1,21 @@
 # Claude Code — threeJsPortfolio
 
-Creative portfolio: React + Three.js frontend with a Go REST API backend.
+Creative portfolio: React + Three.js frontend with a Hono REST API on Cloudflare Workers (D1). The earlier Go backend in `server/` is deprecated and kept for reference.
 
 ---
 
 ## Running locally
 
 ```bash
-npm run dev              # frontend only (port 5173)
-cd server && make docker-up && make dev  # backend only (port 8080)
-npm run full-stack       # everything together
-npm run full-stack-down  # stop everything
-npm run lint             # ESLint
+npm run dev                                   # frontend only (port 5173)
+cd worker && npm install
+npm run db:migrate && npm run db:seed         # local D1
+npm run dev                                   # API (port 8787)
+npm run lint                                  # ESLint
+cd worker && npm test                         # Worker tests (workerd, in-memory D1)
 ```
 
-Integration tests (requires Docker):
-```bash
-cd server && go test -tags integration ./cmd/
-```
+The `server` / `full-stack` scripts in the root `package.json` still target the deprecated Go server.
 
 ---
 
@@ -26,7 +24,8 @@ cd server && go test -tags integration ./cmd/
 ```
 src/          React app (pages, hooks, components, store, utils)
 world/        Three.js world implementations (one folder per scene)
-server/       Go REST API
+worker/       Hono API on Cloudflare Workers + D1
+server/       DEPRECATED Go REST API (historical, learning project)
 docs/         Architecture and deployment docs
 static/       GLTF models, HDR textures, videos
 ```
@@ -64,37 +63,32 @@ Full details: [docs/architecture.md](docs/architecture.md)
 
 ---
 
-## Backend (Go)
+## Backend (Cloudflare Worker)
 
-- Go 1.25.1, Chi v5, PostgreSQL 16 (Docker, port 5433)
-- Stateless JWT (HS256, 1hr) in HttpOnly cookie named `session`
-- No ORM — raw `database/sql`
-
-**Entry:** `server/cmd/main.go` + `server/cmd/api.go`
-
-**Conventions:**
-- Handlers use closure/DI pattern — outer fn captures deps, returns `http.HandlerFunc`
-- All handlers depend on `UserRepository` interface, not `*sql.DB`
-- Errors always JSON: `{"error": "..."}` via `json.WriteError`
-- `ErrNotFound` sentinel — callers use `errors.Is(err, repos.ErrNotFound)`
-- Context key for userID is a typed `contextKey` string
+- Hono 4, TypeScript, Cloudflare D1 (SQLite) bound as `DB`, zod validation
+- Stateless JWT (HS256, 1hr) in HttpOnly cookie named `session`; `bcryptjs` hashing
+- Feature folders under `worker/features/` (`*.routes.ts`, `*.queries.ts`, `*.schemas.ts`); queries take `db` as an argument
+- Errors always JSON `{"error": "..."}` via one `app.onError`
 - Production cookies: `SameSite=None + Secure=true` when `APP_ENV=production`
-- CORS: exact `FRONTEND_URL` origin only (no wildcards — required for `AllowCredentials: true`)
+- CORS: exact `FRONTEND_URL` origin only (no wildcards — required for credentials)
 
-Full details: [docs/backend-architecture.md](docs/backend-architecture.md)
+Plan and layout: [worker/PLAN.md](worker/PLAN.md). Deployment: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+**Deprecated Go server (`server/`):** Go + Chi + Postgres on Cloud Run, built to learn Go and replaced by the Worker. Don't extend it. Why: [docs/adr/0002-move-to-cloudflare.md](docs/adr/0002-move-to-cloudflare.md).
 
 ---
 
 ## Environment
 
-`.env.local` at the repo root (not committed). Required variables:
+Secrets are never committed. Worker local config goes in `worker/.dev.vars` (gitignored):
 
 ```
-PORT=8080
-DATABASE_URL=postgres://threejs_user:threejs_password@localhost:5433/threejs_database?sslmode=disable
-JWT_SECRET=<long random string>
+JWT_SECRET=<any string, local only>
+APP_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
+
+In production `JWT_SECRET` is a Cloudflare Worker Secret; `APP_ENV` and `FRONTEND_URL` come from `[vars]` in `worker/wrangler.toml`.
 
 ---
 
@@ -102,9 +96,10 @@ FRONTEND_URL=http://localhost:5173
 
 | Doc | Contents |
 |-----|----------|
-| [docs/architecture.md](docs/architecture.md) | Three.js + p5.js frontend architecture |
-| [docs/backend-architecture.md](docs/backend-architecture.md) | Go backend reference |
-| [docs/phase2-backend.md](docs/phase2-backend.md) | Auth flow walkthrough (Go learning notes) |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Pages + Fly.io + Supabase |
-| [docs/admin-plan.md](docs/admin-plan.md) | Admin frontend plan (react-admin + Go endpoints) |
+| [docs/architecture.md](docs/architecture.md) | Three.js + React frontend architecture |
+| [worker/PLAN.md](worker/PLAN.md) | Worker backend plan and build order |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Workers + D1 deployment |
+| [docs/adr/0002-move-to-cloudflare.md](docs/adr/0002-move-to-cloudflare.md) | Why Go/Cloud Run was replaced by Cloudflare |
+| [docs/admin-frontend-epic.md](docs/admin-frontend-epic.md) | Admin frontend epic (API contract still valid) |
 | [world/computer/PLAN.md](world/computer/PLAN.md) | Computer scene implementation plan |
+| Historical (Go, deprecated) | [docs/backend-architecture.md](docs/backend-architecture.md), [docs/phase2-backend.md](docs/phase2-backend.md), [docs/admin-plan.md](docs/admin-plan.md), [docs/admin-endpoints-review.md](docs/admin-endpoints-review.md) |
