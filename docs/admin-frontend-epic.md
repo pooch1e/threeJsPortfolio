@@ -8,6 +8,8 @@ Branch: `feat/admin-dashboard-frontend`
 > plain `useState`/`fetch` wiring instead — no `react-admin` dependency was
 > added. Deliberate call, not drift. The backend contract tables below are
 > still accurate; the frontend implementation plan is not.
+>
+> The backend named here (`server/`, Go) is deprecated; the same routes are served by the Cloudflare Worker in `worker/` ([ADR 0002](adr/0002-move-to-cloudflare.md)).
 
 ## Context
 

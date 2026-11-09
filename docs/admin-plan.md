@@ -1,5 +1,7 @@
 # Plan: Admin frontend for Go backend
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](adr/0002-move-to-cloudflare.md).
+
 **Session ID:** ses_236d7c8aeffeh9DQdln2EIkEbq
 **Created:** 4/26/2026, 10:39:09 AM
 **Updated:** 4/26/2026, 10:42:06 AM
@@ -122,7 +124,7 @@ This is a **Three.js / React portfolio application** with a **Go REST API backen
 - **`sessions`** table: `id (UUID PK)`, `token (TEXT UNIQUE NOT NULL)`, `user_id (UUID FK → users.id CASCADE)`, `expires_at`, `created_at`
 
 ### Infrastructure
-- **`server/docker-compose.yml`** — Postgres 16 container (`threejs_database`, user `threejs_user`, password `threejs_password`, host port `5433`)
+- **`server/docker-compose.yml`** — Postgres 16 container (host port `5433`; credentials supplied via env)
 - **`server/Makefile`** — `make docker-up/down`, `make db-create`, `make dev` (`go run cmd/*.go`)
 
 ### Input Validation (`server/internal/utils/validateSignup.go`)

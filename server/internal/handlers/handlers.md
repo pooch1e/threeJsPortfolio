@@ -1,5 +1,7 @@
 # Handlers
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](../../../docs/adr/0002-move-to-cloudflare.md).
+
 HTTP request handlers for the ThreeJS Portfolio API. All handlers use the **closure / dependency injection** pattern — an outer function captures dependencies (repo, jwtSecret) and returns the actual `http.HandlerFunc`. This avoids global state and makes unit testing straightforward via mock repos.
 
 ## Files

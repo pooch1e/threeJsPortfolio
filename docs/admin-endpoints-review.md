@@ -1,5 +1,7 @@
 # Admin endpoints review
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](adr/0002-move-to-cloudflare.md).
+
 Audit of `server/internal/handlers/admin.go` on `feat/admin-endpoints`, done before wiring the admin frontend. Kept for the Go concepts it surfaced, not just as a changelog.
 
 ## Fixed

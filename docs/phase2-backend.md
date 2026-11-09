@@ -1,5 +1,7 @@
 # Phase 2 Backend: Auth Flow Explained
 
+> **Historical / deprecated.** This documents the Go + Cloud Run + Postgres backend, a learning project replaced by the Cloudflare Worker in `worker/`. It is no longer deployed or maintained. Why: [ADR 0002](adr/0002-move-to-cloudflare.md).
+
 A walkthrough of every change made in Phase 2, written for someone learning Go.
 
 ---
