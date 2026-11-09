@@ -5,6 +5,10 @@
  *
  *   setupScene()      configure the scene itself (background, fog)
  *   createResources() return a Resources instance; defaults to a bare emitter
+ *   createRenderer()  return a renderer wrapper; defaults to the WebGL Renderer.
+ *                     A wrapper exposing a `ready` promise (WebGPU) defers
+ *                     world creation and the tick/resize listeners until it
+ *                     resolves; without one, setup stays fully synchronous.
  *   cameraOptions()   options object forwarded to Camera (fov, controls, ...)
  *   setupCamera()     position/aim the camera once it exists
  *   audioOptions()    return an options object to opt into this.audio
@@ -25,6 +29,7 @@ import { AudioSource } from "./utils/AudioSource.js";
 export class BaseExperience {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
+    this.options = options;
     this.scene = new Scene();
     this.sizes = new Sizes();
     this.time = new Time();
@@ -51,14 +56,20 @@ export class BaseExperience {
       });
     }
 
-    this.renderer = new Renderer({
-      canvas: this.canvas,
-      sizes: this.sizes,
-      scene: this.scene,
-      camera: this.camera,
-    });
+    this.renderer = this.createRenderer();
 
     this.setupUtils();
+
+    if (this.renderer.ready) {
+      this.renderer.ready.then(() => this.start());
+    } else {
+      this.start();
+    }
+  }
+
+  start() {
+    if (this.destroyed) return;
+
     this.initWorld();
 
     this.sizes.on("resize", () => {
@@ -66,6 +77,15 @@ export class BaseExperience {
     });
     this.time.on("tick", () => {
       this.update();
+    });
+  }
+
+  createRenderer() {
+    return new Renderer({
+      canvas: this.canvas,
+      sizes: this.sizes,
+      scene: this.scene,
+      camera: this.camera,
     });
   }
 
@@ -112,6 +132,7 @@ export class BaseExperience {
   }
 
   destroy() {
+    this.destroyed = true;
     this.sizes.off("resize");
     this.time.off("tick");
     // A pending 'ready' would otherwise fire after teardown and rebuild the
