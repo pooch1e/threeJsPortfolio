@@ -13,11 +13,17 @@ import TransitionOverlay from "./components/TransitionOverlay";
 
 import Login from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
+import HiddenShaderTestPage from "./pages/HiddenShaderTestPage";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExperienceView = lazy(() => import("./pages/ExperienceView"));
-const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
-const AdminUserDetailPage = lazy(() => import("./pages/admin/AdminUserDetailPage"));
+const AdminDashboardPage = lazy(
+  () => import("./pages/admin/AdminDashboardPage"),
+);
+const AdminUserDetailPage = lazy(
+  () => import("./pages/admin/AdminUserDetailPage"),
+);
+
 
 function App() {
   const setUsername = userLoginStore((s) => s.setUsername);
@@ -84,6 +90,14 @@ function App() {
             }
           />
         </Route>
+        <Route
+          path="/tests"
+          element={
+            <Suspense fallback={<LoadingOverlay />}>
+              <HiddenShaderTestPage />
+            </Suspense>
+          }
+        ></Route>
         {/* No header/footer — redirect away if already logged in */}
         <Route element={<PublicOnlyRoute />}>
           <Route path="/signup" element={<SignUpPage />} />

@@ -1,46 +1,27 @@
 #!/bin/bash
+# Starts the Cloudflare Worker API (wrangler dev, port 8787) and the Vite frontend (port 5173).
+# Ctrl+C stops both.
 
-# Read PORT from .env.local so this script stays in sync with the server config.
-# Falls back to 8081 if the file or variable is missing.
-ENV_FILE="$(dirname "$0")/../.env.local"
-if [ -f "$ENV_FILE" ]; then
-    SERVER_PORT=$(grep -E '^PORT=' "$ENV_FILE" | cut -d= -f2 | tr -d '[:space:]')
-fi
-SERVER_PORT=${SERVER_PORT:-8081}
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+API_PORT=8787
 
-wait_for_server() {
-    echo "Waiting for backend to be ready on port ${SERVER_PORT}..."
-    MAX_RETRIES=30
-    COUNT=0
-    while ! curl -s "http://localhost:${SERVER_PORT}/health" > /dev/null; do
-        sleep 1
-        COUNT=$((COUNT+1))
-        if [ $COUNT -ge $MAX_RETRIES ]; then
-            echo "Backend failed to start in time."
-            exit 1
-        fi
-    done
-    echo "Backend is up!"
+cleanup() {
+    kill "$API_PID" 2>/dev/null
+    pkill -f "wrangler dev" 2>/dev/null
 }
+trap cleanup EXIT INT TERM
 
-# 1. Start Docker
-echo "Starting Docker containers..."
-cd server && make docker-up
-if [ $? -ne 0 ]; then echo "Failed to start Docker"; exit 1; fi
+echo "Starting Worker API..."
+(cd "$ROOT/worker" && npm run dev) &
+API_PID=$!
 
-# 2. Run Backend in background
-echo "Starting Go backend..."
-make dev &
-BACKEND_PID=$!
-cd ..
+echo "Waiting for API on port ${API_PORT}..."
+COUNT=0
+while ! curl -s "http://localhost:${API_PORT}/health" > /dev/null; do
+    sleep 1
+    COUNT=$((COUNT+1))
+    if [ $COUNT -ge 30 ]; then echo "API failed to start in time."; exit 1; fi
+done
+echo "API is up!"
 
-# 3. Wait for backend to be ready
-wait_for_server 
-
-# 4. Start Frontend
-echo "Starting Frontend..."
-npm run dev
-
-# Cleanup when frontend is stopped
-kill $BACKEND_PID
-cd server && make docker-down
+cd "$ROOT" && npm run dev
