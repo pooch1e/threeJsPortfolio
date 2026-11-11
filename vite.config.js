@@ -16,6 +16,9 @@ export default defineConfig({
       exclude: 'node_modules/**',
     }),
   ],
+  optimizeDeps: {
+    include: ['three/webgpu', 'three/tsl'],
+  },
   build: {
     rollupOptions: {
       output: {

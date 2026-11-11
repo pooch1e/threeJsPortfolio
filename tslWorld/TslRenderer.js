@@ -31,6 +31,13 @@ export class TslRenderer {
     this.renderer.setSize(this.sizes.width, this.sizes.height);
   }
 
+  dispose() {
+    // The WebGL fallback backend calls loseContext() on dispose. A StrictMode remount reuses the same attached canvas, so disposing here would kill the context the next renderer is drawing to.
+    this.ready.then(() => {
+      if (!this.canvas.isConnected) this.renderer.dispose();
+    }, () => {});
+  }
+
   update() {
     this.renderer.render(this.scene, this.camera.perspectiveCamera);
   }

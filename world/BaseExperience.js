@@ -154,7 +154,8 @@ export class BaseExperience {
     disposeScene(this.scene);
 
     if (this.camera?.controls) this.camera.controls.dispose();
-    if (this.renderer?.renderer) this.renderer.renderer.dispose();
+    if (this.renderer?.dispose) this.renderer.dispose();
+    else if (this.renderer?.renderer) this.renderer.renderer.dispose();
 
     if (this.debug?.active && this.debug?.ui) this.debug.ui.destroy();
   }
