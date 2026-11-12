@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { WorldTransform } from '../../world/utils/WorldTransform';
-import { vec4, normalLocal } from 'three/tsl';
+import { vec4, normalLocal, checker, vec3, uv, materialColor } from 'three/tsl';
 export class PatternWorld {
   constructor(experience) {
     this.experience = experience;
@@ -19,6 +19,7 @@ export class PatternWorld {
   setMesh() {
     this.geometry = new THREE.TorusKnotGeometry(0.5, 0.24, 128, 32);
     this.material = new MeshStandardNodeMaterial();
+    
     this.material.outputNode = vec4(normalLocal, 1)
     
 
@@ -52,6 +53,14 @@ export class PatternWorld {
     this.floor = this.resources.items.floorColorTexture;
     const geometry = new THREE.PlaneGeometry(10, 10, 10, 10);
     const material = new MeshStandardNodeMaterial({ map: this.floor });
+
+    // add checker pattern as demo
+    const pattern = vec3(checker(uv().mul(4)))
+    console.log(pattern)
+    material.outputNode = materialColor.mul(pattern);
+
+
+    
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = - Math.PI * 0.5;
     mesh.receiveShadow = true;
@@ -65,7 +74,7 @@ export class PatternWorld {
 
   destroy() {
     if (this.transformControls) {
-      this.transformControls.dispos()
+      this.transformControls.dispose()
     }
   }
 }
