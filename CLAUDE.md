@@ -15,7 +15,7 @@ npm run lint                                  # ESLint
 cd worker && npm test                         # Worker tests (workerd, in-memory D1)
 ```
 
-The `server` / `full-stack` scripts in the root `package.json` still target the deprecated Go server.
+From the root, `npm run full-stack` starts the Worker API and Vite together (`scripts/start-all.sh`); `npm run api` starts just the Worker.
 
 ---
 
