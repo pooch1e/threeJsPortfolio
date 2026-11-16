@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { WorldTransform } from '../../world/utils/WorldTransform';
 import { vec4, normalLocal, checker, vec3, uv, materialColor } from 'three/tsl';
+
 export class PatternWorld {
   constructor(experience) {
     this.experience = experience;
@@ -14,13 +15,14 @@ export class PatternWorld {
     this.setLight()
     this.setFloor()
     
+    
   }
 
   setMesh() {
     this.geometry = new THREE.TorusKnotGeometry(0.5, 0.24, 128, 32);
     this.material = new MeshStandardNodeMaterial();
     
-    this.material.outputNode = vec4(normalLocal, 1)
+    // this.material.outputNode = vec4(normalLocal, 1)
     
 
     
@@ -52,14 +54,16 @@ export class PatternWorld {
   setFloor() {
     this.floor = this.resources.items.floorColorTexture;
     const geometry = new THREE.PlaneGeometry(10, 10, 10, 10);
-    const material = new MeshStandardNodeMaterial({ map: this.floor });
+    const material = new MeshStandardNodeMaterial({ map: this.floor, transparent: true });
 
-    // add checker pattern as demo
-    const pattern = vec3(checker(uv().mul(4)))
-    console.log(pattern)
-    material.outputNode = materialColor.mul(pattern);
+    // add checker pattern as demo - overwrites all because outputting to output node
+    // const pattern = vec3(checker(uv().mul(4))).toInspector('checker')
+    // material.outputNode = materialColor.mul(pattern);
 
-
+    // add fade pattern as demo to outer edges
+ const fade = uv().sub(0.5).length().smoothstep(0.5, 0.2).toVar('fade').debug().toInspector('FloorFade')
+    material.opacityNode = fade;
+    
     
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = - Math.PI * 0.5;

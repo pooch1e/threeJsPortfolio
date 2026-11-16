@@ -134,6 +134,7 @@ export class BaseExperience {
   destroy() {
     this.destroyed = true;
     this.sizes.off("resize");
+    this.sizes.destroy();
     this.time.off("tick");
     // A pending 'ready' would otherwise fire after teardown and rebuild the
     // world, and its debug folders, into a disposed scene.

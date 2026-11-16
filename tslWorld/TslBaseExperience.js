@@ -15,6 +15,7 @@ export class TslBaseExperience extends BaseExperience {
       scene: this.scene,
       camera: this.camera,
       forceWebGL: this.options?.forceWebGL,
+      inspector: this.options?.inspector,
     });
   }
 }

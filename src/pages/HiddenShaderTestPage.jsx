@@ -1,9 +1,12 @@
 import { PatternExperience } from "../../tslWorld/patterns/PatternExperience";
-import { PatternWorld } from "../../tslWorld/patterns/PatternWorld"
+
 import { useWorld } from "../hooks/useWorld"
 
 export default function HiddenShaderTestPage() {
-  const { canvasRef } = useWorld(PatternExperience);
+  const options = {
+    inspector: true,
+  }
+  const { canvasRef } = useWorld(PatternExperience, options);
   
   
   return (
