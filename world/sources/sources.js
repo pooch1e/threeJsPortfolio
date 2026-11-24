@@ -46,6 +46,11 @@ export const sources = [
     ],
   },
   {
+    name: 'floorColorTexture',
+    type: 'texture',
+    path: '/static/textures/floorColour/floor-color.jpg'
+  },
+  {
     name: "earthTextures",
     type: "textureArray",
     path: [

@@ -134,6 +134,7 @@ export class BaseExperience {
   destroy() {
     this.destroyed = true;
     this.sizes.off("resize");
+    this.sizes.destroy();
     this.time.off("tick");
     // A pending 'ready' would otherwise fire after teardown and rebuild the
     // world, and its debug folders, into a disposed scene.
@@ -154,7 +155,8 @@ export class BaseExperience {
     disposeScene(this.scene);
 
     if (this.camera?.controls) this.camera.controls.dispose();
-    if (this.renderer?.renderer) this.renderer.renderer.dispose();
+    if (this.renderer?.dispose) this.renderer.dispose();
+    else if (this.renderer?.renderer) this.renderer.renderer.dispose();
 
     if (this.debug?.active && this.debug?.ui) this.debug.ui.destroy();
   }
