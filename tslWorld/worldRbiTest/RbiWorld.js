@@ -1,7 +1,7 @@
 import { WorldTransform } from "../../world/utils/WorldTransform";
 import * as THREE from 'three';
 import { MeshBasicNodeMaterial, MeshStandardNodeMaterial } from "three/webgpu";
-import { uv, float, smoothstep, color, Fn, vec3, time, step } from 'three/tsl';
+import { uv, float, smoothstep, color, Fn, vec3, time, step, vec4 } from 'three/tsl';
 
 
 export class RbiWorld {
@@ -83,7 +83,6 @@ export class RbiWorld {
 
     // Lines through the plane
     this.linesXGeometry = new THREE.PlaneGeometry(20, 0.1, 1);
-    this.linesMaterial.colorNode = color('red')
 
     
     this.lineMesh = new THREE.Mesh(this.linesXGeometry, this.linesMaterial)
@@ -107,7 +106,7 @@ export class RbiWorld {
 
     const bar = step(0.9, lines).toInspector('bars')
 
-    scanLineMaterial.opacityNode = vec3(bar)
+    scanLineMaterial.opacityNode = vec4(bar)
 
     scanLineMaterial.colorNode = color('red')
     
