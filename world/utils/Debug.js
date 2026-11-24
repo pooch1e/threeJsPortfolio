@@ -5,6 +5,6 @@ export class Debug {
 
     if (this.active) {
       this.ui = new GUI();
-    }
+    }  
   }
 }

@@ -9,6 +9,12 @@ export class RbiWorld {
     this.experience = experience;
     this.scene = experience.scene;
     this.resources = experience.resources;
+
+    // get renderer for inspector debug ui
+    this.inspector = this.experience.renderer.renderer.inspector;
+    this.earthParams = this.inspector.createParameters('Earth');
+
+    
     this.transformControls = new WorldTransform({ canvas: experience.canvas, camera: experience.camera.perspectiveCamera, orbitControls: experience.camera.controls, scene: this.scene })
 
     this.setLights()
@@ -22,7 +28,10 @@ export class RbiWorld {
   setEarth() {
     this.earthDayTexture = this.resources.items.earthTextures[0]
     this.earthGeometry = new THREE.SphereGeometry(18, 64, 64)
-    this.earthMaterial = new MeshBasicNodeMaterial({map: this.earthDayTexture});
+    this.earthMaterial = new MeshBasicNodeMaterial({ map: this.earthDayTexture });
+
+    // this.earthParams.add(this.earthMaterial, 'opacity', 0, 1, 0.01)
+    
     // earthMaterial.outputNode = earthDayTexture
     this.earthMesh = new THREE.Mesh(this.earthGeometry, this.earthMaterial)
 
