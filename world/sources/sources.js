@@ -50,6 +50,7 @@ export const sources = [
     type: 'texture',
     path: '/static/textures/floorColour/floor-color.jpg'
   },
+   {name: 'customUvChecker', type: 'texture', path: '/static/textures/debug/customUvChecker.png'},
   {
     name: "earthTextures",
     type: "textureArray",

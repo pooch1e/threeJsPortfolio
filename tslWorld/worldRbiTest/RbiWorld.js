@@ -1,7 +1,7 @@
 import { WorldTransform } from "../../world/utils/WorldTransform";
 import * as THREE from 'three';
 import { MeshBasicNodeMaterial, MeshStandardNodeMaterial } from "three/webgpu";
-import { uv, float, smoothstep, color, Fn, vec3, time, step, vec4 } from 'three/tsl';
+import { uv, float, smoothstep, color, Fn, vec3, time, step, vec4, texture } from 'three/tsl';
 
 
 export class RbiWorld {
@@ -27,8 +27,13 @@ export class RbiWorld {
 
   setEarth() {
     this.earthDayTexture = this.resources.items.earthTextures[0]
+    this.uvDebugTexture = this.resources.items.customUvChecker;
     this.earthGeometry = new THREE.SphereGeometry(18, 64, 64)
-    this.earthMaterial = new MeshBasicNodeMaterial({ map: this.earthDayTexture });
+    this.earthMaterial = new MeshBasicNodeMaterial({ transparent: true });
+
+    // sample earthTextures
+    this.earthMaterial.colorNode = texture(this.uvDebugTexture, uv()); // texture returns a vec4, colornode requires vec3
+    
 
     // this.earthParams.add(this.earthMaterial, 'opacity', 0, 1, 0.01)
     
